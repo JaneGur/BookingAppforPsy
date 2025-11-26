@@ -1,7 +1,7 @@
 'use client'
 
 import { Calendar, User, Check, Lock } from 'lucide-react'
-import { cn } from '../../../lib/utils/cn'
+import {cn} from "@/lib/utils/cn";
 
 interface StepIndicatorProps {
     currentStep: number

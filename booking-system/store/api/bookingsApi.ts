@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import {Booking} from "../../types/booking";
+import {Booking} from "@/types/booking";
+
 
 
 export const bookingsApi = createApi({
