@@ -131,97 +131,103 @@ export function InfoPanel() {
                 </CardContent>
             </Card>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-                {quickFacts.map(({ icon: Icon, label, value }) => (
-                    <Card key={label} className="glass-card">
-                        <CardContent className="flex flex-col gap-1 p-4">
-                            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-500">
-                                <Icon className="h-4 w-4 text-primary-500" />
-                                {label}
-                            </div>
-                            <p className="text-lg font-semibold text-gray-900">{value}</p>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+            {/*<div className="grid gap-4 sm:grid-cols-2">*/}
+            {/*    {quickFacts.map(({ icon: Icon, label, value }) => (*/}
+            {/*        <Card key={label} className="glass-card">*/}
+            {/*            <CardContent className="flex flex-col gap-1 p-4">*/}
+            {/*                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-gray-500">*/}
+            {/*                    <Icon className="h-4 w-4 text-primary-500" />*/}
+            {/*                    {label}*/}
+            {/*                </div>*/}
+            {/*                <p className="text-lg font-semibold text-gray-900">{value}</p>*/}
+            {/*            </CardContent>*/}
+            {/*        </Card>*/}
+            {/*    ))}*/}
+            {/*</div>*/}
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <Target className="w-5 h-5 text-primary-500" />
-                        На что опираемся
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid gap-3">
-                        {focusAreas.map((item) => (
+            <div className="grid gap-4 lg:grid-cols-2">
+                <Card className="info-grid-card h-full">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                            <Target className="w-5 h-5 text-primary-500" />
+                            На что опираемся
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid gap-3">
+                            {focusAreas.map((item) => (
+                                <p key={item} className="flex items-start gap-2 text-sm text-gray-700">
+                                    <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary-500" />
+                                    {item}
+                                </p>
+                            ))}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {toolkit.map(({ icon: Icon, label }) => (
+                                <span key={label} className="badge-pill text-sm text-primary-700 bg-primary-50">
+                                    <Icon className="h-4 w-4" />
+                                    {label}
+                                </span>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="info-grid-card h-full">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                            <Zap className="w-5 h-5 text-primary-500" />
+                            Результат каждой встречи
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid gap-3">
+                        {goals.map((item) => (
                             <p key={item} className="flex items-start gap-2 text-sm text-gray-700">
-                                <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary-500" />
+                                <Heart className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary-500" />
                                 {item}
                             </p>
                         ))}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {toolkit.map(({ icon: Icon, label }) => (
-                            <span key={label} className="badge-pill text-sm text-primary-700 bg-primary-50">
-                                <Icon className="h-4 w-4" />
-                                {label}
-                            </span>
+                    </CardContent>
+                </Card>
+
+                <Card className="info-grid-card h-full lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                            <Shield className="w-5 h-5 text-primary-500" />
+                            Как всё устроено
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid gap-4 md:grid-cols-2">
+                        {sessionFlow.map((item) => (
+                            <div key={item.title} className="timeline-card">
+                                <div className="text-sm font-semibold text-primary-600">{item.title}</div>
+                                <p className="text-sm text-gray-600">{item.description}</p>
+                            </div>
                         ))}
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <Zap className="w-5 h-5 text-primary-500" />
-                        Результат каждой встречи
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-3">
-                    {goals.map((item) => (
-                        <p key={item} className="flex items-start gap-2 text-sm text-gray-700">
-                            <Heart className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary-500" />
-                            {item}
-                        </p>
-                    ))}
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <Shield className="w-5 h-5 text-primary-500" />
-                        Как всё устроено
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                    {sessionFlow.map((item) => (
-                        <div key={item.title} className="timeline-card">
-                            <div className="text-sm font-semibold text-primary-600">{item.title}</div>
-                            <p className="text-sm text-gray-600">{item.description}</p>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                        <MessageSquare className="w-5 h-5 text-primary-500" />
-                        Связаться напрямую
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {contactChannels.map(({ icon: Icon, label, href }) => (
-                        <Link key={label} href={href} className="flex items-center gap-3 rounded-2xl border border-gray-100 p-3 hover:bg-primary-50">
-                            <Icon className="w-5 h-5 text-primary-500" />
-                            <span className="text-sm font-medium text-gray-700">{label}</span>
-                        </Link>
-                    ))}
-                </CardContent>
-            </Card>
+                {/*<Card className="info-grid-card h-full">*/}
+                {/*    /!*<CardHeader>*!/*/}
+                {/*    /!*    <CardTitle className="flex items-center gap-2 text-lg">*!/*/}
+                {/*    /!*        <MessageSquare className="w-5 h-5 text-primary-500" />*!/*/}
+                {/*    /!*        Связаться напрямую*!/*/}
+                {/*    /!*    </CardTitle>*!/*/}
+                {/*    /!*</CardHeader>*!/*/}
+                {/*    /!*<CardContent className="space-y-4">*!/*/}
+                {/*    /!*    {contactChannels.map(({ icon: Icon, label, href }) => (*!/*/}
+                {/*    /!*        <Link*!/*/}
+                {/*    /!*            key={label}*!/*/}
+                {/*    /!*            href={href}*!/*/}
+                {/*    /!*            className="flex items-center gap-3 rounded-2xl border border-white/40 bg-white/60 p-3 transition hover:translate-x-1 hover:bg-white"*!/*/}
+                {/*    /!*        >*!/*/}
+                {/*    /!*            <Icon className="w-5 h-5 text-primary-500" />*!/*/}
+                {/*    /!*            <span className="text-sm font-medium text-gray-700">{label}</span>*!/*/}
+                {/*    /!*        </Link>*!/*/}
+                {/*    /!*    ))}*!/*/}
+                {/*    /!*</CardContent>*!/*/}
+                {/*</Card>*/}
+            </div>
         </div>
     )
 }

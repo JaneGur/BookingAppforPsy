@@ -2,15 +2,14 @@
 
 import Link from 'next/link'
 import { Sparkles, Star, ShieldCheck } from 'lucide-react'
-
 import { StepUserData } from '@/components/booking/StepUserData'
 import { StepConfirmation } from '@/components/booking/StepConfirmation'
 import { StepAuth } from '@/components/booking/StepAuth'
-import { InfoPanel } from '@/components/shared/InfoPanel'
 import { useAppSelector } from '@/store/hooks'
 import { StepIndicator } from './booking/StepIndicator'
 import { StepDateTime } from './booking/StepDateTime'
 import { Button } from '@/components/ui/button'
+import {InfoPanel} from '@/components/shared/InfoPanel'
 
 export default function HomePage() {
     const step = useAppSelector((state) => state.booking.step)
@@ -85,7 +84,11 @@ export default function HomePage() {
                     </div>
                 </section>
 
-                <div className="grid lg:grid-cols-[1.1fr_0.55fr] gap-8" id="booking-flow">
+                <div className="space-y-6 lg:sticky lg:top-6">
+                    <InfoPanel />
+                </div>
+
+                <div className="flex flex-col gap-6" id="booking-flow">
                     <div className="space-y-6">
                         <div className="booking-card">
                             <p className="text-sm font-semibold text-primary-600 uppercase tracking-widest">
@@ -94,17 +97,13 @@ export default function HomePage() {
                             <StepIndicator currentStep={step} />
                         </div>
 
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                             {step === 1 && <StepDateTime />}
                             {step === 2 && <StepUserData />}
                             {step === 3 && <StepConfirmation />}
                             {step === 4 && <StepAuth />}
                         </div>
                     </div>
-
-                    <aside className="space-y-6 lg:sticky lg:top-6">
-                        <InfoPanel />
-                    </aside>
                 </div>
             </div>
         </div>

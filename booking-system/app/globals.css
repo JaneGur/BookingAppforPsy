@@ -114,6 +114,12 @@
         backdrop-filter: blur(6px);
     }
 
+    .info-grid-card {
+        border: 1px solid rgba(199, 229, 223, 0.5);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 247, 0.9));
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+    }
+
     .badge-pill {
         display: inline-flex;
         gap: 0.5rem;
@@ -134,8 +140,24 @@
     }
 
     .timeline-card {
-        border-left: 3px solid rgba(136, 200, 188, 0.5);
-        padding-left: 1rem;
+        position: relative;
+        border-radius: 1.25rem;
+        padding: 1rem 1.25rem 1rem 1.75rem;
+        border: 1px solid rgba(199, 229, 223, 0.5);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.04);
+    }
+
+    .timeline-card::before {
+        content: '';
+        position: absolute;
+        left: 0.9rem;
+        top: 1rem;
+        bottom: 1rem;
+        width: 4px;
+        border-radius: 9999px;
+        background: linear-gradient(180deg, #88c8bc, #6ba292);
+        opacity: 0.8;
     }
 
     /* Статус бейдж */
