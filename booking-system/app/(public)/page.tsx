@@ -1,5 +1,8 @@
 'use client'
 
+import Link from 'next/link'
+import { Sparkles, Star, ShieldCheck } from 'lucide-react'
+
 import { StepUserData } from '@/components/booking/StepUserData'
 import { StepConfirmation } from '@/components/booking/StepConfirmation'
 import { StepAuth } from '@/components/booking/StepAuth'
@@ -7,27 +10,91 @@ import { InfoPanel } from '@/components/shared/InfoPanel'
 import { useAppSelector } from '@/store/hooks'
 import { StepIndicator } from './booking/StepIndicator'
 import { StepDateTime } from './booking/StepDateTime'
+import { Button } from '@/components/ui/button'
 
 export default function HomePage() {
     const step = useAppSelector((state) => state.booking.step)
+    const heroHighlights = [
+        {
+            title: '12 лет практики',
+            description: 'Арт-терапевт, супервизор и преподаватель',
+        },
+        {
+            title: '60 минут',
+            description: 'Глубокая индивидуальная сессия в Zoom или офлайн',
+        },
+        {
+            title: '3 000 ₽',
+            description: 'Фиксированная стоимость без скрытых оплат',
+        },
+    ]
+    const promiseBadges = [
+        {
+            icon: ShieldCheck,
+            label: 'Конфиденциальность',
+        },
+        {
+            icon: Star,
+            label: 'Эмпатия без оценок',
+        },
+    ]
 
     return (
-        <div className="min-h-screen py-8 px-4">
-            <div className="max-w-7xl mx-auto">
-                {/* Заголовок */}
-                <div className="gradient-header mb-8">
-                    <h1 className="text-3xl font-bold flex items-center gap-2">
-                        🌿 Запись на онлайн-консультацию
-                    </h1>
-                </div>
+        <div className="booking-page-surface">
+            <div className="booking-page-gradient" aria-hidden />
+            <div className="max-w-7xl mx-auto space-y-10 relative z-10 px-4 sm:px-6 lg:px-0">
+                <section className="booking-hero">
+                    <div className="flex flex-col gap-6">
+                        <div className="flex flex-wrap items-center gap-3 text-sm uppercase tracking-[0.2em] text-white/70">
+                            <Sparkles className="h-4 w-4" />
+                            Арт-терапия · онлайн / офлайн
+                        </div>
+                        <div>
+                            <h1 className="text-4xl sm:text-5xl font-semibold text-white leading-tight">
+                                Запись на консультацию с арт-терапевтом
+                            </h1>
+                            <p className="mt-4 text-lg text-white/80 max-w-3xl">
+                                Мягко проводим через тревогу, выгорание и сложные переходы. Помогаю услышать себя,
+                                вернуть контроль и найти новые опоры.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-4">
+                            <Button size="lg" asChild>
+                                <Link href="#booking-flow">Начать запись</Link>
+                            </Button>
+                            <Button variant="secondary" size="lg" asChild>
+                                <Link href="mailto:email@example.com">Написать терапевту</Link>
+                            </Button>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-3 mt-4">
+                            {heroHighlights.map((item) => (
+                                <div key={item.title} className="hero-highlight">
+                                    <p className="text-2xl font-bold">{item.title}</p>
+                                    <p className="text-sm text-white/70">{item.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex flex-wrap gap-3 text-sm text-white/80">
+                            {promiseBadges.map(({ icon: Icon, label }) => (
+                                <span key={label} className="badge-pill text-white">
+                                    <Icon className="h-4 w-4" />
+                                    {label}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </section>
 
-                {/* Основной контент */}
-                <div className="grid lg:grid-cols-[2fr_1fr] gap-8">
-                    {/* Форма записи */}
-                    <div>
-                        <StepIndicator currentStep={step} />
+                <div className="grid lg:grid-cols-[1.1fr_0.55fr] gap-8" id="booking-flow">
+                    <div className="space-y-6">
+                        <div className="booking-card">
+                            <p className="text-sm font-semibold text-primary-600 uppercase tracking-widest">
+                                Процесс записи
+                            </p>
+                            <StepIndicator currentStep={step} />
+                        </div>
 
-                        <div className="mt-6">
+                        <div className="space-y-6">
                             {step === 1 && <StepDateTime />}
                             {step === 2 && <StepUserData />}
                             {step === 3 && <StepConfirmation />}
@@ -35,10 +102,9 @@ export default function HomePage() {
                         </div>
                     </div>
 
-                    {/* Информационная панель */}
-                    <div>
+                    <aside className="space-y-6 lg:sticky lg:top-6">
                         <InfoPanel />
-                    </div>
+                    </aside>
                 </div>
             </div>
         </div>
