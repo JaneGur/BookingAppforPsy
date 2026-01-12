@@ -1,8 +1,7 @@
 'use client'
 
 import { Lock } from 'lucide-react'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { prevStep, resetBooking } from '@/store/slices/bookingSlice'
+import { useBookingForm } from '@/lib/contexts/BookingContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,9 +11,8 @@ import { signIn } from 'next-auth/react'
 import { normalizePhone, validatePhone } from '@/lib/utils/phone'
 
 export function StepAuth() {
-    const dispatch = useAppDispatch()
+    const { formData, prevStep, resetForm } = useBookingForm()
     const router = useRouter()
-    const formData = useAppSelector((state) => state.booking.formData)
 
     const [activeTab, setActiveTab] = useState<'login' | 'register' | 'later'>('login')
     const [isLoading, setIsLoading] = useState(false)
@@ -47,7 +45,7 @@ export function StepAuth() {
             return
         }
 
-        dispatch(resetBooking())
+        resetForm()
         router.push(result.url ?? '/dashboard')
         router.refresh()
     }
@@ -113,13 +111,13 @@ export function StepAuth() {
             return
         }
 
-        dispatch(resetBooking())
+        resetForm()
         router.push(loginResult.url ?? '/dashboard')
         router.refresh()
     }
 
     const handleBack = () => {
-        dispatch(prevStep())
+        prevStep()
     }
 
     return (
@@ -297,7 +295,7 @@ export function StepAuth() {
                                 variant="secondary"
                                 className="flex-1"
                                 onClick={() => {
-                                    dispatch(resetBooking())
+                                    resetForm()
                                     router.push('/')
                                 }}
                             >

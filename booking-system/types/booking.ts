@@ -2,6 +2,7 @@ export type BookingStatus = 'pending_payment' | 'confirmed' | 'completed' | 'can
 
 export interface Booking {
     id: number
+    client_id?: string
     client_name: string
     client_phone: string
     client_email?: string

@@ -2,15 +2,13 @@
 
 import { useState } from 'react'
 import { User } from 'lucide-react'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { nextStep, prevStep, updateFormData } from '@/store/slices/bookingSlice'
+import { useBookingForm } from '@/lib/contexts/BookingContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 export function StepUserData() {
-    const dispatch = useAppDispatch()
-    const formData = useAppSelector((state) => state.booking.formData)
+    const { formData, nextStep, prevStep, updateFormData } = useBookingForm()
 
     const [name, setName] = useState(formData.name || '')
     const [phone, setPhone] = useState(formData.phone || '')
@@ -19,20 +17,18 @@ export function StepUserData() {
     const [notes, setNotes] = useState(formData.notes || '')
 
     const handleNext = () => {
-        dispatch(
-            updateFormData({
-                name,
-                phone,
-                email,
-                telegram,
-                notes,
-            })
-        )
-        dispatch(nextStep())
+        updateFormData({
+            name,
+            phone,
+            email,
+            telegram,
+            notes,
+        })
+        nextStep()
     }
 
     const handleBack = () => {
-        dispatch(prevStep())
+        prevStep()
     }
 
     const isFormValid = name.trim() && phone.trim()

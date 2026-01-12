@@ -10,14 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils/cn'
-import { useGetAvailableSlotsQuery } from '@/store/api/slotsApi'
-import { useGetProductsQuery } from '@/store/api/productsApi'
-import { useCreateBookingMutation } from '@/store/api/bookingsApi'
+import { useAvailableSlots } from '@/lib/hooks/useSlots'
+import { useProducts } from '@/lib/hooks/useProducts'
+import { useCreateBooking } from '@/lib/hooks/useBookings'
 
 export function ClientNewBookingForm() {
     const router = useRouter()
     const { data: session } = useSession()
-    const [createBooking, { isLoading: isCreating }] = useCreateBookingMutation()
+    const createBooking = useCreateBooking()
 
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
     const [selectedTime, setSelectedTime] = useState<string | undefined>(undefined)
@@ -27,12 +27,9 @@ export function ClientNewBookingForm() {
     const [blockedDays, setBlockedDays] = useState<Set<string>>(new Set())
     const [error, setError] = useState<string | null>(null)
 
-    const { data: products = [] } = useGetProductsQuery()
-    const dateForQuery = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''
-    const { data: availableSlots, isLoading: isSlotsLoading } = useGetAvailableSlotsQuery(
-        dateForQuery,
-        { skip: !selectedDate }
-    )
+    const { data: products = [] } = useProducts()
+    const dateForQuery = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : undefined
+    const { data: availableSlots, isLoading: isSlotsLoading } = useAvailableSlots(dateForQuery)
 
     const today = startOfDay(new Date())
     const maxDate = addDays(today, 30)
@@ -107,7 +104,7 @@ export function ClientNewBookingForm() {
             const profileRes = await fetch('/api/profile')
             const profile = profileRes.ok ? await profileRes.json() : null
 
-            const booking = await createBooking({
+            const booking = await createBooking.mutateAsync({
                 booking_date: format(selectedDate, 'yyyy-MM-dd'),
                 booking_time: selectedTime,
                 client_name: profile?.name || session.user.email || session.user.phone || '',
@@ -117,12 +114,12 @@ export function ClientNewBookingForm() {
                 notes: notes || undefined,
                 product_id: selectedProductId,
                 status: 'pending_payment',
-            }).unwrap()
+            })
 
             // Перенаправляем на страницу оплаты
             router.push(`/payment/${booking.id}`)
         } catch (err: any) {
-            setError(err?.data?.error || 'Не удалось создать запись')
+            setError(err?.message || 'Не удалось создать запись')
         }
     }
 
@@ -389,11 +386,11 @@ export function ClientNewBookingForm() {
             <div className="flex justify-end">
                 <Button
                     onClick={handleCreateBooking}
-                    disabled={!selectedDate || !selectedTime || !selectedProductId || isCreating}
+                    disabled={!selectedDate || !selectedTime || !selectedProductId || createBooking.isPending}
                     size="lg"
                     className="min-w-[200px]"
                 >
-                    {isCreating ? 'Создаём запись…' : '✅ Создать запись'}
+                    {createBooking.isPending ? 'Создаём запись…' : '✅ Создать запись'}
                 </Button>
             </div>
         </div>

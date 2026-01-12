@@ -6,14 +6,14 @@ import { useSession } from 'next-auth/react'
 import { StepUserData } from '@/components/booking/StepUserData'
 import { StepConfirmation } from '@/components/booking/StepConfirmation'
 import { StepAuth } from '@/components/booking/StepAuth'
-import { useAppSelector } from '@/store/hooks'
+import { useBookingForm } from '@/lib/contexts/BookingContext'
 import { StepIndicator } from './booking/StepIndicator'
 import { StepDateTime } from './booking/StepDateTime'
 import { Button } from '@/components/ui/button'
 import {InfoPanel} from '@/components/shared/InfoPanel'
 
 export default function HomePage() {
-    const step = useAppSelector((state) => state.booking.step)
+    const { step } = useBookingForm()
     const { data: session } = useSession()
     const isAuthenticated = !!session?.user
     

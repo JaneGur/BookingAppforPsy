@@ -12,11 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Booking } from '@/types/booking'
 import { format, formatDistanceToNowStrict, parseISO } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import {
-    useGetClientBookingsQuery,
-    useGetPendingBookingQuery,
-    useGetUpcomingBookingQuery,
-} from '@/store/api/bookingsApi'
+import { useClientBookings, usePendingBooking, useUpcomingBooking } from '@/lib/hooks/useBookings'
 import { BookingActions } from '@/components/client/BookingActions'
 import { ClientNewBookingForm } from '@/components/client/ClientNewBookingForm'
 
@@ -49,11 +45,9 @@ export function ClientDashboardTabs() {
 
     const phone = session?.user?.phone
 
-    const { data: bookings = [], isLoading: isBookingsLoading } = useGetClientBookingsQuery(phone ?? '', {
-        skip: !phone,
-    })
-    const { data: pendingBooking } = useGetPendingBookingQuery(phone ?? '', { skip: !phone })
-    const { data: upcomingBooking } = useGetUpcomingBookingQuery(phone ?? '', { skip: !phone })
+    const { data: bookings = [], isLoading: isBookingsLoading } = useClientBookings(phone)
+    const { data: pendingBooking } = usePendingBooking(phone)
+    const { data: upcomingBooking } = useUpcomingBooking(phone)
 
     const upcomingConfirmed = useMemo(() => {
         const list = bookings.filter((b) => b.status === 'confirmed')

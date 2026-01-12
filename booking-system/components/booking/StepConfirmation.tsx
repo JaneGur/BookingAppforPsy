@@ -3,34 +3,32 @@
 import { format, parse } from 'date-fns'
 import { Check, Package, Info } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { nextStep, prevStep, setBookingId, updateFormData } from '@/store/slices/bookingSlice'
+import { useBookingForm } from '@/lib/contexts/BookingContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useGetProductsQuery, useGetFeaturedProductQuery } from '@/store/api/productsApi'
-import { useCreateBookingMutation } from '@/store/api/bookingsApi'
+import { useProducts } from '@/lib/hooks/useProducts'
+import { useCreateBooking } from '@/lib/hooks/useBookings'
 import { cn } from '@/lib/utils/cn'
 
 export function StepConfirmation() {
-    const dispatch = useAppDispatch()
-    const formData = useAppSelector((state) => state.booking.formData)
-    const bookingId = useAppSelector((state) => state.booking.bookingId)
+    const { formData, nextStep, prevStep, updateFormData } = useBookingForm()
+    const [bookingId, setBookingId] = useState<number | null>(null)
 
-    const { data: products = [] } = useGetProductsQuery()
-    const { data: featuredProduct } = useGetFeaturedProductQuery()
-    const [createBooking, { isLoading: isCreating, error: createError }] = useCreateBookingMutation()
+    const { data: products = [] } = useProducts()
+    const createBooking = useCreateBooking()
 
     const [offerUrl, setOfferUrl] = useState<string | null>(null)
     const [policyUrl, setPolicyUrl] = useState<string | null>(null)
     const [notes, setNotes] = useState(formData.notes || '')
     const [agreedToTerms, setAgreedToTerms] = useState(false)
-
+    
+    // Автоматически выбираем первый продукт, если не выбран
     useEffect(() => {
-        if (!formData.productId && featuredProduct?.id) {
-            dispatch(updateFormData({ productId: featuredProduct.id }))
+        if (!formData.productId && products.length > 0) {
+            updateFormData({ productId: products[0].id })
         }
-    }, [dispatch, featuredProduct?.id, formData.productId])
+    }, [formData.productId, products, updateFormData])
 
     useEffect(() => {
         let isMounted = true
@@ -68,7 +66,7 @@ export function StepConfirmation() {
 
     const handleCreateOrder = async () => {
         if (bookingId) {
-            dispatch(nextStep())
+            nextStep()
             return
         }
 
@@ -76,24 +74,28 @@ export function StepConfirmation() {
             return
         }
 
-        const booking = await createBooking({
-            booking_date: formData.date,
-            booking_time: formData.time,
-            client_name: formData.name,
-            client_phone: formData.phone,
-            client_email: formData.email,
-            client_telegram: formData.telegram,
-            notes: formData.notes,
-            product_id: formData.productId,
-            status: 'pending_payment',
-        }).unwrap()
+        try {
+            const booking = await createBooking.mutateAsync({
+                booking_date: formData.date,
+                booking_time: formData.time,
+                client_name: formData.name,
+                client_phone: formData.phone,
+                client_email: formData.email,
+                client_telegram: formData.telegram,
+                notes: formData.notes,
+                product_id: formData.productId,
+                status: 'pending_payment',
+            })
 
-        dispatch(setBookingId(booking.id))
-        dispatch(nextStep())
+            setBookingId(booking.id)
+            nextStep()
+        } catch (error) {
+            console.error('Failed to create booking:', error)
+        }
     }
 
     const handleBack = () => {
-        dispatch(prevStep())
+        prevStep()
     }
 
     const formattedDate = formData.date
@@ -164,7 +166,7 @@ export function StepConfirmation() {
                                             key={product.id}
                                             type="button"
                                             onClick={() => {
-                                                dispatch(updateFormData({ productId: product.id }))
+                                                updateFormData({ productId: product.id })
                                             }}
                                             className={cn(
                                                 'relative p-4 rounded-xl border transition-all text-left shadow-sm',
@@ -227,7 +229,7 @@ export function StepConfirmation() {
                             onChange={(e) => {
                                 const value = e.target.value
                                 setNotes(value)
-                                dispatch(updateFormData({ notes: value }))
+                                updateFormData({ notes: value })
                             }}
                             placeholder="Опишите ваш запрос или вопросы, которые хотите обсудить..."
                             className="flex min-h-[100px] w-full rounded-xl border border-primary-200/30 bg-white/95 backdrop-blur-sm px-4 py-3 text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/15 focus-visible:border-primary-400/60 focus-visible:shadow-md resize-none shadow-sm"
@@ -283,10 +285,10 @@ export function StepConfirmation() {
                     </div>
                 </div>
 
-                {createError && (
+                {createBooking.isError && (
                     <div className="bg-red-50 border border-red-200 p-4 rounded-xl">
                         <p className="text-sm text-red-800">
-                            Ошибка создания заказа
+                            Ошибка создания заказа: {createBooking.error?.message || 'Неизвестная ошибка'}
                         </p>
                     </div>
                 )}
@@ -298,9 +300,9 @@ export function StepConfirmation() {
                     <Button
                         onClick={handleCreateOrder}
                         size="lg"
-                        disabled={!formData.productId || !agreedToTerms || isCreating}
+                        disabled={!formData.productId || !agreedToTerms || createBooking.isPending}
                     >
-                        {isCreating ? 'Создаём заказ…' : bookingId ? 'Далее ➡️' : '✅ Создать заказ'}
+                        {createBooking.isPending ? 'Создаём заказ…' : bookingId ? 'Далее ➡️' : '✅ Создать заказ'}
                     </Button>
                 </div>
             </CardContent>

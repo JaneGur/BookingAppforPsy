@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { Lock, Mail, Phone, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react'
 
@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-export default function Page() {
+function LoginForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -186,5 +186,17 @@ export default function Page() {
                 )}
             </div>
         </div>
+    )
+}
+
+export default function Page() {
+    return (
+        <Suspense fallback={
+            <div className="booking-page-surface min-h-screen px-4 py-12 flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     )
 }

@@ -4,17 +4,15 @@ import { useState, useEffect, useMemo } from 'react'
 import { addDays, format, parseISO, startOfDay, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react'
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useGetAvailableSlotsQuery } from "@/store/api/slotsApi";
-import { nextStep, updateFormData } from "@/store/slices/bookingSlice";
+import { useBookingForm } from "@/lib/contexts/BookingContext";
+import { useAvailableSlots } from "@/lib/hooks/useSlots";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
 
 export function StepDateTime() {
-    const dispatch = useAppDispatch()
-    const formData = useAppSelector((state) => state.booking.formData)
+    const { formData, nextStep, updateFormData } = useBookingForm()
 
     const [selectedDate, setSelectedDate] = useState<Date | null>(
         formData.date ? parseISO(formData.date) : null
@@ -65,12 +63,9 @@ export function StepDateTime() {
         loadBlockedDays()
     }, [monthStart, monthEnd])
 
-    const dateForQuery = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''
+    const dateForQuery = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : undefined
 
-    const { data: availableSlots, isLoading, error } = useGetAvailableSlotsQuery(
-        dateForQuery,
-        { skip: !selectedDate }
-    )
+    const { data: availableSlots, isLoading, error } = useAvailableSlots(dateForQuery)
 
     const slotsErrorMessage = useMemo(() => {
         if (!error) return null
@@ -99,13 +94,11 @@ export function StepDateTime() {
 
     const handleNext = () => {
         if (selectedDate && selectedTime) {
-            dispatch(
-                updateFormData({
-                    date: format(selectedDate, 'yyyy-MM-dd'),
-                    time: selectedTime,
-                })
-            )
-            dispatch(nextStep())
+            updateFormData({
+                date: format(selectedDate, 'yyyy-MM-dd'),
+                time: selectedTime,
+            })
+            nextStep()
         }
     }
 

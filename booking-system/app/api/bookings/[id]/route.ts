@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Booking } from '@/types/booking'
 import { supabase } from '@/lib/db'
 import { auth } from '@/auth'
+import type { Session } from 'next-auth'
 
 // Вспомогательная функция для отправки уведомлений (имитация)
 async function sendTelegramNotification(message: string) {
@@ -17,7 +18,10 @@ async function sendTelegramNotification(message: string) {
     }
 }
 
-async function getBookingOr404(id: number) {
+async function getBookingOr404(id: number): Promise<
+    | { error: string; status: 500 | 404 }
+    | { booking: Booking; status: 200 }
+> {
     const { data, error } = await supabase.from('bookings').select('*').eq('id', id).maybeSingle()
 
     if (error) {
@@ -31,8 +35,8 @@ async function getBookingOr404(id: number) {
     return { booking: data as Booking, status: 200 as const }
 }
 
-function canAccess(session: Awaited<ReturnType<typeof auth>>, booking: Booking) {
-    if (!session?.user?.id) return false
+function canAccess(session: Session | null, booking: Booking) {
+    if (!session || !session.user?.id) return false
     if (session.user.role === 'admin') return true
     return booking.client_id === session.user.id
 }
@@ -55,11 +59,13 @@ export async function GET(
         return NextResponse.json({ error: result.error }, { status: result.status })
     }
 
-    if (!canAccess(session, result.booking)) {
+    const { booking } = result
+
+    if (!canAccess(session, booking)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    return NextResponse.json(result.booking)
+    return NextResponse.json(booking)
 }
 
 // Обновить запись (для переноса)

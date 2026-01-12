@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils/cn'
-import { useGetAvailableSlotsQuery } from '@/store/api/slotsApi'
-import { useGetProductsQuery } from '@/store/api/productsApi'
+import { useAvailableSlots } from '@/lib/hooks/useSlots'
+import { useProducts } from '@/lib/hooks/useProducts'
 
 interface CreateBookingModalProps {
     onClose: () => void
@@ -31,12 +31,9 @@ export function CreateBookingModal({ onClose, onSuccess }: CreateBookingModalPro
     const [error, setError] = useState<string | null>(null)
     const [blockedDays, setBlockedDays] = useState<Set<string>>(new Set())
 
-    const { data: products = [] } = useGetProductsQuery()
-    const dateForQuery = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''
-    const { data: availableSlots, isLoading: isSlotsLoading } = useGetAvailableSlotsQuery(
-        dateForQuery,
-        { skip: !selectedDate }
-    )
+    const { data: products = [] } = useProducts()
+    const dateForQuery = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : undefined
+    const { data: availableSlots, isLoading: isSlotsLoading } = useAvailableSlots(dateForQuery)
 
     const today = startOfDay(new Date())
     const maxDate = addDays(today, 30)
