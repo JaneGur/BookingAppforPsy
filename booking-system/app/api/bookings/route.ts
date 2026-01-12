@@ -1,12 +1,18 @@
 // booking-system/app/api/bookings/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { normalizePhone } from '@/lib/utils/phone'
+import { supabase } from '@/lib/db'
+import { createHash } from 'crypto'
+import { auth } from '@/auth'
 
-// Временное хранилище (в реальном приложении - Supabase)
-const bookings: any[] = []
+async function sendTelegramNotification(message: string) {
+    // Implement actual Telegram notification logic here
+    console.log('Sending Telegram notification:', message)
+}
 
 export async function POST(request: NextRequest) {
     try {
+        const session = await auth()
         const body = await request.json()
 
         const {
@@ -14,49 +20,76 @@ export async function POST(request: NextRequest) {
             booking_time,
             client_name,
             client_phone,
-            client_email,
-            client_telegram,
-            notes,
-            product_id = 1,
-            status = 'pending_payment',
+            product_id,
+            ...otherFields
         } = body
 
-        // Валидация обязательных полей
-        if (!booking_date || !booking_time || !client_name || !client_phone) {
-            return NextResponse.json(
-                { error: 'Заполните все обязательные поля' },
-                { status: 400 }
-            )
+        if (!booking_date || !booking_time || !client_name || !client_phone || !product_id) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
         }
 
-        // Нормализация телефона
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+        if (!dateRegex.test(String(booking_date))) {
+            return NextResponse.json({ error: 'Invalid booking_date' }, { status: 400 })
+        }
+
+        const timeRegex = /^\d{2}:\d{2}$/
+        if (!timeRegex.test(String(booking_time))) {
+            return NextResponse.json({ error: 'Invalid booking_time' }, { status: 400 })
+        }
+
+        const normalizedName = String(client_name).trim()
+        if (!normalizedName) {
+            return NextResponse.json({ error: 'Invalid client_name' }, { status: 400 })
+        }
+
         const normalizedPhone = normalizePhone(client_phone)
+        const phone_hash = createHash('sha256').update(normalizedPhone).digest('hex')
 
-        // Создание новой записи
-        const newBooking = {
-            id: bookings.length + 1,
-            booking_date,
-            booking_time,
-            client_name,
-            client_phone: normalizedPhone,
-            client_email,
-            client_telegram,
-            notes,
-            product_id,
-            status,
-            amount: 3000, // Цена консультации
-            phone_hash: Buffer.from(normalizedPhone).toString('base64'),
-            created_at: new Date().toISOString(),
+        const { data: product, error: productError } = await supabase
+            .from('products')
+            .select('id, price_rub, is_active')
+            .eq('id', Number(product_id))
+            .maybeSingle()
+
+        if (productError) {
+            return NextResponse.json({ error: productError.message }, { status: 500 })
         }
 
-        bookings.push(newBooking)
+        if (!product || !product.is_active) {
+            return NextResponse.json({ error: 'Product not found' }, { status: 400 })
+        }
 
-        console.log('Создана новая запись:', newBooking)
+        const amount = Number(product.price_rub)
 
-        // В реальном приложении здесь:
-        // 1. Сохранение в Supabase
-        // 2. Отправка уведомления в Telegram
-        // 3. Отправка email/SMS клиенту
+        const { data, error } = await supabase
+            .from('bookings')
+            .insert([
+                {
+                    booking_date,
+                    booking_time,
+                    client_name: normalizedName,
+                    client_phone: normalizedPhone,
+                    phone_hash,
+                    product_id: Number(product_id),
+                    amount,
+                    client_id: session?.user?.role === 'client' ? session.user.id : undefined,
+                    ...otherFields,
+                },
+            ])
+            .select()
+
+        if (error) {
+            console.error('Supabase error:', error)
+            const status = error.code === '23505' ? 409 : 500
+            return NextResponse.json({ error: error.message }, { status })
+        }
+
+        const newBooking = data[0];
+
+        await sendTelegramNotification(
+            `Новая запись!\nДата: ${booking_date}\nВремя: ${booking_time}\nКлиент: ${client_name}`
+        )
 
         return NextResponse.json(newBooking, { status: 201 })
     } catch (error) {
@@ -70,19 +103,24 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
     try {
-        const searchParams = request.nextUrl.searchParams
+        const { searchParams } = new URL(request.url)
         const phone = searchParams.get('phone')
+
+        let query = supabase.from('bookings').select('*')
 
         if (phone) {
             const normalizedPhone = normalizePhone(phone)
-            const clientBookings = bookings.filter(
-                (b) => b.client_phone === normalizedPhone
-            )
-            return NextResponse.json(clientBookings)
+            query = query.eq('client_phone', normalizedPhone)
         }
 
-        // Вернуть все записи (только для админа)
-        return NextResponse.json(bookings)
+        const { data, error } = await query
+
+        if (error) {
+            console.error('Supabase error:', error)
+            return NextResponse.json({ error: error.message }, { status: 500 })
+        }
+
+        return NextResponse.json(data)
     } catch (error) {
         console.error('Ошибка при получении записей:', error)
         return NextResponse.json(

@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { Sparkles, Star, ShieldCheck } from 'lucide-react'
+import { Sparkles, Star, ShieldCheck, LayoutDashboard } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { StepUserData } from '@/components/booking/StepUserData'
 import { StepConfirmation } from '@/components/booking/StepConfirmation'
 import { StepAuth } from '@/components/booking/StepAuth'
@@ -13,6 +14,9 @@ import {InfoPanel} from '@/components/shared/InfoPanel'
 
 export default function HomePage() {
     const step = useAppSelector((state) => state.booking.step)
+    const { data: session } = useSession()
+    const isAuthenticated = !!session?.user
+    
     const heroHighlights = [
         {
             title: '12 лет практики',
@@ -52,9 +56,11 @@ export default function HomePage() {
                             <h1 className="text-4xl sm:text-5xl font-semibold text-white leading-tight">
                                 Запись на консультацию с арт-терапевтом
                             </h1>
-                            <p className="mt-4 text-lg text-white/80 max-w-3xl">
-                                Мягко проводим через тревогу, выгорание и сложные переходы. Помогаю услышать себя,
-                                вернуть контроль и найти новые опоры.
+                            <p className="mt-4 text-xl text-white/90 max-w-3xl font-medium">
+                                Справляемся с тревогой, выгоранием и кризисами. Твоя устойчивость – наша цель.
+                            </p>
+                            <p className="mt-3 text-lg text-white/80 max-w-3xl">
+                                Помогаю разобраться в клубке чувств и мыслей, вернуть ощущение контроля над своей жизнью и научить доступным способам самопомощи.
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-4">
@@ -91,7 +97,7 @@ export default function HomePage() {
                 <div className="flex flex-col gap-6" id="booking-flow">
                     <div className="space-y-6">
                         <div className="booking-card">
-                            <p className="text-sm font-semibold text-primary-600 uppercase tracking-widest">
+                            <p className="text-sm font-semibold text-primary-600 uppercase tracking-widest mb-4">
                                 Процесс записи
                             </p>
                             <StepIndicator currentStep={step} />

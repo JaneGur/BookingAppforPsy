@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactCompiler: true,
+  // Временно отключено для устранения ошибки Turbopack
+  // reactCompiler: true,
 };
 
 export default nextConfig;

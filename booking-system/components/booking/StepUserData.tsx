@@ -101,7 +101,7 @@ export function StepUserData() {
                         Дополнительная информация
                     </label>
                     <textarea
-                        className="flex h-24 w-full rounded-xl border-2 border-primary-200/50 bg-white/95 backdrop-blur-sm px-4 py-3 text-base transition-all placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary-400/20 focus-visible:border-primary-400 resize-none"
+                        className="flex h-24 w-full rounded-xl border border-primary-200/30 bg-white/95 backdrop-blur-sm px-4 py-3 text-base transition-all placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/15 focus-visible:border-primary-400/60 focus-visible:shadow-md resize-none shadow-sm"
                         placeholder="Сообщите дополнительную информацию, если необходимо"
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}

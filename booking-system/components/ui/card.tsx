@@ -7,7 +7,7 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
             ref={ref}
             className={cn(
                 // Стиль из Streamlit: белая карточка с тенью
-                "rounded-2xl bg-white/95 backdrop-blur-md border border-primary-200/25 shadow-card transition-all hover:shadow-card-hover",
+                "rounded-2xl bg-white/95 backdrop-blur-md border border-primary-200/20 shadow-sm transition-all hover:shadow-md hover:border-primary-200/30",
                 className
             )}
             {...props}

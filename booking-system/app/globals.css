@@ -1,6 +1,7 @@
 /* Импорт шрифта Inter */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+@config "../tailwind.config.ts";
 @import "tailwindcss";
 
 @layer base {
@@ -35,6 +36,17 @@
     button, a, input, select, textarea {
         transition: all 0.2s;
     }
+    
+    /* Убираем дефолтные стили браузера для кнопок */
+    button {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    button:active {
+        -webkit-tap-highlight-color: transparent;
+    }
 }
 
 @layer components {
@@ -53,14 +65,15 @@
         backdrop-filter: blur(12px);
         padding: 1.5rem;
         border-radius: 1rem;
-        border: 1px solid rgba(199, 229, 223, 0.25);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(136, 200, 188, 0.08);
+        border: 1px solid rgba(199, 229, 223, 0.15);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(136, 200, 188, 0.05);
         transition: all 0.2s;
     }
     
     .booking-card:hover {
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(136, 200, 188, 0.12);
-        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(136, 200, 188, 0.08);
+        transform: translateY(-1px);
+        border-color: rgba(199, 229, 223, 0.25);
         animation: fadeIn 0.3s ease-out;
     }
 
@@ -115,9 +128,9 @@
     }
 
     .info-grid-card {
-        border: 1px solid rgba(199, 229, 223, 0.5);
+        border: 1px solid rgba(199, 229, 223, 0.25);
         background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 247, 0.9));
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03), 0 1px 3px rgba(136, 200, 188, 0.06);
     }
 
     .badge-pill {
@@ -135,17 +148,17 @@
 
     .glass-card {
         background: rgba(255, 255, 255, 0.8);
-        border: 1px solid rgba(199, 229, 223, 0.4);
-        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+        border: 1px solid rgba(199, 229, 223, 0.2);
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03), 0 1px 3px rgba(136, 200, 188, 0.05);
     }
 
     .timeline-card {
         position: relative;
         border-radius: 1.25rem;
         padding: 1rem 1.25rem 1rem 1.75rem;
-        border: 1px solid rgba(199, 229, 223, 0.5);
+        border: 1px solid rgba(199, 229, 223, 0.25);
         background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.04);
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(136, 200, 188, 0.05);
     }
 
     .timeline-card::before {
@@ -177,8 +190,30 @@
         backdrop-filter: blur(12px);
         padding: 1.5rem;
         border-radius: 1rem;
-        border: 1px solid rgba(199, 229, 223, 0.3);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(136, 200, 188, 0.08);
+        border: 1px solid rgba(199, 229, 223, 0.2);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(136, 200, 188, 0.05);
+    }
+
+    /* Исправление белых кнопок при нажатии */
+    button:active {
+        outline: none !important;
+    }
+
+    /* Основные кнопки (с градиентом) */
+    button[data-button-variant="default"]:active {
+        background-image: linear-gradient(to right, #88c8bc, #6ba292) !important;
+        background-color: transparent !important;
+        color: white !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    /* Вторичные кнопки (белые) */
+    button[data-button-variant="secondary"]:active {
+        background-color: #f0f6f4 !important;
+        background-image: none !important;
+        color: #477f6e !important;
+        border-color: #88c8bc !important;
+        -webkit-tap-highlight-color: transparent !important;
     }
 }
 

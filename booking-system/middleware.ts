@@ -1,9 +1,51 @@
-import { type NextRequest } from 'next/server'
-import { updateSession } from './lib/supabase/middleware'
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/auth'
 
 export async function middleware(request: NextRequest) {
-    // Обновляем сессию Supabase
-    return await updateSession(request)
+    const session = await auth()
+    const { pathname } = request.nextUrl
+
+    // Публичные пути (гостевой доступ)
+    const isPublicPath =
+        pathname === '/' ||
+        pathname.startsWith('/booking') ||
+        pathname.startsWith('/login') ||
+        pathname.startsWith('/register')
+
+    // API всегда пропускаем (обрабатывается роутами)
+    if (pathname.startsWith('/api')) {
+        return NextResponse.next()
+    }
+
+    if (isPublicPath) {
+        return NextResponse.next()
+    }
+
+    // Админка: только для admin
+    if (pathname.startsWith('/admin')) {
+        if (!session) {
+            return NextResponse.redirect(new URL('/login', request.url))
+        }
+
+        if (session.user.role !== 'admin') {
+            return NextResponse.redirect(new URL('/', request.url))
+        }
+
+        return NextResponse.next()
+    }
+
+    // Личный кабинет клиента: только для авторизованных
+    if (pathname.startsWith('/dashboard')) {
+        // Временно отключено для тестирования
+        // if (!session) {
+        //     return NextResponse.redirect(new URL('/login', request.url))
+        // }
+
+        return NextResponse.next()
+    }
+
+    // Остальные пути пока считаем публичными
+    return NextResponse.next()
 }
 
 export const config = {

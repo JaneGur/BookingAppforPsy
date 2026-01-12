@@ -14,11 +14,13 @@ interface BookingFormData {
 interface BookingState {
     step: number
     formData: BookingFormData
+    bookingId?: number
 }
 
 const initialState: BookingState = {
     step: 1,
     formData: {},
+    bookingId: undefined,
 }
 
 export const bookingSlice = createSlice({
@@ -37,12 +39,16 @@ export const bookingSlice = createSlice({
         updateFormData: (state, action: PayloadAction<Partial<BookingFormData>>) => {
             state.formData = { ...state.formData, ...action.payload }
         },
+        setBookingId: (state, action: PayloadAction<number | undefined>) => {
+            state.bookingId = action.payload
+        },
         resetBooking: (state) => {
             state.step = 1
             state.formData = {}
+            state.bookingId = undefined
         },
     },
 })
 
-export const { setStep, nextStep, prevStep, updateFormData, resetBooking } = bookingSlice.actions
+export const { setStep, nextStep, prevStep, updateFormData, setBookingId, resetBooking } = bookingSlice.actions
 export default bookingSlice.reducer
