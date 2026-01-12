@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { format, parseISO, startOfDay, addDays, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import { Calendar, Clock, ChevronLeft, ChevronRight, Package, Info, Check } from 'lucide-react'
@@ -36,9 +36,9 @@ export function ClientNewBookingForm() {
 
     const today = startOfDay(new Date())
     const maxDate = addDays(today, 30)
-    const monthStart = startOfMonth(currentMonth)
-    const monthEnd = endOfMonth(currentMonth)
-    const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd })
+    const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth])
+    const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth])
+    const monthDays = useMemo(() => eachDayOfInterval({ start: monthStart, end: monthEnd }), [monthStart, monthEnd])
 
     // Загружаем заблокированные дни
     useEffect(() => {
@@ -65,7 +65,7 @@ export function ClientNewBookingForm() {
         }
 
         loadBlockedDays()
-    }, [currentMonth, monthStart, monthEnd])
+    }, [monthStart, monthEnd])
 
     const handlePreviousMonth = () => {
         const newMonth = new Date(currentMonth)

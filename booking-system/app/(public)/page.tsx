@@ -19,12 +19,12 @@ export default function HomePage() {
     
     const heroHighlights = [
         {
-            title: '12 лет практики',
-            description: 'Арт-терапевт, супервизор и преподаватель',
+            title: 'Эмпатия без оценок',
+            description: 'а так же полная конфиденциальность',
         },
         {
             title: '60 минут',
-            description: 'Глубокая индивидуальная сессия в Zoom или офлайн',
+            description: 'Глубокая индивидуальная сессия онлайн',
         },
         {
             title: '3 000 ₽',
@@ -36,70 +36,86 @@ export default function HomePage() {
             icon: ShieldCheck,
             label: 'Конфиденциальность',
         },
-        {
-            icon: Star,
-            label: 'Эмпатия без оценок',
-        },
     ]
 
     return (
         <div className="booking-page-surface">
             <div className="booking-page-gradient" aria-hidden />
-            <div className="max-w-7xl mx-auto space-y-10 relative z-10 px-4 sm:px-6 lg:px-0">
+            <div className="max-w-7xl mx-auto space-y-16 relative z-10 px-4 sm:px-6 lg:px-8">
                 <section className="booking-hero">
-                    <div className="flex flex-col gap-6">
-                        <div className="flex flex-wrap items-center gap-3 text-sm uppercase tracking-[0.2em] text-white/70">
-                            <Sparkles className="h-4 w-4" />
-                            Арт-терапия · онлайн / офлайн
+                    <div className="flex flex-col gap-8">
+                        <div className="flex flex-wrap items-center gap-3 text-sm uppercase tracking-[0.3em] text-white/80 font-medium animate-[fadeInUp_0.6s_ease-out]">
+                            <Sparkles className="h-5 w-5 animate-pulse" />
+                            Арт-терапия · онлайн
                         </div>
-                        <div>
-                            <h1 className="text-4xl sm:text-5xl font-semibold text-white leading-tight">
-                                Запись на консультацию с арт-терапевтом
+                        <div className="space-y-5">
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight animate-[fadeInUp_0.8s_ease-out]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                Запись на консультацию с&nbsp;арт-терапевтом
                             </h1>
-                            <p className="mt-4 text-xl text-white/90 max-w-3xl font-medium">
+                            <p className="mt-5 text-xl sm:text-2xl text-white/95 max-w-3xl font-semibold leading-snug animate-[fadeInUp_0.8s_ease-out_0.1s_backwards]">
                                 Справляемся с тревогой, выгоранием и кризисами. Твоя устойчивость – наша цель.
                             </p>
-                            <p className="mt-3 text-lg text-white/80 max-w-3xl">
-                                Помогаю разобраться в клубке чувств и мыслей, вернуть ощущение контроля над своей жизнью и научить доступным способам самопомощи.
-                            </p>
                         </div>
-                        <div className="flex flex-wrap gap-4">
-                            <Button size="lg" asChild>
-                                <Link href="#booking-flow">Начать запись</Link>
+                        <div className="flex flex-wrap gap-4 animate-[fadeInUp_0.8s_ease-out_0.3s_backwards]">
+                            <Button size="lg" asChild className="text-lg px-8 py-6 h-auto shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] transform hover:scale-105 transition-all duration-300">
+                                <Link href="#booking-flow">
+                                    <Sparkles className="h-5 w-5 mr-2" />
+                                    Начать запись
+                                </Link>
                             </Button>
-                            <Button variant="secondary" size="lg" asChild>
-                                <Link href="mailto:email@example.com">Написать терапевту</Link>
+                            <Button variant="secondary" size="lg" asChild className="text-lg px-8 py-6 h-auto shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                                <Link href="mailto:email@example.com">
+                                    <ShieldCheck className="h-5 w-5 mr-2" />
+                                    Написать терапевту
+                                </Link>
                             </Button>
                         </div>
-                        <div className="grid gap-4 sm:grid-cols-3 mt-4">
-                            {heroHighlights.map((item) => (
-                                <div key={item.title} className="hero-highlight">
-                                    <p className="text-2xl font-bold">{item.title}</p>
-                                    <p className="text-sm text-white/70">{item.description}</p>
+                        <div className="grid gap-5 sm:grid-cols-3 mt-6">
+                            {heroHighlights.map((item, idx) => (
+                                <div key={item.title} className="hero-highlight" style={{ animationDelay: `${0.4 + idx * 0.1}s` }}>
+                                    <p className="text-3xl font-extrabold text-white mb-1">{item.title}</p>
+                                    <p className="text-sm text-white/75 leading-relaxed">{item.description}</p>
                                 </div>
                             ))}
                         </div>
-                        <div className="flex flex-wrap gap-3 text-sm text-white/80">
-                            {promiseBadges.map(({ icon: Icon, label }) => (
-                                <span key={label} className="badge-pill text-white">
-                                    <Icon className="h-4 w-4" />
-                                    {label}
-                                </span>
-                            ))}
-                        </div>
+                        {/*<div className="flex flex-wrap gap-3 text-sm text-white">*/}
+                        {/*    {promiseBadges.map(({ icon: Icon, label }, idx) => (*/}
+                        {/*        <span key={label} className="badge-pill text-white" style={{ animationDelay: `${0.7 + idx * 0.1}s` }}>*/}
+                        {/*            <Icon className="h-4 w-4" />*/}
+                        {/*            {label}*/}
+                        {/*        </span>*/}
+                        {/*    ))}*/}
+                        {/*</div>*/}
                     </div>
                 </section>
 
-                <div className="space-y-6 lg:sticky lg:top-6">
+                <div className="space-y-6 lg:sticky lg:top-24 animate-[fadeInUp_0.8s_ease-out]">
                     <InfoPanel />
                 </div>
 
-                <div className="flex flex-col gap-6" id="booking-flow">
-                    <div className="space-y-6">
-                        <div className="booking-card">
-                            <p className="text-sm font-semibold text-primary-600 uppercase tracking-widest mb-4">
-                                Процесс записи
-                            </p>
+                <div className="flex flex-col gap-8" id="booking-flow">
+                    <div className="text-center space-y-4 animate-[fadeInUp_0.6s_ease-out]">
+                        <h2 className="text-4xl sm:text-5xl font-bold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
+                            Начните путь к себе
+                        </h2>
+                        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                            Всего несколько шагов отделяют вас от первой консультации
+                        </p>
+                    </div>
+
+                    <div className="space-y-8">
+                        <div className="booking-card animate-[scaleIn_0.6s_ease-out]">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg">
+                                    <LayoutDashboard className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-semibold text-primary-600 uppercase tracking-[0.2em]">
+                                        Процесс записи
+                                    </p>
+                                    <p className="text-sm text-gray-600">Шаг {step} из 4</p>
+                                </div>
+                            </div>
                             <StepIndicator currentStep={step} />
                         </div>
 

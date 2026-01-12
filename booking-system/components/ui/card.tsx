@@ -6,8 +6,8 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
         <div
             ref={ref}
             className={cn(
-                // Стиль из Streamlit: белая карточка с тенью
-                "rounded-2xl bg-white/95 backdrop-blur-md border border-primary-200/20 shadow-sm transition-all hover:shadow-md hover:border-primary-200/30",
+                // Современный стиль с улучшенными тенями и эффектами
+                "rounded-2xl bg-white/98 backdrop-blur-lg border border-primary-200/30 shadow-lg shadow-primary-100/20 transition-all duration-300 hover:shadow-xl hover:shadow-primary-100/30 hover:border-primary-300/40 hover:-translate-y-1",
                 className
             )}
             {...props}
@@ -32,7 +32,7 @@ const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HT
         <h3
             ref={ref}
             className={cn(
-                "text-xl font-semibold leading-none tracking-tight text-primary-900",
+                "text-xl font-bold leading-tight tracking-tight text-gray-900",
                 className
             )}
             {...props}

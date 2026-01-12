@@ -27,9 +27,9 @@ export function StepDateTime() {
     const maxDate = addDays(today, 30) // До 30 дней вперед
 
     // Генерируем все дни месяца, но показываем только доступные (сегодня + 30 дней)
-    const monthStart = startOfMonth(currentMonth)
-    const monthEnd = endOfMonth(currentMonth)
-    const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd })
+    const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth])
+    const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth])
+    const monthDays = useMemo(() => eachDayOfInterval({ start: monthStart, end: monthEnd }), [monthStart, monthEnd])
 
     // Фильтруем дни: только те, что в диапазоне сегодня + 30 дней
     const availableDates = monthDays.filter((date) => {
@@ -63,7 +63,7 @@ export function StepDateTime() {
         }
 
         loadBlockedDays()
-    }, [currentMonth, monthStart, monthEnd])
+    }, [monthStart, monthEnd])
 
     const dateForQuery = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''
 

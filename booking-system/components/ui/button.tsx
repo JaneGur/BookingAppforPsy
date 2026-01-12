@@ -5,34 +5,34 @@ import {cn} from "../../lib/utils/cn";
 
 
 const buttonVariants = cva(
-    // Базовые стили (как в Streamlit)
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 disabled:pointer-events-none",
+    // Базовые стили - современный дизайн с плавными переходами
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:pointer-events-none relative overflow-hidden",
     {
         variants: {
             variant: {
-                // Основная кнопка (как в Streamlit primary)
+                // Основная кнопка с градиентом и эффектами
                 default:
-                    "bg-gradient-to-r from-primary-400 to-primary-500 text-white shadow-button hover:shadow-button-hover hover:-translate-y-0.5 active:scale-98 active:bg-gradient-to-r active:from-primary-400 active:to-primary-500 active:text-white disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none disabled:cursor-not-allowed",
+                    "bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-1 hover:scale-[1.02] active:scale-95 active:shadow-md disabled:bg-gray-200 disabled:text-gray-500 disabled:shadow-none disabled:cursor-not-allowed before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity",
 
-                // Вторичная кнопка
+                // Вторичная кнопка - стильная белая
                 secondary:
-                    "bg-white text-primary-600 border border-primary-200/40 hover:bg-primary-50/80 hover:border-primary-300/50 active:bg-primary-50 active:text-primary-600 active:border-primary-300/50 shadow-sm hover:shadow-md",
+                    "bg-white text-primary-700 border-2 border-primary-200/60 hover:bg-gradient-to-br hover:from-primary-50 hover:to-white hover:border-primary-300 active:bg-primary-100 shadow-md hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.02] active:scale-95",
 
                 // Деструктивная
                 destructive:
-                    "bg-error-DEFAULT text-white hover:bg-error-dark",
+                    "bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 hover:-translate-y-1 active:scale-95",
 
                 // Призрачная
                 ghost:
-                    "hover:bg-primary-50 hover:text-primary-600",
+                    "hover:bg-primary-50 hover:text-primary-700 active:bg-primary-100",
 
                 // Только текст
                 link:
-                    "text-primary-500 underline-offset-4 hover:underline",
+                    "text-primary-600 underline-offset-4 hover:underline hover:text-primary-700",
             },
             size: {
                 default: "h-12 px-6 py-3 text-base",
-                sm: "h-10 px-4 py-2 text-sm",
+                sm: "h-10 px-4 py-2 text-sm rounded-xl",
                 lg: "h-14 px-8 py-4 text-lg",
                 icon: "h-10 w-10",
             },

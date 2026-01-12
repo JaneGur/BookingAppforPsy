@@ -40,9 +40,9 @@ export function CreateBookingModal({ onClose, onSuccess }: CreateBookingModalPro
 
     const today = startOfDay(new Date())
     const maxDate = addDays(today, 30)
-    const monthStart = startOfMonth(currentMonth)
-    const monthEnd = endOfMonth(currentMonth)
-    const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd })
+    const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth])
+    const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth])
+    const monthDays = useMemo(() => eachDayOfInterval({ start: monthStart, end: monthEnd }), [monthStart, monthEnd])
 
     // Загружаем заблокированные дни
     useEffect(() => {
@@ -66,7 +66,7 @@ export function CreateBookingModal({ onClose, onSuccess }: CreateBookingModalPro
         }
 
         loadBlockedDays()
-    }, [currentMonth, monthStart, monthEnd])
+    }, [monthStart, monthEnd])
 
     const handleCreate = async () => {
         if (!selectedDate || !selectedTime || !clientName || !clientPhone || !selectedProductId) {

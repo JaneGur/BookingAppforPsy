@@ -13,20 +13,21 @@ export function ClientNav() {
     const pathname = usePathname()
 
     return (
-        <nav className="bg-white/70 backdrop-blur-lg p-4 rounded-xl shadow-md border border-gray-200/50 mb-8">
-            <ul className="flex items-center justify-center gap-4 sm:gap-8">
+        <nav className="bg-white/95 backdrop-blur-xl p-2 rounded-2xl shadow-xl shadow-primary-100/30 border-2 border-primary-200/40 mb-8 animate-[fadeInUp_0.6s_ease-out]">
+            <ul className="flex items-center justify-center gap-2">
                 {navLinks.map(({ href, label, icon: Icon }) => {
                     const isActive = pathname.endsWith(href)
                     return (
-                        <li key={href}>
-                            <Link href={`/dashboard${href.replace('/dashboard', '')}`} // Простое решение для префикса
-                                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                                      isActive
-                                          ? 'bg-teal-50 text-teal-600 font-semibold'
-                                          : 'text-gray-600 hover:bg-gray-100'
-                                  }`}
+                        <li key={href} className="flex-1 sm:flex-none">
+                            <Link 
+                                href={`/dashboard${href.replace('/dashboard', '')}`}
+                                className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl transition-all duration-300 ${
+                                    isActive
+                                        ? 'bg-gradient-to-br from-primary-400 to-primary-600 text-white font-bold shadow-lg shadow-primary-500/30 scale-105'
+                                        : 'text-gray-600 hover:bg-gradient-to-br hover:from-primary-50 hover:to-white hover:text-primary-700 font-semibold hover:shadow-md'
+                                }`}
                             >
-                                <Icon size={18}/>
+                                <Icon className={`${isActive ? 'h-5 w-5' : 'h-4 w-4'}`} />
                                 <span className="hidden sm:inline">{label}</span>
                             </Link>
                         </li>

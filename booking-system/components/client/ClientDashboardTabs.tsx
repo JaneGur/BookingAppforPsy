@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Calendar, Home, LineChart, MessageSquare, User } from 'lucide-react'
+import { Calendar, Home, LineChart, MessageSquare, User, Mail, Phone, Lock } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -27,18 +27,18 @@ function formatDateRu(date: string) {
 }
 
 function StatusBadge({ status }: { status: Booking['status'] }) {
-    const base = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold'
+    const base = 'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-all duration-300 hover:scale-105'
 
-    const map: Record<Booking['status'], { label: string; className: string }> = {
-        pending_payment: { label: '🟡 Ожидает оплаты', className: 'bg-yellow-100 text-yellow-800' },
-        confirmed: { label: '✅ Подтверждена', className: 'bg-green-100 text-green-800' },
-        completed: { label: '✅ Завершена', className: 'bg-emerald-100 text-emerald-800' },
-        cancelled: { label: '❌ Отменена', className: 'bg-red-100 text-red-800' },
+    const map: Record<Booking['status'], { label: string; className: string; icon: string }> = {
+        pending_payment: { label: 'Ожидает оплаты', className: 'bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-800 border-2 border-yellow-300', icon: '⏳' },
+        confirmed: { label: 'Подтверждена', className: 'bg-gradient-to-br from-green-100 to-green-200 text-green-800 border-2 border-green-300', icon: '✓' },
+        completed: { label: 'Завершена', className: 'bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-800 border-2 border-emerald-300', icon: '✓' },
+        cancelled: { label: 'Отменена', className: 'bg-gradient-to-br from-red-100 to-red-200 text-red-800 border-2 border-red-300', icon: '✕' },
     }
 
     const item = map[status]
 
-    return <span className={`${base} ${item.className}`}>{item.label}</span>
+    return <span className={`${base} ${item.className}`}><span className="text-base">{item.icon}</span> {item.label}</span>
 }
 
 export function ClientDashboardTabs() {
@@ -67,9 +67,12 @@ export function ClientDashboardTabs() {
 
     if (status === 'loading') {
         return (
-            <div className="booking-page-surface min-h-screen p-6">
-                <div className="max-w-5xl mx-auto">
-                    <div className="booking-card">Загрузка…</div>
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="booking-card max-w-md">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+                        <span className="text-lg font-semibold text-gray-700">Загрузка…</span>
+                    </div>
                 </div>
             </div>
         )
@@ -82,74 +85,97 @@ export function ClientDashboardTabs() {
     // }
 
     return (
-        <div className="booking-page-surface min-h-screen p-4 sm:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto space-y-6">
-                <div className="booking-card">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h1 className="text-2xl font-semibold text-primary-900">👤 Личный кабинет</h1>
+        <div className="space-y-8 animate-[fadeInUp_0.6s_ease-out]">
+            {/* Заголовок и табы */}
+            <div className="booking-card">
+                <div className="flex flex-col gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-xl">
+                            <User className="h-7 w-7 text-white" />
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                            <Button
-                                variant={tab === 'home' ? 'default' : 'secondary'}
-                                onClick={() => setTab('home')}
-                            >
-                                <Home className="h-4 w-4" />
-                                🏠 Главная
-                            </Button>
-                            <Button
-                                variant={tab === 'new' ? 'default' : 'secondary'}
-                                onClick={() => setTab('new')}
-                            >
-                                <Calendar className="h-4 w-4" />
-                                📅 Новая запись
-                            </Button>
-                            <Button
-                                variant={tab === 'history' ? 'default' : 'secondary'}
-                                onClick={() => setTab('history')}
-                            >
-                                <LineChart className="h-4 w-4" />
-                                📊 История
-                            </Button>
-                            <Button
-                                variant={tab === 'profile' ? 'default' : 'secondary'}
-                                onClick={() => setTab('profile')}
-                            >
-                                <User className="h-4 w-4" />
-                                👤 Профиль
-                            </Button>
-                            <Button
-                                variant={tab === 'telegram' ? 'default' : 'secondary'}
-                                onClick={() => setTab('telegram')}
-                            >
-                                <MessageSquare className="h-4 w-4" />
-                                💬 Уведомления
-                            </Button>
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                Личный кабинет
+                            </h1>
+                            <p className="text-gray-600 mt-1">Управление записями и профилем</p>
                         </div>
                     </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <Button
+                            variant={tab === 'home' ? 'default' : 'secondary'}
+                            onClick={() => setTab('home')}
+                            className="h-auto py-4 flex-col gap-2"
+                        >
+                            <Home className="h-5 w-5" />
+                            <span className="text-sm font-semibold">Главная</span>
+                        </Button>
+                        <Button
+                            variant={tab === 'new' ? 'default' : 'secondary'}
+                            onClick={() => setTab('new')}
+                            className="h-auto py-4 flex-col gap-2"
+                        >
+                            <Calendar className="h-5 w-5" />
+                            <span className="text-sm font-semibold">Записаться</span>
+                        </Button>
+                        <Button
+                            variant={tab === 'history' ? 'default' : 'secondary'}
+                            onClick={() => setTab('history')}
+                            className="h-auto py-4 flex-col gap-2"
+                        >
+                            <LineChart className="h-5 w-5" />
+                            <span className="text-sm font-semibold">История</span>
+                        </Button>
+                        <Button
+                            variant={tab === 'profile' ? 'default' : 'secondary'}
+                            onClick={() => setTab('profile')}
+                            className="h-auto py-4 flex-col gap-2"
+                        >
+                            <User className="h-5 w-5" />
+                            <span className="text-sm font-semibold">Профиль</span>
+                        </Button>
+                        <Button
+                            variant={tab === 'telegram' ? 'default' : 'secondary'}
+                            onClick={() => setTab('telegram')}
+                            className="h-auto py-4 flex-col gap-2 col-span-2 sm:col-span-1"
+                        >
+                            <MessageSquare className="h-5 w-5" />
+                            <span className="text-sm font-semibold">Telegram</span>
+                        </Button>
+                    </div>
                 </div>
+            </div>
 
-                {tab === 'home' && (
+            {tab === 'home' && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div className="lg:col-span-2 space-y-6">
                             {pendingBooking ? (
-                                <Card className="booking-card">
+                                <Card className="booking-card border-2 border-yellow-300/50 bg-gradient-to-br from-yellow-50/50 to-white relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400" />
                                     <CardHeader>
-                                        <CardTitle>🟡 Заказ в ожидании оплаты</CardTitle>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg">
+                                                <span className="text-2xl">⏳</span>
+                                            </div>
+                                            <CardTitle className="text-2xl">Ожидает оплаты</CardTitle>
+                                        </div>
                                     </CardHeader>
-                                    <CardContent className="space-y-3">
+                                    <CardContent className="space-y-4">
                                         <div className="flex flex-wrap items-center gap-3">
                                             <StatusBadge status={pendingBooking.status} />
-                                            <div className="text-sm text-gray-700">
+                                            <div className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                                                <Calendar className="h-5 w-5 text-primary-600" />
                                                 {formatDateRu(pendingBooking.booking_date)} в {pendingBooking.booking_time}
                                             </div>
                                         </div>
-                                        <div className="flex gap-3">
-                                            <Button asChild>
-                                                <Link href={`/payment/${pendingBooking.id}`}>💳 Перейти к оплате</Link>
+                                        <div className="flex flex-col sm:flex-row gap-3">
+                                            <Button asChild size="lg" className="flex-1">
+                                                <Link href={`/payment/${pendingBooking.id}`}>
+                                                    💳 Перейти к оплате
+                                                </Link>
                                             </Button>
-                                            <Button variant="secondary" onClick={() => setTab('history')}>
-                                                📊 История
+                                            <Button variant="secondary" onClick={() => setTab('history')} size="lg">
+                                                История
                                             </Button>
                                         </div>
                                     </CardContent>
@@ -157,23 +183,35 @@ export function ClientDashboardTabs() {
                             ) : null}
 
                             {upcomingBooking ? (
-                                <Card className="booking-card">
+                                <Card className="booking-card border-2 border-green-300/50 bg-gradient-to-br from-green-50/50 to-white relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-green-500 to-green-400" />
                                     <CardHeader>
-                                        <CardTitle>🕐 Ближайшая консультация</CardTitle>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg">
+                                                <Calendar className="h-6 w-6 text-white" />
+                                            </div>
+                                            <CardTitle className="text-2xl">Ближайшая консультация</CardTitle>
+                                        </div>
                                     </CardHeader>
-                                    <CardContent className="space-y-3">
+                                    <CardContent className="space-y-4">
                                         <div className="flex flex-wrap items-center gap-3">
                                             <StatusBadge status={upcomingBooking.status} />
-                                            <div className="text-sm text-gray-700">
+                                            <div className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                                                <Calendar className="h-5 w-5 text-primary-600" />
                                                 {formatDateRu(upcomingBooking.booking_date)} в {upcomingBooking.booking_time}
                                             </div>
                                         </div>
-                                        <div className="text-sm text-gray-600">
-                                            ⏱️ До начала:{' '}
-                                            {formatDistanceToNowStrict(
-                                                new Date(`${upcomingBooking.booking_date}T${upcomingBooking.booking_time}:00+03:00`),
-                                                { locale: ru }
-                                            )}
+                                        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 border-2 border-blue-200">
+                                            <div className="text-2xl">⏱️</div>
+                                            <div>
+                                                <div className="text-xs font-semibold text-blue-700 uppercase">До начала</div>
+                                                <div className="text-sm font-bold text-blue-900">
+                                                    {formatDistanceToNowStrict(
+                                                        new Date(`${upcomingBooking.booking_date}T${upcomingBooking.booking_time}:00+03:00`),
+                                                        { locale: ru }
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                         {upcomingBooking.status === 'confirmed' ? (
                                             <BookingActions booking={upcomingBooking} />
@@ -183,39 +221,55 @@ export function ClientDashboardTabs() {
                             ) : null}
 
                             {!pendingBooking && !upcomingBooking ? (
-                                <Card className="booking-card">
-                                    <CardHeader>
-                                        <CardTitle>📭 У вас нет предстоящих консультаций</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3">
-                                        <p className="text-sm text-gray-600">
-                                            Запишитесь на новую консультацию, используя кнопку ниже.
+                                <Card className="booking-card border-2 border-gray-200 text-center">
+                                    <CardContent className="py-12">
+                                        <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-6">
+                                            <span className="text-4xl">📭</span>
+                                        </div>
+                                        <CardTitle className="text-2xl mb-4">Нет предстоящих консультаций</CardTitle>
+                                        <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                                            Запишитесь на новую консультацию и начните свой путь к внутренней гармонии
                                         </p>
-                                        <Button onClick={() => setTab('new')}>📅 Записаться</Button>
+                                        <Button onClick={() => setTab('new')} size="lg" className="shadow-xl">
+                                            <Calendar className="h-5 w-5 mr-2" />
+                                            Записаться на консультацию
+                                        </Button>
                                     </CardContent>
                                 </Card>
                             ) : null}
                         </div>
 
                         <div className="space-y-6">
-                            <Card className="info-panel">
-                                <CardContent className="space-y-3 p-6">
-                                    <div className="text-sm text-gray-600">📊 Метрики</div>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        <div className="rounded-xl bg-white/70 border border-primary-200/30 p-3">
-                                            <div className="text-xs text-gray-500">Предстоящих</div>
-                                            <div className="text-lg font-semibold text-primary-900">
+                            <Card className="info-panel border-2">
+                                <CardContent className="space-y-6 p-6">
+                                    <div className="flex items-center gap-2">
+                                        <LineChart className="h-5 w-5 text-primary-600" />
+                                        <div className="text-lg font-bold text-gray-800">Статистика</div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="rounded-2xl bg-gradient-to-br from-primary-50 to-white border-2 border-primary-200/50 p-5 hover:shadow-lg transition-shadow">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="text-sm font-semibold text-primary-700">Предстоящих</div>
+                                                <Calendar className="h-5 w-5 text-primary-600" />
+                                            </div>
+                                            <div className="text-3xl font-bold text-primary-900">
                                                 {upcomingConfirmed.length}
                                             </div>
                                         </div>
-                                        <div className="rounded-xl bg-white/70 border border-primary-200/30 p-3">
-                                            <div className="text-xs text-gray-500">Всего</div>
-                                            <div className="text-lg font-semibold text-primary-900">{bookings.length}</div>
+                                        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200/50 p-5 hover:shadow-lg transition-shadow">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="text-sm font-semibold text-blue-700">Всего записей</div>
+                                                <LineChart className="h-5 w-5 text-blue-600" />
+                                            </div>
+                                            <div className="text-3xl font-bold text-blue-900">{bookings.length}</div>
                                         </div>
-                                        <div className="rounded-xl bg-white/70 border border-primary-200/30 p-3">
-                                            <div className="text-xs text-gray-500">Telegram</div>
-                                            <div className="text-lg font-semibold text-primary-900">
-                                                {session?.user?.phone ? '✅' : '—'}
+                                        <div className="rounded-2xl bg-gradient-to-br from-green-50 to-white border-2 border-green-200/50 p-5 hover:shadow-lg transition-shadow">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="text-sm font-semibold text-green-700">Telegram</div>
+                                                <MessageSquare className="h-5 w-5 text-green-600" />
+                                            </div>
+                                            <div className="text-2xl font-bold text-green-900">
+                                                {session?.user?.phone ? '✅ Подключен' : '—'}
                                             </div>
                                         </div>
                                     </div>
@@ -225,29 +279,57 @@ export function ClientDashboardTabs() {
                     </div>
                 )}
 
-                {tab === 'new' && (
-                    <Card className="booking-card">
+            {tab === 'new' && (
+                    <Card className="booking-card border-2">
                         <CardHeader>
-                            <CardTitle>📅 Новая запись</CardTitle>
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg">
+                                    <Calendar className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-2xl">Новая запись</CardTitle>
+                                    <p className="text-sm text-gray-600 mt-1">Выберите удобное время для консультации</p>
+                                </div>
+                            </div>
                         </CardHeader>
-                        <CardContent className="space-y-3">
+                        <CardContent className="space-y-6">
                             {pendingBooking ? (
-                                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl">
-                                    <p className="text-sm text-yellow-800">
-                                        🟡 У вас уже есть созданный заказ, ожидающий оплаты.
-                                    </p>
-                                    <Button className="mt-3" onClick={() => setTab('home')}>
-                                        Вернуться на главную
-                                    </Button>
+                                <div className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 border-2 border-yellow-300 p-6 rounded-2xl">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-yellow-400 flex items-center justify-center flex-shrink-0">
+                                            <span className="text-2xl">⏳</span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-bold text-yellow-900 mb-2">
+                                                У вас уже есть созданный заказ
+                                            </h3>
+                                            <p className="text-sm text-yellow-800 mb-4">
+                                                Пожалуйста, завершите оплату существующей записи перед созданием новой
+                                            </p>
+                                            <Button onClick={() => setTab('home')} size="lg" className="bg-yellow-600 hover:bg-yellow-700">
+                                                Вернуться на главную
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </div>
                             ) : upcomingConfirmed.length > 0 ? (
-                                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl">
-                                    <p className="text-sm text-yellow-800">
-                                        ⚠️ У вас уже есть активная запись.
-                                    </p>
-                                    <Button className="mt-3" onClick={() => setTab('home')}>
-                                        Посмотреть на главной
-                                    </Button>
+                                <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 border-2 border-amber-300 p-6 rounded-2xl">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-amber-400 flex items-center justify-center flex-shrink-0">
+                                            <span className="text-2xl">⚠️</span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-bold text-amber-900 mb-2">
+                                                У вас уже есть активная запись
+                                            </h3>
+                                            <p className="text-sm text-amber-800 mb-4">
+                                                Вы можете создать новую запись после завершения текущей консультации
+                                            </p>
+                                            <Button onClick={() => setTab('home')} size="lg" variant="secondary">
+                                                Посмотреть на главной
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
                                 <ClientNewBookingForm />
@@ -256,23 +338,43 @@ export function ClientDashboardTabs() {
                     </Card>
                 )}
 
-                {tab === 'history' && (
-                    <Card className="booking-card">
+            {tab === 'history' && (
+                    <Card className="booking-card border-2">
                         <CardHeader>
-                            <CardTitle>📊 История записей</CardTitle>
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg">
+                                    <LineChart className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-2xl">История записей</CardTitle>
+                                    <p className="text-sm text-gray-600 mt-1">Все ваши консультации</p>
+                                </div>
+                            </div>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-6">
                             {isBookingsLoading ? (
-                                <div className="text-sm text-gray-600">Загрузка…</div>
+                                <div className="flex items-center justify-center py-12">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+                                        <span className="text-lg font-semibold text-gray-700">Загрузка…</span>
+                                    </div>
+                                </div>
                             ) : bookings.length === 0 ? (
-                                <div className="bg-primary-50/50 p-4 rounded-xl">
-                                    <p className="text-sm text-gray-700">📭 История записей пуста</p>
-                                    <Button className="mt-3" onClick={() => setTab('new')}>
-                                        📅 Создать первую запись
+                                <div className="text-center py-12">
+                                    <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-6">
+                                        <span className="text-4xl">📭</span>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-3">История записей пуста</h3>
+                                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                                        Создайте первую запись, чтобы начать отслеживать свои консультации
+                                    </p>
+                                    <Button onClick={() => setTab('new')} size="lg" className="shadow-xl">
+                                        <Calendar className="h-5 w-5 mr-2" />
+                                        Создать первую запись
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {bookings
                                         .slice()
                                         .sort((a, b) => {
@@ -281,17 +383,18 @@ export function ClientDashboardTabs() {
                                             return bDt - aDt
                                         })
                                         .map((b) => (
-                                            <div key={b.id} className="booking-card">
-                                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                                    <div className="space-y-1">
-                                                        <div className="text-sm font-semibold text-gray-900">
+                                            <div key={b.id} className="booking-card border-2 hover:shadow-xl transition-all">
+                                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-3 text-lg font-bold text-gray-900">
+                                                            <Calendar className="h-5 w-5 text-primary-600" />
                                                             {formatDateRu(b.booking_date)} в {b.booking_time}
                                                         </div>
                                                         <StatusBadge status={b.status} />
                                                     </div>
                                                     <div className="flex items-center gap-3">
                                                         {b.status === 'pending_payment' ? (
-                                                            <Button asChild size="sm">
+                                                            <Button asChild size="lg">
                                                                 <Link href={`/payment/${b.id}`}>💳 Оплатить</Link>
                                                             </Button>
                                                         ) : null}
@@ -308,22 +411,40 @@ export function ClientDashboardTabs() {
                     </Card>
                 )}
 
-                {tab === 'profile' && <ProfileTab />}
+            {tab === 'profile' && <ProfileTab />}
 
-                {tab === 'telegram' && (
-                    <Card className="booking-card">
+            {tab === 'telegram' && (
+                    <Card className="booking-card border-2">
                         <CardHeader>
-                            <CardTitle>💬 Уведомления в Telegram</CardTitle>
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg">
+                                    <MessageSquare className="h-6 w-6 text-white" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-2xl">Уведомления в Telegram</CardTitle>
+                                    <p className="text-sm text-gray-600 mt-1">Получайте напоминания о записях</p>
+                                </div>
+                            </div>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                            <p className="text-sm text-gray-600">
-                                Эту вкладку я подключу следующей: понадобится API /api/telegram/connect и /api/telegram/disconnect,
-                                плюс сохранение chat_id в clients/booking.
-                            </p>
+                        <CardContent className="space-y-6">
+                            <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-2 border-blue-200 p-6 rounded-2xl">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-blue-400 flex items-center justify-center flex-shrink-0">
+                                        <span className="text-2xl">🔔</span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-blue-900 mb-2">
+                                            Функция в разработке
+                                        </h3>
+                                        <p className="text-sm text-blue-800">
+                                            Скоро вы сможете получать уведомления о записях и напоминания о консультациях прямо в Telegram
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </CardContent>
                     </Card>
                 )}
-            </div>
         </div>
     )
 }
@@ -362,35 +483,64 @@ function ProfileTab() {
     const phone = session.user.phone
 
     return (
-        <Card className="booking-card">
+        <Card className="booking-card border-2">
             <CardHeader>
-                <CardTitle>👤 Профиль</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                {message ? (
-                    <div className="bg-primary-50/50 p-4 rounded-xl text-sm text-gray-700">{message}</div>
-                ) : null}
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">Имя *</label>
-                        <Input value={name} onChange={(e) => setName(e.target.value)} />
+                <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg">
+                        <User className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">Email</label>
-                        <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
-                    </div>
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">Телефон</label>
-                        <Input value={phone ?? ''} disabled />
-                    </div>
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">Telegram</label>
-                        <Input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@username" />
+                        <CardTitle className="text-2xl">Профиль</CardTitle>
+                        <p className="text-sm text-gray-600 mt-1">Управление личными данными</p>
                     </div>
                 </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                {message ? (
+                    <div className="bg-gradient-to-br from-primary-50 to-primary-100/50 border-2 border-primary-200 p-4 rounded-2xl text-sm font-semibold text-gray-800 flex items-center gap-3">
+                        <span className="text-xl">{message.includes('✅') ? '✅' : 'ℹ️'}</span>
+                        {message}
+                    </div>
+                ) : null}
 
-                <div className="flex gap-3">
+                <div className="space-y-6">
+                    <div>
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <User className="h-5 w-5 text-primary-600" />
+                            Основная информация
+                        </h3>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label className="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-2">
+                                    <User className="h-4 w-4 text-primary-600" />
+                                    Имя <span className="text-red-500">*</span>
+                                </label>
+                                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-12" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-2">
+                                    <Mail className="h-4 w-4 text-primary-600" />
+                                    Email
+                                </label>
+                                <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="h-12" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-2">
+                                    <Phone className="h-4 w-4 text-primary-600" />
+                                    Телефон
+                                </label>
+                                <Input value={phone ?? ''} disabled className="h-12 bg-gray-50" />
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-2">
+                                    <MessageSquare className="h-4 w-4 text-primary-600" />
+                                    Telegram
+                                </label>
+                                <Input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@username" className="h-12" />
+                            </div>
+                        </div>
+                    </div>
+
                     <Button
                         onClick={async () => {
                             setIsLoading(true)
@@ -405,26 +555,46 @@ function ProfileTab() {
                             setMessage(res.ok ? '✅ Профиль обновлен' : String(data?.error ?? 'Ошибка'))
                         }}
                         disabled={isLoading}
+                        size="lg"
+                        className="w-full sm:w-auto"
                     >
-                        💾 Сохранить
+                        {isLoading ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Сохранение…
+                            </>
+                        ) : (
+                            <>💾 Сохранить изменения</>
+                        )}
                     </Button>
                 </div>
 
-                <div className="border-t pt-4 space-y-4">
-                    <div className="text-sm font-semibold text-gray-800">🔐 Смена пароля</div>
+                <div className="border-t-2 border-gray-200 pt-6 space-y-6">
+                    <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <Lock className="h-5 w-5 text-primary-600" />
+                        Смена пароля
+                    </h3>
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <label className="text-sm font-medium text-gray-700 mb-2 block">Текущий пароль</label>
-                            <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
-                        </div>
-                        <div />
-                        <div>
-                            <label className="text-sm font-medium text-gray-700 mb-2 block">Новый пароль</label>
-                            <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                        <div className="sm:col-span-2">
+                            <label className="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-2">
+                                <Lock className="h-4 w-4 text-primary-600" />
+                                Текущий пароль
+                            </label>
+                            <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="h-12" />
                         </div>
                         <div>
-                            <label className="text-sm font-medium text-gray-700 mb-2 block">Подтверждение</label>
-                            <Input type="password" value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} />
+                            <label className="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-2">
+                                <Lock className="h-4 w-4 text-primary-600" />
+                                Новый пароль
+                            </label>
+                            <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="h-12" />
+                        </div>
+                        <div>
+                            <label className="text-sm font-semibold text-gray-700 mb-2 block flex items-center gap-2">
+                                <Lock className="h-4 w-4 text-primary-600" />
+                                Подтверждение
+                            </label>
+                            <Input type="password" value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} className="h-12" />
                         </div>
                     </div>
                     <Button
@@ -455,8 +625,17 @@ function ProfileTab() {
                             }
                         }}
                         disabled={isLoading}
+                        size="lg"
+                        className="w-full sm:w-auto"
                     >
-                        🔐 Изменить пароль
+                        {isLoading ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-primary-600/30 border-t-primary-600 rounded-full animate-spin" />
+                                Изменение…
+                            </>
+                        ) : (
+                            <>🔐 Изменить пароль</>
+                        )}
                     </Button>
                 </div>
             </CardContent>
