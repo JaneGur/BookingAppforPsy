@@ -868,7 +868,7 @@ curl -X POST "http://localhost:3000/api/bookings" \
 
 ## 🔗 Связанные документы
 
-- [README.md](README.md) - Общая документация
+- [README.md](../README.md) - Общая документация
 - [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) - Руководство по миграции
 - [Supabase Schema](supabase/schema.sql) - Схема базы данных
 

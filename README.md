@@ -624,12 +624,13 @@ npm run build
 ```
 
 **Docker:**
+
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --production
-COPY . .
+COPY booking-system .
 RUN npm run build
 CMD ["npm", "start"]
 ```
