@@ -543,7 +543,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                 <Filter className="h-4 w-4 mr-2" />
                                 Фильтры
                             </Button>
-                            <Button variant="ghost" size="sm" onClick={() => refetch()}>
+                            <Button variant="ghost" size="sm" onClick={() => loadBookings(1, true)}>
                                 Применить
                             </Button>
                             <Button
@@ -557,7 +557,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                         start: format(startOfDay(new Date()), 'yyyy-MM-dd'),
                                         end: format(addDays(new Date(), 30), 'yyyy-MM-dd'),
                                     })
-                                    refetch()
+                                    loadBookings(1, true)
                                 }}
                             >
                                 Сбросить
