@@ -85,8 +85,9 @@ export function ClientDashboardTabs() {
     }, [session?.user?.id])
 
     const upcomingConfirmed = useMemo(() => {
-        const list = bookings.filter((b) => b.status === 'confirmed')
-        list.sort((a, b) => {
+        if (!Array.isArray(bookings)) return []
+        const list = bookings.filter((b: Booking) => b.status === 'confirmed')
+        list.sort((a: Booking, b: Booking) => {
             const aDt = Date.parse(`${a.booking_date}T${a.booking_time}:00+03:00`)
             const bDt = Date.parse(`${b.booking_date}T${b.booking_time}:00+03:00`)
             return aDt - bDt
@@ -294,7 +295,7 @@ export function ClientDashboardTabs() {
                                             <div className="text-sm font-semibold text-blue-700">Всего записей</div>
                                             <LineChart className="h-5 w-5 text-blue-600" />
                                         </div>
-                                        <div className="text-3xl font-bold text-blue-900">{bookings.length}</div>
+                                        <div className="text-3xl font-bold text-blue-900">{Array.isArray(bookings) ? bookings.length : 0}</div>
                                     </div>
                                     <div className="rounded-2xl bg-gradient-to-br from-green-50 to-white border-2 border-green-200/50 p-5 hover:shadow-lg transition-shadow">
                                         <div className="flex items-center justify-between mb-2">
@@ -734,11 +735,10 @@ function BookingHistoryItem({ booking }: { booking: Booking }) {
                 {/* Шапка с датой и статусом */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                            booking.status === 'cancelled'
-                                ? 'bg-gradient-to-br from-gray-400 to-gray-600'
-                                : 'bg-gradient-to-br from-primary-400 to-primary-600'
-                        }`}>
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${booking.status === 'cancelled'
+                            ? 'bg-gradient-to-br from-gray-400 to-gray-600'
+                            : 'bg-gradient-to-br from-primary-400 to-primary-600'
+                            }`}>
                             <Calendar className="h-6 w-6 text-white" />
                         </div>
                         <div>
