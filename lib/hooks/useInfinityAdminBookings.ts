@@ -52,7 +52,7 @@ export function useInfinityAdminBookings(options: UseInfinityAdminBookingsOption
     } = options
 
     return useInfinityQuery<AdminBooking>({
-        queryKey: ['admin-bookings', status, search, startDate, endDate, clientId, sortBy, sortOrder],
+        queryKey: ['admin-bookings', status, search, startDate, endDate, clientId, sortBy, sortOrder].filter((item): item is string => Boolean(item)),
         fetchFn: async (page: number, limit: number) => {
             const params = new URLSearchParams({
                 page: page.toString(),
