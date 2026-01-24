@@ -16,6 +16,12 @@ export async function GET(request: NextRequest) {
         const startDate = searchParams.get('start_date')
         const endDate = searchParams.get('end_date')
         const clientId = searchParams.get('client_id')
+        const page = parseInt(searchParams.get('page') || '1')
+        const limit = parseInt(searchParams.get('limit') || '5')
+        const sortBy = searchParams.get('sort_by') || 'booking_date'
+        const sortOrder = searchParams.get('sort_order') || 'desc'
+
+        const offset = (page - 1) * limit
 
         // Создаем базовый запрос с JOIN к таблице клиентов
         let query = supabase
@@ -31,10 +37,9 @@ export async function GET(request: NextRequest) {
                     telegram_chat_id,
                     created_at,
                     updated_at
-                )
-            `)
-            .order('booking_date', { ascending: false })
-            .order('booking_time', { ascending: false })
+                ),
+                products(name, price_rub)
+            `, { count: 'exact' })
 
         // Фильтр по статусу
         if (status) {
@@ -59,7 +64,20 @@ export async function GET(request: NextRequest) {
             query = query.eq('client_id', clientId)
         }
 
-        const { data, error } = await query
+        // Применяем сортировку
+        if (sortBy === 'booking_date') {
+            query = query.order('booking_date', { ascending: sortOrder === 'asc' })
+                .order('booking_time', { ascending: sortOrder === 'asc' })
+        } else {
+            query = query.order(sortBy, { ascending: sortOrder === 'asc' })
+                .order('booking_date', { ascending: false })
+                .order('booking_time', { ascending: false })
+        }
+
+        // Применяем пагинацию
+        query = query.range(offset, offset + limit - 1)
+
+        const { data, error, count } = await query
 
         if (error) {
             console.error('Supabase error:', error)
@@ -81,7 +99,19 @@ export async function GET(request: NextRequest) {
             )
         }
 
-        return NextResponse.json(filteredData)
+        const totalCount = count || 0
+        const hasMore = offset + limit < totalCount
+
+        return NextResponse.json({
+            data: filteredData,
+            pagination: {
+                page,
+                limit,
+                totalCount,
+                hasMore,
+                totalPages: Math.ceil(totalCount / limit)
+            }
+        })
     } catch (error) {
         console.error('Ошибка при получении записей:', error)
         return NextResponse.json(

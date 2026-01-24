@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Users, User, Mail, Phone, MessageSquare, Trash2, Eye, AlertCircle, Plus, ArrowUpDown, Calendar as CalendarIcon } from 'lucide-react'
+import { Search, Users, User, Mail, Phone, MessageSquare, Trash2, Eye, AlertCircle, Plus, ArrowUpDown, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useClients, useDeleteClient } from '@/lib/hooks'
+import { useQuery } from '@tanstack/react-query'
 import { format, parseISO, startOfDay, endOfDay } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import { ClientCardSkeleton, StatCardSkeleton } from '@/components/ui/skeleton'
@@ -163,15 +164,114 @@ export default function ClientsPage() {
     const [dateFrom, setDateFrom] = useState('')
     const [dateTo, setDateTo] = useState('')
     const [showCreateModal, setShowCreateModal] = useState(false)
-    
+
     const [sortField, setSortField] = useState<SortField>('created_at')
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
-    const { data: clients = [], isLoading, error, refetch } = useClients(searchQuery, activeOnly)
+    // Настоящая пагинация для клиентов
+    const [currentPage, setCurrentPage] = useState(1)
+    const [clients, setClients] = useState<Client[]>([])
+    const [pagination, setPagination] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const [totalCount, setTotalCount] = useState(0) // Общее количество для статистики
+    const [fullStats, setFullStats] = useState<any>(null) // Полная статистика по всем данным
+
+    const loadClients = async (page: number = 1, resetSearch: boolean = false) => {
+        setIsLoading(true)
+        try {
+            const params = new URLSearchParams({
+                page: page.toString(),
+                limit: '5', // По 5 клиентов на страницу
+                sort_by: sortField,
+                sort_order: sortDirection
+            })
+
+            // Для поиска используем большой limit чтобы найти все совпадения
+            if (searchQuery && !resetSearch) {
+                params.append('search', searchQuery)
+                params.set('limit', '1000') // Увеличиваем лимит для поиска
+            }
+            if (activeOnly) {
+                params.append('activeOnly', 'true')
+            }
+
+            const res = await fetch(`/api/admin/clients?${params.toString()}`)
+            if (!res.ok) throw new Error('Failed to load clients')
+            const result = await res.json()
+
+            setClients(result.data || [])
+            setPagination(result.pagination)
+            setTotalCount(result.pagination?.totalCount || 0) // Сохраняем общее количество
+            setCurrentPage(page)
+        } catch (error) {
+            console.error('Error loading clients:', error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    // Загрузка полной статистики по всем клиентам
+    const loadFullStats = async () => {
+        try {
+            const params = new URLSearchParams({
+                limit: '10000', // Большой лимит для получения всех данных
+                sort_by: sortField,
+                sort_order: sortDirection
+            })
+
+            if (searchQuery) {
+                params.append('search', searchQuery)
+            }
+            if (activeOnly) {
+                params.append('activeOnly', 'true')
+            }
+
+            const res = await fetch(`/api/admin/clients?${params.toString()}`)
+            if (!res.ok) throw new Error('Failed to load full client stats')
+            const result = await res.json()
+
+            const allClients = result.data || []
+
+            // Считаем статистику по всем данным
+            const stats = {
+                total: allClients.length,
+                withTelegram: allClients.filter((c: any) => c.telegram_chat_id).length,
+                withEmail: allClients.filter((c: any) => c.email).length,
+            }
+
+            setFullStats(stats)
+        } catch (error) {
+            console.error('Error loading full client stats:', error)
+        }
+    }
+
+    // Загружаем первую страницу при монтировании
+    useEffect(() => {
+        loadClients(1)
+        loadFullStats() // Загружаем полную статистику при монтировании
+    }, [])
+
+    // Применяем фильтры
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setCurrentPage(1)
+            loadClients(1, true)
+            loadFullStats() // Загружаем полную статистику при изменении фильтров
+        }, 300)
+
+        return () => clearTimeout(timeoutId)
+    }, [searchQuery, activeOnly, sortField, sortDirection])
+
+    const handlePageChange = (page: number) => {
+        if (pagination && page >= 1 && page <= pagination.totalPages) {
+            loadClients(page)
+        }
+    }
     const deleteClient = useDeleteClient()
 
     // Фильтрация
     const filteredClients = useMemo(() => {
+        if (!Array.isArray(clients)) return []
         let result = [...clients]
 
         if (withTelegram) {
@@ -207,8 +307,8 @@ export default function ClientsPage() {
                 case 'name':
                     aVal = a.name || ''
                     bVal = b.name || ''
-                    return sortDirection === 'asc' 
-                        ? aVal.localeCompare(bVal, 'ru') 
+                    return sortDirection === 'asc'
+                        ? aVal.localeCompare(bVal, 'ru')
                         : bVal.localeCompare(aVal, 'ru')
                 case 'created_at':
                     aVal = new Date(a.created_at).getTime()
@@ -240,7 +340,7 @@ export default function ClientsPage() {
 
     const handleDelete = async (id: string, name: string) => {
         if (!confirm(`Вы уверены, что хотите удалить клиента "${name}"? Это действие необратимо и удалит все связанные записи.`)) return
-        
+
         try {
             await deleteClient.mutateAsync(id)
         } catch (error) {
@@ -357,7 +457,7 @@ export default function ClientsPage() {
                         </div>
 
                         <div className="flex flex-wrap gap-2">
-                            <Button variant="ghost" size="sm" onClick={() => refetch()}>
+                            <Button variant="ghost" size="sm" onClick={() => loadClients(currentPage)}>
                                 Обновить
                             </Button>
                             {hasFilters && (
@@ -385,7 +485,7 @@ export default function ClientsPage() {
                                     <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
                                 </div>
                                 <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-br from-primary-600 to-primary-800 bg-clip-text text-transparent">
-                                    {clients.length}
+                                    {fullStats?.total || 0}
                                 </div>
                             </CardContent>
                         </Card>
@@ -405,7 +505,7 @@ export default function ClientsPage() {
                                     <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
                                 </div>
                                 <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-                                    {clients.filter((c) => c.telegram_chat_id).length}
+                                    {fullStats?.withTelegram || 0}
                                 </div>
                             </CardContent>
                         </Card>
@@ -416,7 +516,7 @@ export default function ClientsPage() {
                                     <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
                                 </div>
                                 <div className="text-2xl sm:text-3xl font-bold text-purple-600">
-                                    {clients.filter((c) => c.email).length}
+                                    {fullStats?.withEmail || 0}
                                 </div>
                             </CardContent>
                         </Card>
@@ -435,11 +535,10 @@ export default function ClientsPage() {
                                 <button
                                     key={field}
                                     onClick={() => handleSort(field)}
-                                    className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 ${
-                                        sortField === field
-                                            ? 'bg-primary-600 text-white shadow-md'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
+                                    className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 ${sortField === field
+                                        ? 'bg-primary-600 text-white shadow-md'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        }`}
                                 >
                                     {label}
                                     {sortField === field && (
@@ -450,21 +549,6 @@ export default function ClientsPage() {
                         </div>
                     </CardContent>
                 </Card>
-
-                {/* Ошибка */}
-                {error && (
-                    <Card className="booking-card border-2 border-red-200 bg-red-50/50">
-                        <CardContent className="p-4 sm:p-6">
-                            <div className="flex items-center gap-3 text-red-700">
-                                <AlertCircle className="h-5 w-5 flex-shrink-0" />
-                                <div>
-                                    <div className="font-semibold text-sm sm:text-base">Ошибка загрузки</div>
-                                    <div className="text-xs sm:text-sm text-red-600">Не удалось загрузить список клиентов</div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
 
                 {/* Список клиентов */}
                 {isLoading ? (
@@ -481,8 +565,8 @@ export default function ClientsPage() {
                             </div>
                             <p className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Клиенты не найдены</p>
                             <p className="text-sm text-gray-500 mb-4">
-                                {hasFilters 
-                                    ? 'Попробуйте изменить параметры поиска' 
+                                {hasFilters
+                                    ? 'Попробуйте изменить параметры поиска'
                                     : 'В базе данных пока нет зарегистрированных клиентов'}
                             </p>
                             {!hasFilters && (
@@ -570,13 +654,52 @@ export default function ClientsPage() {
                 )}
             </div>
 
+            {/* Пагинация */}
+            {
+                pagination && pagination.totalPages > 1 && (
+                    <div className="flex items-center justify-between mt-6">
+                        <div className="text-sm text-gray-600">
+                            Показано {((currentPage - 1) * pagination.limit) + 1} - {Math.min(currentPage * pagination.limit, pagination.totalCount)} из {pagination.totalCount} клиентов
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage <= 1 || isLoading}
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                                Назад
+                            </Button>
+
+                            <span className="text-sm font-medium">
+                                Страница {currentPage} из {pagination.totalPages}
+                            </span>
+
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage >= pagination.totalPages || isLoading}
+                            >
+                                Вперед
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    </div>
+                )
+            }
+
             {/* Модальное окно создания */}
-            {showCreateModal && (
-                <CreateClientModal
-                    onClose={() => setShowCreateModal(false)}
-                    onSuccess={() => refetch()}
-                />
-            )}
-        </div>
+            {
+                showCreateModal && (
+                    <CreateClientModal
+                        onClose={() => setShowCreateModal(false)}
+                        onSuccess={() => loadClients(1)}
+                    />
+                )
+            }
+        </div >
     )
 }

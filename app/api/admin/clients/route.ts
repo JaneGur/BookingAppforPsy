@@ -15,11 +15,17 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url)
         const search = searchParams.get('search')
         const activeOnly = searchParams.get('active_only') === 'true'
+        const page = parseInt(searchParams.get('page') || '1')
+        const limit = parseInt(searchParams.get('limit') || '5')
+        const sortBy = searchParams.get('sort_by') || 'created_at'
+        const sortOrder = searchParams.get('sort_order') || 'desc'
+
+        const offset = (page - 1) * limit
 
         let query = supabase
             .from('clients')
-            .select('*')
-            .order('created_at', { ascending: false })
+            .select('*', { count: 'exact' })
+            .order(sortBy, { ascending: sortOrder === 'asc' })
 
         // Фильтр только активных клиентов (у которых есть записи)
         if (activeOnly) {
@@ -33,12 +39,24 @@ export async function GET(request: NextRequest) {
             if (clientIds.length > 0) {
                 query = query.in('id', clientIds)
             } else {
-                // Если нет записей, возвращаем пустой массив
-                return NextResponse.json([])
+                // Если нет записей, возвращаем пустой результат
+                return NextResponse.json({
+                    data: [],
+                    pagination: {
+                        page,
+                        limit,
+                        totalCount: 0,
+                        hasMore: false,
+                        totalPages: 0
+                    }
+                })
             }
         }
 
-        const { data, error } = await query
+        // Применяем пагинацию
+        query = query.range(offset, offset + limit - 1)
+
+        const { data, error, count } = await query
 
         if (error) {
             console.error('Supabase error:', error)
@@ -58,7 +76,19 @@ export async function GET(request: NextRequest) {
             )
         }
 
-        return NextResponse.json(filteredData)
+        const totalCount = count || 0
+        const hasMore = offset + limit < totalCount
+
+        return NextResponse.json({
+            data: filteredData,
+            pagination: {
+                page,
+                limit,
+                totalCount,
+                hasMore,
+                totalPages: Math.ceil(totalCount / limit)
+            }
+        })
     } catch (error) {
         console.error('Ошибка при получении клиентов:', error)
         return NextResponse.json(

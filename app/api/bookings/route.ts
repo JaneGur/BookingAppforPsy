@@ -230,22 +230,63 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url)
         const phone = searchParams.get('phone')
+        const page = parseInt(searchParams.get('page') || '1')
+        const limit = parseInt(searchParams.get('limit') || '5')
+        const status = searchParams.get('status')
+        const clientId = searchParams.get('client_id')
+        const sortBy = searchParams.get('sort_by') || 'created_at'
+        const sortOrder = searchParams.get('sort_order') || 'desc'
 
-        let query = supabase.from('bookings').select('*')
+        const offset = (page - 1) * limit
 
+        let query = supabase
+            .from('bookings')
+            .select(`
+                *,
+                products(name, price_rub),
+                clients(name, email, phone)
+            `, { count: 'exact' })
+
+        // Применяем фильтры
         if (phone) {
             const normalizedPhone = normalizePhone(phone)
             query = query.eq('client_phone', normalizedPhone)
         }
 
-        const { data, error } = await query
+        if (status) {
+            query = query.eq('status', status)
+        }
+
+        if (clientId) {
+            query = query.eq('client_id', clientId)
+        }
+
+        // Применяем сортировку
+        query = query.order(sortBy, { ascending: sortOrder === 'asc' })
+
+        // Применяем пагинацию
+        query = query.range(offset, offset + limit - 1)
+
+        const { data, error, count } = await query
 
         if (error) {
             console.error('Supabase error:', error)
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
-        return NextResponse.json(data)
+        const totalCount = count || 0
+        const hasMore = offset + limit < totalCount
+
+        return NextResponse.json({
+            data: data || [],
+            pagination: {
+                page,
+                limit,
+                totalCount,
+                hasMore,
+                totalPages: Math.ceil(totalCount / limit)
+            }
+        })
     } catch (error) {
         console.error('Ошибка при получении записей:', error)
         return NextResponse.json(

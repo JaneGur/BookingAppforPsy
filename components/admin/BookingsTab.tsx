@@ -8,6 +8,8 @@ import {
     Search,
     Filter,
     Plus,
+    ChevronLeft,
+    ChevronRight,
     CheckCircle,
     XCircle,
     Trash2,
@@ -28,10 +30,12 @@ import { Booking } from '@/types/booking'
 import { cn } from '@/lib/utils/cn'
 import { BookingsCalendar } from './BookingsCalendar'
 import { BookingDetailsModal } from './BookingDetailsModal'
-import {useUpdateBookingStatus, useDeleteBooking, useCancelBooking} from '@/lib/hooks'
+import { useUpdateBookingStatus, useDeleteBooking, useCancelBooking } from '@/lib/hooks'
 import { RescheduleBookingModal } from '@/components/admin/RescheduleBookingModal'
 import { toast } from 'sonner'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useInfinityAdminBookings } from '@/lib/hooks/useInfinityAdminBookings'
+import { LoadMoreButton } from '@/components/ui/LoadMoreButton'
+import { useQueryClient, useQuery } from '@tanstack/react-query'
 
 interface BookingsTabProps {
     onCreateBooking: () => void
@@ -64,26 +68,80 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
 
     const [searchQuery, setSearchQuery] = useState('')
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
-    const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
-        start: format(startOfDay(new Date()), 'yyyy-MM-dd'),
-        end: format(addDays(new Date(), 30), 'yyyy-MM-dd'),
-    })
-    const [showFilters, setShowFilters] = useState(false)
-    const [viewMode, setViewMode] = useState<ViewMode>('list')
-    const [sortField, setSortField] = useState<SortField>('date')
-    const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+    const [dateRange, setDateRange] = useState<{ start?: string; end?: string }>({})
     const [quickFilter, setQuickFilter] = useState<QuickFilter>('all')
+    const [viewMode, setViewMode] = useState<ViewMode>('list')
     const [selectedBookings, setSelectedBookings] = useState<Set<number>>(new Set())
-    const [calendarDate, setCalendarDate] = useState(new Date())
-    const [selectedDayBookings, setSelectedDayBookings] = useState<Booking[] | null>(null)
-    const [detailsBooking, setDetailsBooking] = useState<Booking | null>(null)
+    const [sortField, setSortField] = useState<SortField>('date')
+    const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+    const [bookingDetails, setBookingDetails] = useState<Booking | null>(null)
     const [rescheduleBooking, setRescheduleBooking] = useState<Booking | null>(null)
+    const [showFilters, setShowFilters] = useState(false)
+    const [calendarDate, setCalendarDate] = useState(new Date())
+    const [selectedDayBookings, setSelectedDayBookings] = useState<Booking[]>([])
+    const [detailsBooking, setDetailsBooking] = useState<Booking | null>(null)
 
-    // Используем React Query для получения записей
-    const { data: bookings = [], isLoading, refetch } = useQuery({
-        queryKey: ['bookings', 'admin', selectedStatuses, dateRange, searchQuery, refreshTrigger],
-        queryFn: async () => {
-            const params = new URLSearchParams()
+    // Настоящая пагинация для заказов
+    const [currentPage, setCurrentPage] = useState(1)
+    const [bookings, setBookings] = useState<Booking[]>([])
+    const [pagination, setPagination] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const [totalCount, setTotalCount] = useState(0) // Общее количество для статистики
+    const [fullStats, setFullStats] = useState<any>(null) // Полная статистика по всем данным
+
+    const loadBookings = async (page: number = 1, resetSearch: boolean = false) => {
+        setIsLoading(true)
+        try {
+            const params = new URLSearchParams({
+                page: page.toString(),
+                limit: '5', // По 5 записей на страницу
+                sort_by: sortField === 'date' ? 'booking_date' : sortField,
+                sort_order: sortDirection
+            })
+
+            if (selectedStatuses.length > 0) {
+                params.append('status', selectedStatuses.join(','))
+            }
+            if (dateRange.start) {
+                params.append('start_date', dateRange.start)
+            }
+            if (dateRange.end) {
+                params.append('end_date', dateRange.end)
+            }
+            // Для поиска используем большой limit чтобы найти все совпадения
+            if (searchQuery && !resetSearch) {
+                params.append('search', searchQuery)
+                params.set('limit', '1000') // Увеличиваем лимит для поиска
+            }
+
+            const res = await fetch(`/api/admin/bookings?${params.toString()}`)
+            if (!res.ok) throw new Error('Failed to load bookings')
+            const result = await res.json()
+
+            const adminBookings = result.data || []
+            setBookings(adminBookings.map((adminBooking: any) => ({
+                ...adminBooking,
+                phone_hash: '' // Добавляем пустое значение для совместимости
+            })))
+            setPagination(result.pagination)
+            setTotalCount(result.pagination?.totalCount || 0) // Сохраняем общее количество
+            setCurrentPage(page)
+        } catch (error) {
+            console.error('Error loading bookings:', error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    // Загрузка полной статистики по всем данным
+    const loadFullStats = async () => {
+        try {
+            const params = new URLSearchParams({
+                limit: '10000', // Большой лимит для получения всех данных
+                sort_by: 'booking_date',
+                sort_order: 'desc'
+            })
+
             if (selectedStatuses.length > 0) {
                 params.append('status', selectedStatuses.join(','))
             }
@@ -98,82 +156,53 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
             }
 
             const res = await fetch(`/api/admin/bookings?${params.toString()}`)
-            if (!res.ok) throw new Error('Failed to load bookings')
-            return res.json() as Promise<Booking[]>
-        },
-    })
+            if (!res.ok) throw new Error('Failed to load full stats')
+            const result = await res.json()
+
+            const allBookings = result.data || []
+
+            // Считаем статистику по всем данным
+            const stats = {
+                total: allBookings.length,
+                pending: allBookings.filter((b: any) => b.status === 'pending_payment').length,
+                confirmed: allBookings.filter((b: any) => b.status === 'confirmed').length,
+                completed: allBookings.filter((b: any) => b.status === 'completed').length,
+                cancelled: allBookings.filter((b: any) => b.status === 'cancelled').length,
+            }
+
+            setFullStats(stats)
+        } catch (error) {
+            console.error('Error loading full stats:', error)
+        }
+    }
+
+    // Загружаем первую страницу при монтировании
+    useEffect(() => {
+        loadBookings(1)
+        loadFullStats() // Загружаем полную статистику при монтировании
+    }, [])
 
     // Применяем быстрые фильтры
     useEffect(() => {
-        const today = startOfDay(new Date())
-        switch (quickFilter) {
-            case 'today':
-                setDateRange({
-                    start: format(today, 'yyyy-MM-dd'),
-                    end: format(today, 'yyyy-MM-dd'),
-                })
-                break
-            case 'week':
-                setDateRange({
-                    start: format(startOfWeek(today, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
-                    end: format(endOfWeek(today, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
-                })
-                break
-            case 'month':
-                setDateRange({
-                    start: format(startOfMonth(today), 'yyyy-MM-dd'),
-                    end: format(endOfMonth(today), 'yyyy-MM-dd'),
-                })
-                break
-            case 'upcoming':
-                setDateRange({
-                    start: format(today, 'yyyy-MM-dd'),
-                    end: format(addDays(today, 90), 'yyyy-MM-dd'),
-                })
-                break
-            case 'past':
-                setDateRange({
-                    start: format(addDays(today, -90), 'yyyy-MM-dd'),
-                    end: format(addDays(today, -1), 'yyyy-MM-dd'),
-                })
-                break
-            default:
-                // all - reset
-                break
-        }
-    }, [quickFilter])
+        const timeoutId = setTimeout(() => {
+            setCurrentPage(1)
+            loadBookings(1, true)
+            loadFullStats() // Загружаем полную статистику при изменении фильтров
+        }, 300) // Debounce 300ms
 
-    // Сортировка записей
-    const sortedBookings = useMemo(() => {
-        const sorted = [...bookings]
-        sorted.sort((a, b) => {
-            let comparison = 0
-            switch (sortField) {
-                case 'date':
-                    comparison = `${a.booking_date}T${a.booking_time}`.localeCompare(`${b.booking_date}T${b.booking_time}`)
-                    break
-                case 'created_at':
-                    comparison = (a.created_at || '').localeCompare(b.created_at || '')
-                    break
-                case 'status':
-                    comparison = a.status.localeCompare(b.status)
-                    break
-                case 'amount':
-                    comparison = (a.amount || 0) - (b.amount || 0)
-                    break
-                case 'client_name':
-                    comparison = a.client_name.localeCompare(b.client_name)
-                    break
-            }
-            return sortDirection === 'asc' ? comparison : -comparison
-        })
-        return sorted
-    }, [bookings, sortField, sortDirection])
+        return () => clearTimeout(timeoutId)
+    }, [selectedStatuses.join(','), dateRange.start, dateRange.end, searchQuery, quickFilter, sortField, sortDirection])
+
+    const handlePageChange = (page: number) => {
+        if (pagination && page >= 1 && page <= pagination.totalPages) {
+            loadBookings(page)
+        }
+    }
 
     // Группируем записи по датам
     const groupedBookings = useMemo(() => {
         const groups = new Map<string, Booking[]>()
-        sortedBookings.forEach((booking) => {
+        bookings.forEach((booking) => {
             const dateKey = booking.booking_date
             if (!groups.has(dateKey)) {
                 groups.set(dateKey, [])
@@ -181,18 +210,18 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
             groups.get(dateKey)!.push(booking)
         })
         return Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]))
-    }, [sortedBookings])
+    }, [bookings])
 
     // Статистика
     const stats = useMemo(() => {
         return {
-            total: bookings.length,
-            pending: bookings.filter((b) => b.status === 'pending_payment').length,
-            confirmed: bookings.filter((b) => b.status === 'confirmed').length,
-            completed: bookings.filter((b) => b.status === 'completed').length,
-            cancelled: bookings.filter((b) => b.status === 'cancelled').length,
+            total: fullStats?.total || 0, // Общее количество из полной статистики
+            pending: fullStats?.pending || 0, // Из полной статистики
+            confirmed: fullStats?.confirmed || 0, // Из полной статистики
+            completed: fullStats?.completed || 0, // Из полной статистики
+            cancelled: fullStats?.cancelled || 0, // Из полной статистики
         }
-    }, [bookings])
+    }, [fullStats])
 
     const handleStatusToggle = (status: string) => {
         setSelectedStatuses((prev) =>
@@ -210,10 +239,10 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
     }
 
     const handleSelectAll = () => {
-        if (selectedBookings.size === sortedBookings.length) {
+        if (selectedBookings.size === bookings.length) {
             setSelectedBookings(new Set())
         } else {
-            setSelectedBookings(new Set(sortedBookings.map(b => b.id)))
+            setSelectedBookings(new Set(bookings.map(b => b.id)))
         }
     }
 
@@ -355,6 +384,28 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
 
     return (
         <div className="space-y-8">
+
+            {/* Заголовок */}
+            <Card className="booking-card border-2">
+                <CardContent className="p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
+                                <Calendar className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900">Управление записями</h2>
+                                <p className="text-sm text-gray-600 mt-1">Все консультации в системе</p>
+                            </div>
+                        </div>
+                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl">
+                            <Plus className="h-5 w-5 mr-2" />
+                            Создать запись
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
             {/* Статистика */}
             <Card className="booking-card border-2">
                 <CardHeader className="pb-3">
@@ -413,26 +464,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </CardContent>
             </Card>
 
-            {/* Заголовок */}
-            <Card className="booking-card border-2">
-                <CardContent className="p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
-                                <Calendar className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900">Управление записями</h2>
-                                <p className="text-sm text-gray-600 mt-1">Все консультации в системе</p>
-                            </div>
-                        </div>
-                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl">
-                            <Plus className="h-5 w-5 mr-2" />
-                            Создать запись
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+
 
             {/* Фильтры и поиск */}
             <Card className="booking-card border-2">
@@ -635,7 +667,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
             {viewMode === 'calendar' && !isLoading && (
                 <>
                     <BookingsCalendar
-                        bookings={sortedBookings}
+                        bookings={bookings}
                         currentDate={calendarDate}
                         onDateChange={setCalendarDate}
                         onDayClick={handleDayClick}
@@ -649,7 +681,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                     <CardTitle>
                                         Записи на {format(parseISO(selectedDayBookings[0].booking_date), 'd MMMM yyyy', { locale: ru })}
                                     </CardTitle>
-                                    <Button variant="ghost" size="sm" onClick={() => setSelectedDayBookings(null)}>
+                                    <Button variant="ghost" size="sm" onClick={() => setSelectedDayBookings([])}>
                                         <XCircle className="h-5 w-5" />
                                     </Button>
                                 </div>
@@ -760,12 +792,12 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                         onClick={handleSelectAll}
                                         className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2"
                                     >
-                                        {selectedBookings.size === sortedBookings.length ? (
+                                        {selectedBookings.size === bookings.length ? (
                                             <CheckSquare className="h-5 w-5 text-primary-600" />
                                         ) : (
                                             <Square className="h-5 w-5 text-gray-400" />
                                         )}
-                                        {selectedBookings.size === sortedBookings.length ? 'Снять выбор со всех' : 'Выбрать все'}
+                                        {selectedBookings.size === bookings.length ? 'Снять выбор со всех' : 'Выбрать все'}
                                     </button>
                                 </div>
                             )}
@@ -904,24 +936,63 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </div>
             )}
 
-            {/* Модальное окно деталей записи */}
-            <BookingDetailsModal
-                booking={detailsBooking}
-                onClose={() => setDetailsBooking(null)}
-                onDelete={handleDelete}
-                onCancel={handleCancel}
-                onReschedule={(b) => {
-                    setDetailsBooking(null)
-                    handleRescheduleOpen(b)
-                }}
-                onStatusChange={handleStatusChange}
-            />
+            {/* Пагинация */}
+            {pagination && pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-600">
+                        Показано {((currentPage - 1) * pagination.limit) + 1} - {Math.min(currentPage * pagination.limit, pagination.totalCount)} из {pagination.totalCount} записей
+                    </div>
 
-            <RescheduleBookingModal
-                booking={rescheduleBooking}
-                open={!!rescheduleBooking}
-                onClose={() => setRescheduleBooking(null)}
-            />
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage <= 1 || isLoading}
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                            Назад
+                        </Button>
+
+                        <span className="text-sm font-medium">
+                            Страница {currentPage} из {pagination.totalPages}
+                        </span>
+
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage >= pagination.totalPages || isLoading}
+                        >
+                            Вперед
+                            <ChevronRight className="w-4 h-4" />
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {/* Модальное окно деталей записи */}
+            {detailsBooking && (
+                <BookingDetailsModal
+                    booking={detailsBooking}
+                    onClose={() => setDetailsBooking(null)}
+                    onDelete={handleDelete}
+                    onCancel={handleCancel}
+                    onReschedule={(b) => {
+                        setDetailsBooking(null)
+                        handleRescheduleOpen(b)
+                    }}
+                    onStatusChange={handleStatusChange}
+                />
+            )}
+
+            {rescheduleBooking && (
+                <RescheduleBookingModal
+                    booking={rescheduleBooking}
+                    open={!!rescheduleBooking}
+                    onClose={() => setRescheduleBooking(null)}
+                />
+            )}
         </div>
     )
 }
