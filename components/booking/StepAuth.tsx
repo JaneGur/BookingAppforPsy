@@ -1,11 +1,11 @@
 'use client'
 
-import { Lock } from 'lucide-react'
+import { Lock, UserPlus, LogIn } from 'lucide-react'
 import { useBookingForm } from '@/lib/contexts/BookingContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { normalizePhone, validatePhone } from '@/lib/utils/phone'
@@ -17,6 +17,13 @@ export function StepAuth() {
     const [activeTab, setActiveTab] = useState<'login' | 'register' | 'later'>('login')
     const [isLoading, setIsLoading] = useState(false)
     const [errorText, setErrorText] = useState<string | null>(null)
+    const [clientStatus, setClientStatus] = useState<{
+        exists: boolean
+        hasPassword: boolean
+        client?: { id: string; name: string; email: string | null; phone: string }
+        message?: string
+    } | null>(null)
+    const [isCheckingClient, setIsCheckingClient] = useState(false)
 
     const [loginIdentifier, setLoginIdentifier] = useState(formData.phone || formData.email || '')
     const [loginPassword, setLoginPassword] = useState('')
@@ -27,6 +34,40 @@ export function StepAuth() {
     const [regTelegram, setRegTelegram] = useState(formData.telegram || '')
     const [regPassword, setRegPassword] = useState('')
     const [regPasswordConfirm, setRegPasswordConfirm] = useState('')
+
+    // Проверяем статус клиента при монтировании и изменении телефона
+    useEffect(() => {
+        if (formData.phone) {
+            checkClientStatus(formData.phone)
+        }
+    }, [formData.phone])
+
+    const checkClientStatus = async (phone: string) => {
+        setIsCheckingClient(true)
+        try {
+            const response = await fetch('/api/auth/check-client', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone })
+            })
+
+            if (response.ok) {
+                const data = await response.json()
+                setClientStatus(data)
+
+                // Автоматически выбираем нужную вкладку
+                if (data.exists && !data.hasPassword) {
+                    setActiveTab('register')
+                } else if (data.exists && data.hasPassword) {
+                    setActiveTab('login')
+                }
+            }
+        } catch (error) {
+            console.error('Error checking client status:', error)
+        } finally {
+            setIsCheckingClient(false)
+        }
+    }
 
     const handleLogin = async () => {
         setIsLoading(true)
@@ -129,17 +170,35 @@ export function StepAuth() {
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="bg-green-50 border border-green-200 p-4 rounded-xl">
-                    <p className="text-sm text-green-800">
-                        🎉 Ваш заказ успешно создан!
-                    </p>
-                </div>
+                {/*<div className="bg-green-50 border border-green-200 p-4 rounded-xl">*/}
+                {/*    <p className="text-sm text-green-800">*/}
+                {/*        🎉 Ваш заказ успешно создан!*/}
+                {/*    </p>*/}
+                {/*</div>*/}
 
                 <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl">
                     <p className="text-sm text-yellow-800">
                         ⏳ Ваша заявка принята. В ближайшее время с вами свяжутся для завершения записи и оплаты.
                     </p>
                 </div>
+
+                {clientStatus && (
+                    <div className={`p-4 rounded-xl ${clientStatus.exists && !clientStatus.hasPassword
+                        ? 'bg-blue-50 border border-blue-200'
+                        : clientStatus.exists && clientStatus.hasPassword
+                            ? 'bg-green-50 border border-green-200'
+                            : 'bg-gray-50 border border-gray-200'
+                        }`}>
+                        <p className={`text-sm ${clientStatus.exists && !clientStatus.hasPassword
+                            ? 'text-blue-800'
+                            : clientStatus.exists && clientStatus.hasPassword
+                                ? 'text-green-800'
+                                : 'text-gray-800'
+                            }`}>
+                            {clientStatus.message}
+                        </p>
+                    </div>
+                )}
 
                 {errorText && (
                     <div className="bg-red-50 border border-red-200 p-4 rounded-xl">
@@ -153,7 +212,9 @@ export function StepAuth() {
                         variant={activeTab === 'login' ? 'default' : 'secondary'}
                         onClick={() => setActiveTab('login')}
                         className="flex-1"
+                        disabled={isCheckingClient}
                     >
+                        <LogIn className="w-4 h-4 mr-2" />
                         🔐 Войти
                     </Button>
                     <Button
@@ -161,8 +222,10 @@ export function StepAuth() {
                         variant={activeTab === 'register' ? 'default' : 'secondary'}
                         onClick={() => setActiveTab('register')}
                         className="flex-1"
+                        disabled={isCheckingClient}
                     >
-                        📝 Регистрация
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        {clientStatus?.exists && !clientStatus?.hasPassword ? '📝 Завершить регистрацию' : '📝 Регистрация'}
                     </Button>
                     {/*<Button*/}
                     {/*    type="button"*/}
@@ -208,6 +271,15 @@ export function StepAuth() {
 
                 {activeTab === 'register' && (
                     <div className="space-y-4">
+                        {clientStatus?.exists && !clientStatus.hasPassword && (
+                            <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl">
+                                <p className="text-sm text-blue-800">
+                                    <strong>💡 Обнаружен ваш профиль:</strong> Вы уже создавали заказ, и мы сохранили ваши данные.
+                                    Просто придумайте пароль чтобы завершить регистрацию и получить доступ в личный кабинет.
+                                </p>
+                            </div>
+                        )}
+
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div>
                                 <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -272,7 +344,12 @@ export function StepAuth() {
                         </div>
 
                         <Button onClick={handleRegister} className="w-full" size="lg" disabled={isLoading}>
-                            {isLoading ? 'Создаём аккаунт…' : '📝 Зарегистрироваться'}
+                            {isLoading
+                                ? 'Создаём аккаунт…'
+                                : clientStatus?.exists && !clientStatus?.hasPassword
+                                    ? '📝 Завершить регистрацию'
+                                    : '📝 Зарегистрироваться'
+                            }
                         </Button>
                     </div>
                 )}

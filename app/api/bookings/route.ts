@@ -92,11 +92,7 @@ export async function POST(request: NextRequest) {
                 role: 'client'
             }
 
-            // Если клиент авторизован, используем его ID из сессии
-            if (session?.user?.role === 'client' && session.user.id) {
-                newClientData.id = session.user.id
-            }
-
+            // Создаем нового клиента без явного указания ID - база сгенерирует автоматически
             const { data: newClient, error: createClientError } = await supabase
                 .from('clients')
                 .insert([newClientData])

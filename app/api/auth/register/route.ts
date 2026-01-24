@@ -48,11 +48,62 @@ export async function POST(request: NextRequest) {
         const phone = normalizePhone(phoneRaw)
         const phone_hash = createHash('sha256').update(phone).digest('hex')
 
-        // Проверяем email если указан
-        if (email) {
+        // Проверяем телефон и определяем статус клиента
+        const { data: existingByPhone, error: existingByPhoneError } = await supabase
+            .from('clients')
+            .select('id, password, name, email')
+            .eq('phone', phone)
+            .maybeSingle()
+
+        if (existingByPhoneError) {
+            return NextResponse.json({ error: existingByPhoneError.message }, { status: 500 })
+        }
+
+        // Хешируем пароль
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        let clientData: any
+        let isNewClient = false
+        let clientId: string
+        let clientName: string
+        let clientEmail: string | null
+
+        // Приоритет: проверяем по телефону, потом по email
+        if (existingByPhone) {
+            // Клиент найден по телефону
+            if (existingByPhone.password) {
+                return NextResponse.json({
+                    error: 'Пользователь с таким телефоном уже зарегистрирован. Используйте вход.'
+                }, { status: 409 })
+            }
+            // Обновляем существующего клиента найденного по телефону
+            clientData = {
+                name: existingByPhone.name || name,
+                email: email || existingByPhone.email,
+                password: hashedPassword,
+                telegram: telegram || null,
+                updated_at: new Date().toISOString()
+            }
+
+            const { data: updatedClient, error: updateError } = await supabase
+                .from('clients')
+                .update(clientData)
+                .eq('id', existingByPhone.id)
+                .select('id, name, email')
+                .single()
+
+            if (updateError) {
+                return NextResponse.json({ error: updateError.message }, { status: 500 })
+            }
+
+            clientId = updatedClient.id
+            clientName = updatedClient.name
+            clientEmail = updatedClient.email
+        } else if (email) {
+            // Проверяем по email только если не нашли по телефону
             const { data: existingByEmail, error: existingByEmailError } = await supabase
                 .from('clients')
-                .select('id')
+                .select('id, password, name, email')
                 .eq('email', email)
                 .maybeSingle()
 
@@ -61,33 +112,39 @@ export async function POST(request: NextRequest) {
             }
 
             if (existingByEmail) {
-                return NextResponse.json({ error: 'Пользователь с таким email уже существует' }, { status: 409 })
-            }
-        }
+                if (existingByEmail.password) {
+                    return NextResponse.json({
+                        error: 'Пользователь с таким email уже зарегистрирован. Используйте вход.'
+                    }, { status: 409 })
+                }
+                // Обновляем существующего клиента найденного по email
+                clientData = {
+                    name: existingByEmail.name || name,
+                    phone: phone,
+                    phone_hash: phone_hash,
+                    password: hashedPassword,
+                    telegram: telegram || null,
+                    updated_at: new Date().toISOString()
+                }
 
-        // Проверяем уникальность телефона
-        const { data: existingByPhone, error: existingByPhoneError } = await supabase
-            .from('clients')
-            .select('id')
-            .eq('phone', phone)
-            .maybeSingle()
+                const { data: updatedClient, error: updateError } = await supabase
+                    .from('clients')
+                    .update(clientData)
+                    .eq('id', existingByEmail.id)
+                    .select('id, name, email')
+                    .single()
 
-        if (existingByPhoneError) {
-            return NextResponse.json({ error: existingByPhoneError.message }, { status: 500 })
-        }
+                if (updateError) {
+                    return NextResponse.json({ error: updateError.message }, { status: 500 })
+                }
 
-        if (existingByPhone) {
-            return NextResponse.json({ error: 'Пользователь с таким телефоном уже существует' }, { status: 409 })
-        }
-
-        // Хешируем пароль
-        const hashedPassword = await bcrypt.hash(password, 10)
-
-        // Создаем клиента
-        const { data, error } = await supabase
-            .from('clients')
-            .insert([
-                {
+                clientId = updatedClient.id
+                clientName = updatedClient.name
+                clientEmail = updatedClient.email
+            } else {
+                // Создаем нового клиента
+                isNewClient = true
+                clientData = {
                     name,
                     email: email || null,
                     phone,
@@ -95,32 +152,72 @@ export async function POST(request: NextRequest) {
                     password: hashedPassword,
                     telegram: telegram || null,
                     role: 'client',
-                },
-            ])
-            .select('id, name, email')
-            .single()
+                }
 
-        if (error) {
-            return NextResponse.json({ error: error.message }, { status: 500 })
+                const { data: newClient, error: insertError } = await supabase
+                    .from('clients')
+                    .insert([clientData])
+                    .select('id, name, email')
+                    .single()
+
+                if (insertError) {
+                    return NextResponse.json({ error: insertError.message }, { status: 500 })
+                }
+
+                clientId = newClient.id
+                clientName = newClient.name
+                clientEmail = newClient.email
+            }
+        } else {
+            // Создаем нового клиента (без email)
+            isNewClient = true
+            clientData = {
+                name,
+                email: null,
+                phone,
+                phone_hash,
+                password: hashedPassword,
+                telegram: telegram || null,
+                role: 'client',
+            }
+
+            const { data: newClient, error: insertError } = await supabase
+                .from('clients')
+                .insert([clientData])
+                .select('id, name, email')
+                .single()
+
+            if (insertError) {
+                return NextResponse.json({ error: insertError.message }, { status: 500 })
+            }
+
+            clientId = newClient.id
+            clientName = newClient.name
+            clientEmail = newClient.email
         }
 
         // 🎯 ОТПРАВЛЯЕМ WELCOME EMAIL
-        if (email) {
+        if (clientEmail) {
             // Запускаем отправку email асинхронно (не блокируем ответ)
             sendWelcomeEmail({
-                to: email,
-                userName: name,
+                to: clientEmail,
+                userName: clientName,
             }).catch((emailError) => {
                 // Логируем ошибку, но не прерываем регистрацию
                 console.error('Failed to send welcome email:', emailError);
             });
         }
 
-        return NextResponse.json({
-            id: data.id,
-            message: email
+        const message = isNewClient
+            ? (clientEmail
                 ? 'Регистрация успешна! Проверьте почту для подтверждения.'
-                : 'Регистрация успешна!'
+                : 'Регистрация успешна!')
+            : 'Аккаунт успешно создан! Теперь вы можете войти в систему.';
+
+        return NextResponse.json({
+            id: clientId,
+            message,
+            isNewClient
         }, { status: 201 })
     } catch (e) {
         console.error('Register error:', e)
