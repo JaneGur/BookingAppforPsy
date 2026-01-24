@@ -430,7 +430,7 @@ export function ClientDashboardTabs() {
                                     <span className="text-lg font-semibold text-gray-700">Загрузка…</span>
                                 </div>
                             </div>
-                        ) : bookings.length === 0 ? (
+                        ) : !Array.isArray(bookings) || bookings.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-6">
                                     <span className="text-4xl">📭</span>
@@ -447,8 +447,8 @@ export function ClientDashboardTabs() {
                         ) : (
                             <div className="space-y-4">
                                 {/* Актуальные записи */}
-                                {bookings
-                                    .filter(booking => booking.status !== 'cancelled')
+                                {Array.isArray(bookings) && bookings
+                                    .filter((booking: Booking) => booking.status !== 'cancelled')
                                     .sort((a, b) => {
                                         const aDt = Date.parse(`${a.booking_date}T${a.booking_time}:00`)
                                         const bDt = Date.parse(`${b.booking_date}T${b.booking_time}:00`)
@@ -459,8 +459,8 @@ export function ClientDashboardTabs() {
                                     ))}
 
                                 {/* Отмененные записи */}
-                                {bookings
-                                    .filter(booking => booking.status === 'cancelled')
+                                {Array.isArray(bookings) && bookings
+                                    .filter((booking: Booking) => booking.status === 'cancelled')
                                     .sort((a, b) => {
                                         const aDt = Date.parse(`${a.booking_date}T${a.booking_time}:00`)
                                         const bDt = Date.parse(`${b.booking_date}T${b.booking_time}:00`)
