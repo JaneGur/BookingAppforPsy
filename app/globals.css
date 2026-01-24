@@ -1,0 +1,617 @@
+/* Импорт красивых шрифтов */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap');
+
+@config "../tailwind.config.ts";
+@import "tailwindcss";
+
+@layer base {
+    body {
+        background: linear-gradient(135deg, #f8fcfb 0%, #e8f5f1 50%, #ddf0ea 100%);
+        color: rgb(17 24 39);
+        font-family: Inter, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        /* Улучшенный паттерн с mesh градиентом */
+        background-image:
+            radial-gradient(at 20% 10%, rgba(136, 200, 188, 0.08) 0px, transparent 50%),
+            radial-gradient(at 80% 20%, rgba(95, 178, 159, 0.06) 0px, transparent 50%),
+            radial-gradient(at 40% 80%, rgba(168, 213, 186, 0.05) 0px, transparent 50%),
+            radial-gradient(at 90% 90%, rgba(107, 162, 146, 0.07) 0px, transparent 50%),
+            repeating-linear-gradient(
+                0deg,
+                rgba(136, 200, 188, 0.02) 0px,
+                transparent 1px,
+                transparent 60px,
+                rgba(136, 200, 188, 0.02) 61px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                rgba(136, 200, 188, 0.02) 0px,
+                transparent 1px,
+                transparent 60px,
+                rgba(136, 200, 188, 0.02) 61px
+            );
+        background-attachment: fixed;
+    }
+    
+    /* Плавные переходы для всех интерактивных элементов */
+    button, a, input, select, textarea {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Убираем дефолтные стили браузера для кнопок */
+    button {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    button:active {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Плавное появление элементов при загрузке */
+    * {
+        scroll-behavior: smooth;
+    }
+
+    /* Улучшенное выделение текста */
+    ::selection {
+        background: rgba(95, 178, 159, 0.3);
+        color: inherit;
+    }
+
+    /* Улучшенный focus */
+    :focus-visible {
+        outline: 2px solid rgba(95, 178, 159, 0.5);
+        outline-offset: 2px;
+        border-radius: 0.5rem;
+    }
+}
+
+@layer components {
+    /* Градиентный заголовок */
+    .gradient-header {
+        background: linear-gradient(135deg, #5fb29f, #3d8f7d, #2e7366);
+        color: white;
+        padding: 2.5rem 3rem;
+        border-radius: 1.5rem;
+        box-shadow: 
+            0 10px 30px rgba(71, 127, 110, 0.3),
+            0 4px 12px rgba(47, 115, 102, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .gradient-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.15), transparent 50%);
+        opacity: 0.8;
+    }
+
+    .gradient-header:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            0 15px 40px rgba(71, 127, 110, 0.35),
+            0 6px 16px rgba(47, 115, 102, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    /* Карточка записи */
+    .booking-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(16px);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(136, 200, 188, 0.2);
+        box-shadow: 
+            0 4px 6px rgba(0, 0, 0, 0.02),
+            0 10px 20px rgba(136, 200, 188, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .booking-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #5fb29f, #88c8bc, #5fb29f);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .booking-card:hover {
+        box-shadow: 
+            0 8px 16px rgba(0, 0, 0, 0.04),
+            0 20px 40px rgba(136, 200, 188, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 1);
+        transform: translateY(-4px);
+        border-color: rgba(136, 200, 188, 0.35);
+    }
+
+    .booking-card:hover::before {
+        opacity: 1;
+    }
+
+    .booking-page-surface {
+        position: relative;
+        min-height: 100vh;
+        padding: 2rem 0 5rem;
+        overflow: hidden;
+    }
+
+    @media (min-width: 640px) {
+        .booking-page-surface {
+            padding: 3rem 0 6rem;
+        }
+    }
+
+    .booking-page-gradient {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 15% 10%, rgba(136, 200, 188, 0.15), transparent 50%),
+            radial-gradient(circle at 85% 30%, rgba(95, 178, 159, 0.12), transparent 45%),
+            radial-gradient(circle at 50% 70%, rgba(168, 213, 186, 0.1), transparent 50%);
+        animation: gradientShift 20s ease infinite;
+    }
+
+    .booking-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.5rem;
+        padding: 2.5rem 2rem;
+        background: linear-gradient(135deg, #4fa893 0%, #3d8f7d 50%, #2e7366 100%);
+        box-shadow: 
+            0 20px 40px rgba(71, 127, 110, 0.25),
+            0 8px 20px rgba(47, 115, 102, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        animation: heroFloat 6s ease-in-out infinite;
+    }
+
+    @media (min-width: 640px) {
+        .booking-hero {
+            border-radius: 2rem;
+            padding: 3rem 2.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .booking-hero {
+            border-radius: 2.5rem;
+            padding: 3.5rem 3rem;
+            box-shadow: 
+                0 30px 60px rgba(71, 127, 110, 0.25),
+                0 10px 30px rgba(47, 115, 102, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+    }
+
+    .booking-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.15), transparent 40%),
+            radial-gradient(circle at 80% 80%, rgba(136, 200, 188, 0.2), transparent 40%);
+        z-index: 0;
+        animation: pulse 8s ease-in-out infinite;
+    }
+
+    .booking-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.08), transparent 45%),
+            radial-gradient(circle at 30% 70%, rgba(168, 213, 186, 0.12), transparent 40%);
+        z-index: 0;
+        opacity: 0.7;
+    }
+
+    .booking-hero > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-highlight {
+        border-radius: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 1.25rem 1.5rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: fadeInUp 0.6s ease-out backwards;
+    }
+
+    .hero-highlight:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .hero-highlight:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .hero-highlight:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .hero-highlight:hover {
+        transform: translateY(-4px) scale(1.02);
+        background: rgba(255, 255, 255, 0.22);
+        border-color: rgba(255, 255, 255, 0.45);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .info-grid-card {
+        border: 1px solid rgba(136, 200, 188, 0.2);
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(248, 252, 251, 0.95));
+        box-shadow: 
+            0 4px 12px rgba(15, 23, 42, 0.04), 
+            0 2px 6px rgba(136, 200, 188, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .info-grid-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            0 8px 20px rgba(15, 23, 42, 0.06), 
+            0 4px 10px rgba(136, 200, 188, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 1);
+        border-color: rgba(136, 200, 188, 0.3);
+    }
+
+    .badge-pill {
+        display: inline-flex;
+        gap: 0.5rem;
+        align-items: center;
+        border-radius: 9999px;
+        padding: 0.5rem 1.1rem;
+        background: rgba(255, 255, 255, 0.25);
+        color: inherit;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(8px);
+        transition: all 0.3s;
+        animation: fadeInUp 0.6s ease-out backwards;
+    }
+
+    .badge-pill:hover {
+        background: rgba(255, 255, 255, 0.35);
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(136, 200, 188, 0.25);
+        box-shadow: 
+            0 4px 12px rgba(15, 23, 42, 0.04), 
+            0 2px 6px rgba(136, 200, 188, 0.08);
+        transition: all 0.3s;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            0 8px 20px rgba(15, 23, 42, 0.06), 
+            0 4px 10px rgba(136, 200, 188, 0.12);
+    }
+
+    .timeline-card {
+        position: relative;
+        border-radius: 1.5rem;
+        padding: 1.5rem 1.5rem 1.5rem 2rem;
+        border: 1px solid rgba(136, 200, 188, 0.2);
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 
+            0 4px 8px rgba(15, 23, 42, 0.04), 
+            0 2px 4px rgba(136, 200, 188, 0.06);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .timeline-card:hover {
+        transform: translateX(4px);
+        box-shadow: 
+            0 8px 16px rgba(15, 23, 42, 0.06), 
+            0 4px 8px rgba(136, 200, 188, 0.1);
+        border-color: rgba(136, 200, 188, 0.35);
+    }
+
+    .timeline-card::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 1.5rem;
+        bottom: 1.5rem;
+        width: 4px;
+        border-radius: 9999px;
+        background: linear-gradient(180deg, #5fb29f, #3d8f7d);
+        box-shadow: 0 0 8px rgba(95, 178, 159, 0.4);
+        transition: all 0.3s;
+    }
+
+    .timeline-card:hover::before {
+        box-shadow: 0 0 12px rgba(95, 178, 159, 0.6);
+        width: 5px;
+    }
+
+    /* Статус бейдж */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+    }
+
+    .status-badge:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Информационная панель */
+    .info-panel {
+        background: linear-gradient(140deg, rgba(248, 252, 251, 0.98), rgba(236, 245, 242, 0.95));
+        backdrop-filter: blur(16px);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(136, 200, 188, 0.25);
+        box-shadow: 
+            0 4px 12px rgba(0, 0, 0, 0.04), 
+            0 2px 6px rgba(136, 200, 188, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .info-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #5fb29f, #88c8bc, #a8d5ba, #88c8bc, #5fb29f);
+        background-size: 200% 100%;
+        animation: shimmer 3s linear infinite;
+    }
+
+    .info-panel:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            0 8px 20px rgba(0, 0, 0, 0.06), 
+            0 4px 10px rgba(136, 200, 188, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 1);
+        border-color: rgba(136, 200, 188, 0.35);
+    }
+
+    /* Исправление белых кнопок при нажатии */
+    button:active {
+        outline: none !important;
+    }
+
+    /* Основные кнопки (с градиентом) */
+    button[data-button-variant="default"]:active {
+        background-image: linear-gradient(to bottom right, #5fb29f, #3d8f7d) !important;
+        background-color: transparent !important;
+        color: white !important;
+        -webkit-tap-highlight-color: transparent !important;
+        transform: scale(0.95) !important;
+    }
+
+    /* Вторичные кнопки (белые) */
+    button[data-button-variant="secondary"]:active {
+        background-color: #e8f5f1 !important;
+        background-image: none !important;
+        color: #3d8f7d !important;
+        border-color: #5fb29f !important;
+        -webkit-tap-highlight-color: transparent !important;
+        transform: scale(0.95) !important;
+    }
+
+    /* Эффект ripple для кнопок */
+    button {
+        position: relative;
+        overflow: hidden;
+    }
+
+    button::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    button:active::after {
+        width: 300px;
+        height: 300px;
+    }
+}
+
+@layer utilities {
+    /* Стильный скроллбар */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 0.625rem;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(243, 244, 246, 0.8);
+        border-radius: 9999px;
+        margin: 0.5rem 0;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #5fb29f, #3d8f7d);
+        border-radius: 9999px;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        transition: all 0.3s;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #3d8f7d, #2e7366);
+        border-color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Утилита для текстового градиента */
+    .gradient-text {
+        background: linear-gradient(135deg, #5fb29f, #3d8f7d, #2e7366);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Утилита для анимации появления */
+    .fade-in {
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    .slide-in-left {
+        animation: slideInFromLeft 0.6s ease-out;
+    }
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes gradientShift {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Улучшенная мобильная адаптация */
+@media (max-width: 640px) {
+    /* Увеличиваем базовый размер шрифта на мобильных */
+    html {
+        font-size: 16px;
+    }
+    
+    /* Минимальный размер области касания */
+    button, a, input, select, textarea {
+        min-height: 44px;
+    }
+    
+    /* Предотвращаем горизонтальный скролл */
+    body {
+        overflow-x: hidden;
+    }
+    
+    /* Улучшаем читабельность текста */
+    .text-xs {
+        font-size: 0.8125rem; /* 13px */
+    }
+    
+    .text-sm {
+        font-size: 0.875rem; /* 14px */
+    }
+    
+    .text-base {
+        font-size: 1rem; /* 16px */
+    }
+}
