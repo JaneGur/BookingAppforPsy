@@ -480,7 +480,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    refetch()
+                                    loadBookings(1, true)
                                 }
                             }}
                             placeholder="Поиск по имени, телефону, email..."
