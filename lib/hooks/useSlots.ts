@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 // Получить доступные слоты для даты
 export function useAvailableSlots(date: string | undefined) {
     return useQuery({
-        queryKey: ['slots', 'available', date],
+        queryKey: ['slots', 'available', date].filter((item): item is string => Boolean(item)),
         queryFn: async () => {
             const res = await fetch(`/api/slots/available?date=${date}`)
             if (!res.ok) throw new Error('Failed to fetch slots')
@@ -26,7 +26,7 @@ export function useAvailableSlotsForReschedule(args: {
     const { date, originalDate, originalTime } = args
 
     return useQuery({
-        queryKey: ['slots', 'available', 'reschedule', date, originalDate, originalTime],
+        queryKey: ['slots', 'available', 'reschedule', date, originalDate, originalTime].filter((item): item is string => Boolean(item)),
         queryFn: async () => {
             if (!date) return [] as string[]
             const res = await fetch(`/api/slots/available?date=${date}`)

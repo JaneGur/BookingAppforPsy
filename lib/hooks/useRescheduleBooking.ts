@@ -23,7 +23,7 @@ export interface RescheduleInfoResponse {
 
 export function useRescheduleInfo(bookingId: number | undefined) {
   return useQuery({
-    queryKey: ['bookings', bookingId, 'reschedule-info'],
+    queryKey: ['bookings', bookingId, 'reschedule-info'].filter((item): item is string => Boolean(item)),
     queryFn: async () => {
       const res = await fetch(`/api/bookings/${bookingId}/reschedule`, { method: 'GET' })
       if (!res.ok) {

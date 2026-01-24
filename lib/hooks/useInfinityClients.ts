@@ -29,7 +29,7 @@ export function useInfinityClients(options: UseInfinityClientsOptions = {}) {
     } = options
 
     return useInfinityQuery<Client>({
-        queryKey: ['clients', search, activeOnly?.toString(), sortBy, sortOrder],
+        queryKey: ['clients', search, activeOnly?.toString(), sortBy, sortOrder].filter((item): item is string => Boolean(item)),
         fetchFn: async (page: number, limit: number) => {
             const params = new URLSearchParams({
                 page: page.toString(),

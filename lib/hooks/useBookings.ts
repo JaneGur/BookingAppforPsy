@@ -4,7 +4,7 @@ import { Booking } from '@/types/booking'
 // Получить все записи клиента
 export function useClientBookings(phone: string | undefined) {
     return useQuery({
-        queryKey: ['bookings', 'client', phone],
+        queryKey: ['bookings', 'client', phone].filter((item): item is string => Boolean(item)),
         queryFn: async () => {
             const res = await fetch(`/api/bookings?phone=${phone}`)
             if (!res.ok) throw new Error('Failed to fetch bookings')

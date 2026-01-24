@@ -24,12 +24,12 @@ export interface ClientProfile {
 // Получить список всех клиентов
 export function useClients(search?: string, activeOnly?: boolean) {
     return useQuery({
-        queryKey: ['admin', 'clients', search, activeOnly],
+        queryKey: ['admin', 'clients', search, activeOnly].filter((item): item is string => Boolean(item)),
         queryFn: async () => {
             const params = new URLSearchParams()
             if (search) params.append('search', search)
             if (activeOnly) params.append('active_only', 'true')
-            
+
             const res = await fetch(`/api/admin/clients?${params}`)
             if (!res.ok) throw new Error('Failed to fetch clients')
             return res.json() as Promise<Client[]>
@@ -40,7 +40,7 @@ export function useClients(search?: string, activeOnly?: boolean) {
 // Получить детальную информацию о клиенте с историей записей
 export function useClientProfile(clientId: string | undefined) {
     return useQuery({
-        queryKey: ['admin', 'clients', clientId],
+        queryKey: ['admin', 'clients', clientId].filter((item): item is string => Boolean(item)),
         queryFn: async () => {
             const res = await fetch(`/api/admin/clients/${clientId}`)
             if (!res.ok) throw new Error('Failed to fetch client profile')
