@@ -41,7 +41,7 @@ export function useInfinityBookings(options: UseInfinityBookingsOptions = {}) {
     } = options
 
     return useInfinityQuery<Booking>({
-        queryKey: ['bookings', clientId, status, sortBy, sortOrder],
+        queryKey: ['bookings', clientId, status, sortBy, sortOrder].filter((item): item is string => Boolean(item)),
         fetchFn: async (page: number, limit: number) => {
             const params = new URLSearchParams({
                 page: page.toString(),
