@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { createServiceRoleSupabaseClient } from '@/lib/supabase/server';
+import { supabase as anonSupabase } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
     try {
@@ -11,7 +12,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const supabase = createServiceRoleSupabaseClient();
+        let supabase = anonSupabase;
+        try {
+            supabase = createServiceRoleSupabaseClient();
+        } catch (error) {
+            console.warn('Service role key not set, fallback to anon supabase:', error);
+        }
 
         // Отключаем Telegram (очищаем chat_id и username)
         const { error } = await supabase

@@ -1,6 +1,7 @@
 // app/api/telegram/webhook/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleSupabaseClient } from '@/lib/supabase/server';
+import { supabase as anonSupabase } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
     try {
@@ -32,7 +33,12 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ ok: true });
         }
 
-        const supabase = createServiceRoleSupabaseClient();
+        let supabase = anonSupabase;
+        try {
+            supabase = createServiceRoleSupabaseClient();
+        } catch (error) {
+            console.warn('Service role key not set, fallback to anon supabase:', error);
+        }
 
         // Ищем токен в базе
         const { data: tokenData, error: tokenError } = await supabase
