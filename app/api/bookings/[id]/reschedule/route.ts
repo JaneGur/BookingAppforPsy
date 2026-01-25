@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { auth } from '@/auth'
+import {
+    sendAdminNotification,
+    sendClientNotification,
+    formatRescheduleBookingNotification,
+    formatClientRescheduleNotification,
+} from '@/lib/utils/telegram'
+import { sendBookingStatusEmail } from '@/lib/emails/email'
 
 function toDateStringMsk(date: Date) {
     const msk = new Date(date.getTime() + 3 * 60 * 60 * 1000)
@@ -153,6 +160,51 @@ export async function POST(
 
         if (historyError) {
             console.error('Error creating reschedule history:', historyError)
+        }
+
+        const { data: product } = await supabase
+            .from('products')
+            .select('name')
+            .eq('id', booking.product_id)
+            .maybeSingle()
+
+        const productName = product?.name || 'Консультация'
+        const productDescription = booking.product_description || undefined
+
+        const adminMessage = formatRescheduleBookingNotification({
+            id: bookingId,
+            client_name: booking.client_name,
+            old_date: booking.booking_date,
+            old_time: String(booking.booking_time).slice(0, 5),
+            new_date,
+            new_time: String(normalizedTime).slice(0, 5),
+            product_description: productDescription,
+        })
+        await sendAdminNotification(adminMessage)
+
+        if (booking.telegram_chat_id) {
+            const clientMessage = formatClientRescheduleNotification(
+                booking.booking_date,
+                String(booking.booking_time).slice(0, 5),
+                new_date,
+                String(normalizedTime).slice(0, 5),
+                productName,
+                productDescription,
+            )
+            await sendClientNotification(booking.telegram_chat_id, clientMessage)
+        }
+
+        if (booking.client_email) {
+            await sendBookingStatusEmail({
+                to: booking.client_email,
+                userName: booking.client_name,
+                bookingDate: new_date,
+                bookingTime: String(normalizedTime).slice(0, 5),
+                productName,
+                productDescription,
+                statusLabel: 'Запись перенесена',
+                subject: '🔄 Запись перенесена',
+            })
         }
 
         return NextResponse.json({
