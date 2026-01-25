@@ -94,6 +94,12 @@ export async function PATCH(
         }
 
         if (body?.status && body.status !== existing.booking.status) {
+            const statusLabels: Record<string, string> = {
+                pending_payment: '⏳ Ожидает оплаты',
+                confirmed: '✅ Подтверждена',
+                completed: '🎉 Завершена',
+                cancelled: '❌ Отменена',
+            }
             const adminMessage = formatStatusChangeNotification({
                 id: bookingId,
                 client_name: existing.booking.client_name,
@@ -110,8 +116,8 @@ export async function PATCH(
                     `📅 <b>Дата:</b> ${existing.booking.booking_date}\n` +
                     `⏰ <b>Время:</b> ${existing.booking.booking_time}\n` +
                     `${existing.booking.product_description ? `📝 <b>Описание:</b> ${existing.booking.product_description}\n` : ''}` +
-                    `<b>Было:</b> ${existing.booking.status}\n` +
-                    `<b>Стало:</b> ${body.status}`
+                    `<b>Было:</b> ${statusLabels[existing.booking.status] || existing.booking.status}\n` +
+                    `<b>Стало:</b> ${statusLabels[body.status] || body.status}`
                 await sendClientNotification(existing.booking.telegram_chat_id, clientMessage)
             }
 
@@ -203,27 +209,7 @@ export async function DELETE(
             product_description: booking.product_description || undefined,
         }))
 
-        if (booking.telegram_chat_id) {
-            const clientMessage = `🗑️ <b>Запись удалена</b>\n\n` +
-                `📅 <b>Дата:</b> ${booking.booking_date}\n` +
-                `⏰ <b>Время:</b> ${booking.booking_time}\n` +
-                `${booking.product_description ? `📝 <b>Описание:</b> ${booking.product_description}\n` : ''}` +
-                `Если у вас есть вопросы, свяжитесь с нами.`
-            await sendClientNotification(booking.telegram_chat_id, clientMessage)
-        }
-
-        if (booking.client_email) {
-            await sendBookingStatusEmail({
-                to: booking.client_email,
-                userName: booking.client_name,
-                bookingDate: booking.booking_date,
-                bookingTime: booking.booking_time,
-                productName: 'Консультация',
-                productDescription: booking.product_description || undefined,
-                statusLabel: 'Удалена',
-                subject: '🗑️ Запись удалена',
-            })
-        }
+        // Не уведомляем клиента об удалении (внутреннее действие)
 
         console.log(`[DELETE] Запись ${bookingId} успешно удалена из базы`)
 
