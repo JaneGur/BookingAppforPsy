@@ -1,6 +1,6 @@
 // app/api/telegram/webhook/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/db';
+import { createServiceRoleSupabaseClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
     try {
@@ -31,6 +31,8 @@ export async function POST(request: NextRequest) {
             );
             return NextResponse.json({ ok: true });
         }
+
+        const supabase = createServiceRoleSupabaseClient();
 
         // Ищем токен в базе
         const { data: tokenData, error: tokenError } = await supabase

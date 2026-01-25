@@ -1,7 +1,7 @@
 // app/api/profile/telegram/connect/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { supabase } from '@/lib/db';
+import { createServiceRoleSupabaseClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
@@ -11,6 +11,8 @@ export async function POST(request: NextRequest) {
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+
+        const supabase = createServiceRoleSupabaseClient();
 
         // Проверяем, не подключен ли уже Telegram
         const { data: client } = await supabase
@@ -46,8 +48,14 @@ export async function POST(request: NextRequest) {
             }, { status: 500 });
         }
 
+        const botUsername = process.env.TELEGRAM_BOT_USERNAME;
+        if (!botUsername || botUsername === 'your_bot') {
+            return NextResponse.json({
+                error: 'Telegram bot не настроен (TELEGRAM_BOT_USERNAME).'
+            }, { status: 500 });
+        }
+
         // Формируем ссылку на бота
-        const botUsername = process.env.TELEGRAM_BOT_USERNAME || 'your_bot';
         const telegramLink = `https://t.me/${botUsername}?start=${token}`;
 
         return NextResponse.json({

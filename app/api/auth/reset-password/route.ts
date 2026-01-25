@@ -1,7 +1,7 @@
 // app/api/auth/reset-password/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { supabase } from '@/lib/db';
+import { createServiceRoleSupabaseClient } from '@/lib/supabase/server';
 
 export async function PATCH(req: NextRequest) {
     console.log('=== RESET PASSWORD API CALL START ===');
@@ -33,6 +33,8 @@ export async function PATCH(req: NextRequest) {
 
         // Проверяем токен в БД (ИСПРАВЛЕНО: client_id вместо user_id)
         console.log('Querying Supabase for token...');
+
+        const supabase = createServiceRoleSupabaseClient();
 
         const { data: tokenRecord, error: tokenError } = await supabase
             .from('password_reset_tokens')

@@ -80,6 +80,98 @@ export async function sendBookingConfirmationEmail({
     }
 }
 
+export async function sendBookingCreatedEmail({
+                                                 to,
+                                                 userName,
+                                                 bookingDate,
+                                                 bookingTime,
+                                                 productName,
+                                                 productDescription,
+                                                 amount,
+                                             }: {
+    to: string;
+    userName: string;
+    bookingDate: string;
+    bookingTime: string;
+    productName: string;
+    productDescription?: string;
+    amount: number;
+}) {
+    try {
+        const { data, error } = await resend.emails.send({
+            from: 'Арт-терапия <onboarding@resend.dev>',
+            to: [to],
+            subject: '🆕 Запись создана',
+            html: `
+                <h2>Здравствуйте, ${userName}!</h2>
+                <p>Ваша запись успешно создана.</p>
+                <p><strong>📅 Дата:</strong> ${bookingDate}</p>
+                <p><strong>🕐 Время:</strong> ${bookingTime}</p>
+                <p><strong>🎯 Услуга:</strong> ${productName}</p>
+                ${productDescription ? `<p><strong>📝 Описание:</strong> ${productDescription}</p>` : ''}
+                <p><strong>💰 Сумма:</strong> ${amount.toLocaleString('ru-RU')} ₽</p>
+                <p>Мы отправим напоминания перед консультацией.</p>
+            `,
+        });
+
+        if (error) {
+            console.error('Booking created email error:', error);
+            return { success: false, error };
+        }
+
+        return { success: true, data };
+    } catch (error) {
+        console.error('Booking created email exception:', error);
+        return { success: false, error };
+    }
+}
+
+export async function sendBookingStatusEmail({
+                                                to,
+                                                userName,
+                                                bookingDate,
+                                                bookingTime,
+                                                productName,
+                                                productDescription,
+                                                statusLabel,
+                                                subject,
+                                            }: {
+    to: string;
+    userName: string;
+    bookingDate: string;
+    bookingTime: string;
+    productName: string;
+    productDescription?: string;
+    statusLabel: string;
+    subject: string;
+}) {
+    try {
+        const { data, error } = await resend.emails.send({
+            from: 'Арт-терапия <onboarding@resend.dev>',
+            to: [to],
+            subject,
+            html: `
+                <h2>Здравствуйте, ${userName}!</h2>
+                <p><strong>Статус записи:</strong> ${statusLabel}</p>
+                <p><strong>📅 Дата:</strong> ${bookingDate}</p>
+                <p><strong>🕐 Время:</strong> ${bookingTime}</p>
+                <p><strong>🎯 Услуга:</strong> ${productName}</p>
+                ${productDescription ? `<p><strong>📝 Описание:</strong> ${productDescription}</p>` : ''}
+            `,
+        });
+
+        if (error) {
+            console.error('Booking status email error:', error);
+            return { success: false, error };
+        }
+
+        return { success: true, data };
+    } catch (error) {
+        console.error('Booking status email exception:', error);
+        return { success: false, error };
+    }
+}
+
 export async function sendBookingReminderEmail({
                                                    to,
                                                    userName,

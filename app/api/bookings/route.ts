@@ -5,6 +5,7 @@ import { supabase } from '@/lib/db'
 import { createHash } from 'crypto'
 import { auth } from '@/auth'
 import { sendAdminNotification, sendClientNotification, formatNewBookingNotification } from '@/lib/utils/telegram'
+import { sendBookingCreatedEmail } from '@/lib/emails/email'
 import { format, parseISO } from 'date-fns'
 import { ru } from 'date-fns/locale'
 
@@ -211,6 +212,22 @@ export async function POST(request: NextRequest) {
             const clientMessage = `✅ <b>Запись создана!</b>\n\n📅 <b>Дата:</b> ${bookingDateFormatted}\n⏰ <b>Время:</b> ${booking_time}\n${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}💰 <b>Сумма:</b> ${amount.toLocaleString('ru-RU')} ₽\n\n⏳ Ожидайте подтверждения записи.`;
 
             await sendClientNotification(telegramChatId, clientMessage);
+        }
+
+        if (otherFields.client_email) {
+            try {
+                await sendBookingCreatedEmail({
+                    to: otherFields.client_email,
+                    userName: normalizedName,
+                    bookingDate: booking_date,
+                    bookingTime: booking_time,
+                    productName: productName || 'Консультация',
+                    productDescription: productDescription || undefined,
+                    amount,
+                })
+            } catch (error) {
+                console.error('Failed to send booking created email:', error)
+            }
         }
 
         return NextResponse.json(newBooking, { status: 201 })

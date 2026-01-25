@@ -1,7 +1,7 @@
 // app/api/profile/telegram/disconnect/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { supabase } from '@/lib/db';
+import { createServiceRoleSupabaseClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
     try {
@@ -10,6 +10,8 @@ export async function POST(request: NextRequest) {
         if (!session?.user?.id) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
+
+        const supabase = createServiceRoleSupabaseClient();
 
         // Отключаем Telegram (очищаем chat_id и username)
         const { error } = await supabase

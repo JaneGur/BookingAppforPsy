@@ -1,7 +1,7 @@
 // app/api/auth/forgot-password/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { supabase } from '@/lib/db';
+import { createServiceRoleSupabaseClient } from '@/lib/supabase/server';
 import {sendPasswordResetEmail} from "@/lib/emails/email";
 
 
@@ -15,6 +15,8 @@ export async function POST(req: NextRequest) {
         if (!email && !phone) {
             return NextResponse.json({ error: 'Укажите email или телефон' }, { status: 400 });
         }
+
+        const supabase = createServiceRoleSupabaseClient();
 
         // Ищем пользователя
         const { data: user, error: userError } = await supabase

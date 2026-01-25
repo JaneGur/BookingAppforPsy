@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/db'
 import { auth } from '@/auth'
+import { sendAdminNotification, sendClientNotification, formatStatusChangeNotification } from '@/lib/utils/telegram'
+import { sendBookingStatusEmail } from '@/lib/emails/email'
 
 export async function POST(
     request: NextRequest,
@@ -97,11 +99,62 @@ export async function POST(
             })
         */
 
+        const { data: updatedBooking, error: updateError } = await supabase
+            .from('bookings')
+            .update({
+                status: 'confirmed',
+                paid_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            })
+            .eq('id', bookingId)
+            .select('*')
+            .single()
+
+        if (updateError) {
+            return NextResponse.json(
+                { error: 'Не удалось обновить оплату' },
+                { status: 500 }
+            )
+        }
+
+        const adminMessage = formatStatusChangeNotification({
+            id: bookingId,
+            client_name: booking.client_name,
+            old_status: booking.status,
+            new_status: 'confirmed',
+            booking_date: booking.booking_date,
+            booking_time: booking.booking_time,
+            product_description: booking.product_description || undefined,
+        })
+        await sendAdminNotification(adminMessage)
+
+        if (booking.telegram_chat_id) {
+            const clientMessage = `✅ <b>Оплата подтверждена</b>\n\n` +
+                `📅 <b>Дата:</b> ${booking.booking_date}\n` +
+                `⏰ <b>Время:</b> ${booking.booking_time}\n` +
+                `${booking.product_description ? `📝 <b>Описание:</b> ${booking.product_description}\n` : ''}` +
+                `Статус записи: подтверждена`
+            await sendClientNotification(booking.telegram_chat_id, clientMessage)
+        }
+
+        if (booking.client_email) {
+            await sendBookingStatusEmail({
+                to: booking.client_email,
+                userName: booking.client_name,
+                bookingDate: booking.booking_date,
+                bookingTime: booking.booking_time,
+                productName: 'Консультация',
+                productDescription: booking.product_description || undefined,
+                statusLabel: 'Оплата подтверждена',
+                subject: '✅ Оплата подтверждена',
+            })
+        }
+
         return NextResponse.json({
             success: true,
             message: 'Платеж обработан',
+            booking: updatedBooking,
             paymentId: `pay_${Date.now()}_${bookingId}`,
-            // paymentUrl: 'https://payment-gateway.com/...' // ссылка для оплаты
         })
 
     } catch (error) {

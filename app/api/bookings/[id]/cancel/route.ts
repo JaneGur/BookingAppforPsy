@@ -7,6 +7,7 @@ import {
     sendClientNotification,
     formatCancelBookingNotification
 } from '@/lib/utils/telegram'
+import { sendBookingStatusEmail } from '@/lib/emails/email'
 import { format, parseISO } from 'date-fns'
 import { ru } from 'date-fns/locale'
 
@@ -167,6 +168,23 @@ export async function POST(
             }
         } else {
             console.log('ℹ️ У клиента нет telegram_chat_id, пропускаем уведомление')
+        }
+
+        if (booking.client_email) {
+            try {
+                await sendBookingStatusEmail({
+                    to: booking.client_email,
+                    userName: booking.client_name,
+                    bookingDate: booking.booking_date,
+                    bookingTime: booking.booking_time,
+                    productName: booking.product_description ? 'Консультация' : 'Консультация',
+                    productDescription: booking.product_description || undefined,
+                    statusLabel: 'Отменена',
+                    subject: '❌ Запись отменена',
+                })
+            } catch (emailError) {
+                console.error('⚠️ Ошибка отправки email клиенту:', emailError)
+            }
         }
 
         console.log(`🎉 [CANCEL] Запись ${bookingId} успешно отменена пользователем ${session.user.id}`)
