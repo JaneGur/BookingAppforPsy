@@ -64,6 +64,20 @@ export async function POST(request: NextRequest) {
         // Формируем ссылку на бота
         const telegramLink = `https://t.me/${botUsername}?start=${token}`;
 
+        const botToken = process.env.TELEGRAM_BOT_TOKEN;
+        if (botToken) {
+            const webhookUrl = `${request.nextUrl.origin}/api/telegram/webhook/`;
+            try {
+                await fetch(`https://api.telegram.org/bot${botToken}/setWebhook`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: webhookUrl }),
+                });
+            } catch (error) {
+                console.warn('Failed to set Telegram webhook:', error);
+            }
+        }
+
         return NextResponse.json({
             success: true,
             telegramLink,
