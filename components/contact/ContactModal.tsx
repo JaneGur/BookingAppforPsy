@@ -1,8 +1,9 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { ContactForm } from './ContactForm'
+
 import { MessageCircle } from 'lucide-react'
+import {ContactForm} from './ContactForm'
 
 interface ContactModalProps {
     isOpen: boolean;

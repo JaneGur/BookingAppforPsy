@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, addDays } from 'date-fns'
-import { ru } from 'date-fns/locale'
-import { BarChart3, Calendar, TrendingUp, Package, DollarSign, Filter } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Booking } from '@/types/booking'
-import { StatCardSkeleton, TableSkeleton } from '@/components/ui/skeleton'
+import {useEffect, useMemo, useState} from 'react'
+import {endOfMonth, format, startOfMonth} from 'date-fns'
+import {ru} from 'date-fns/locale'
+import {Calendar, Filter, Package} from 'lucide-react'
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
+import {Booking} from '@/types/booking'
+import {StatCardSkeleton, TableSkeleton} from '@/components/ui/skeleton'
 
 interface ProductStats {
     name: string
