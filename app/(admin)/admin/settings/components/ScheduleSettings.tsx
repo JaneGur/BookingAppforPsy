@@ -1,12 +1,11 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Clock, Calendar, Save, Info } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { AlertCircle } from 'lucide-react'
-import { calculateSchedulePreview, validateSchedule, calculateWorkingHours } from '../utils/schedule-utils'
+import {useMemo} from 'react'
+import {AlertCircle, Calendar, Clock, Info, Save} from 'lucide-react'
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
+import {calculateSchedulePreview, calculateWorkingHours, validateSchedule} from '../utils/schedule-utils'
 
 interface ScheduleSettingsProps {
     workStart: string

@@ -1,6 +1,6 @@
 'use client'
 
-import {useCallback, useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import SettingsHeader from './components/SettingsHeader'
 import SettingsTabs from './components/SettingsTabs'
 import StatusMessage from './components/StatusMessage'
@@ -16,9 +16,9 @@ import {useSettings} from './hooks/useSettings'
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<TabKey>('schedule')
     const [isSendingTest, setIsSendingTest] = useState(false)
-    const [workStart, setWorkStart] = useState('09:00')
-    const [workEnd, setWorkEnd] = useState('18:00')
-    const [sessionDuration, setSessionDuration] = useState(60)
+    const [workStart, setWorkStart] = useState('')
+    const [workEnd, setWorkEnd] = useState('')
+    const [sessionDuration, setSessionDuration] = useState(0)
     const [infoAdditional, setInfoAdditional] = useState('')
 
     const {
@@ -39,14 +39,13 @@ export default function SettingsPage() {
     } = useSettings()
 
     // Инициализация данных при загрузке настроек
-    useState(() => {
-        if (settings) {
-            setWorkStart(String(settings.work_start).slice(0, 5))
-            setWorkEnd(String(settings.work_end).slice(0, 5))
-            setSessionDuration(settings.session_duration)
-            setInfoAdditional(settings.info_additional || '')
-        }
-    })
+    useEffect(() => {
+        if (!settings) return
+        setWorkStart(String(settings.work_start).slice(0, 5))
+        setWorkEnd(String(settings.work_end).slice(0, 5))
+        setSessionDuration(settings.session_duration)
+        setInfoAdditional(settings.info_additional || '')
+    }, [settings])
 
     const handleTabChange = useCallback((tab: TabKey) => {
         setActiveTab(tab)
