@@ -72,7 +72,6 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
             setPagination(result.pagination)
             setHasMore(result.pagination?.hasMore || false)
             currentPageRef.current = page
-            setFilters(prev => ({ ...prev, currentPage: page }))
         } catch (error) {
             console.error('Error loading clients:', error)
         } finally {
@@ -86,6 +85,30 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
             loadClients(currentPageRef.current + 1, true)
         }
     }, [hasMore, isLoading, isLoadingMore, loadClients])
+
+    const filterClients = useCallback((clientsList: Client[], currentFilters: ClientsFilters) => {
+        let result = [...clientsList]
+
+        if (currentFilters.withTelegram) {
+            result = result.filter(c => c.telegram_chat_id)
+        }
+
+        if (currentFilters.withEmail) {
+            result = result.filter(c => c.email)
+        }
+
+        if (currentFilters.dateFrom) {
+            const from = startOfDay(new Date(currentFilters.dateFrom))
+            result = result.filter(c => new Date(c.created_at) >= from)
+        }
+
+        if (currentFilters.dateTo) {
+            const to = endOfDay(new Date(currentFilters.dateTo))
+            result = result.filter(c => new Date(c.created_at) <= to)
+        }
+
+        return result
+    }, [])
 
     const loadFullStats = useCallback(async () => {
         try {
@@ -118,31 +141,18 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
         } catch (error) {
             console.error('Error loading full client stats:', error)
         }
-    }, [filters, filterClients])
+    }, [
+        filters.searchQuery,
+        filters.activeOnly,
+        filters.withTelegram,
+        filters.withEmail,
+        filters.dateFrom,
+        filters.dateTo,
+        filters.sortField,
+        filters.sortDirection,
+        filterClients
+    ])
 
-    const filterClients = useCallback((clientsList: Client[], currentFilters: ClientsFilters) => {
-        let result = [...clientsList]
-
-        if (currentFilters.withTelegram) {
-            result = result.filter(c => c.telegram_chat_id)
-        }
-
-        if (currentFilters.withEmail) {
-            result = result.filter(c => c.email)
-        }
-
-        if (currentFilters.dateFrom) {
-            const from = startOfDay(new Date(currentFilters.dateFrom))
-            result = result.filter(c => new Date(c.created_at) >= from)
-        }
-
-        if (currentFilters.dateTo) {
-            const to = endOfDay(new Date(currentFilters.dateTo))
-            result = result.filter(c => new Date(c.created_at) <= to)
-        }
-
-        return result
-    }, [])
 
     const updateFilter = useCallback(<K extends keyof ClientsFilters>(key: K, value: ClientsFilters[K]) => {
         setFilters(prev => {
@@ -182,16 +192,30 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            // При изменении фильтров сбрасываем и загружаем заново
             currentPageRef.current = 1
-            setClients([])
-            setHasMore(false)
             loadClients(1, false)
+        }, 300)
+
+        return () => clearTimeout(timeoutId)
+    }, [filters.searchQuery, filters.activeOnly, filters.sortField, filters.sortDirection, loadClients])
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
             loadFullStats()
         }, 300)
 
         return () => clearTimeout(timeoutId)
-    }, [filters.searchQuery, filters.activeOnly, filters.sortField, filters.sortDirection, loadClients, loadFullStats])
+    }, [
+        filters.searchQuery,
+        filters.activeOnly,
+        filters.withTelegram,
+        filters.withEmail,
+        filters.dateFrom,
+        filters.dateTo,
+        filters.sortField,
+        filters.sortDirection,
+        loadFullStats
+    ])
 
     return {
         clients,

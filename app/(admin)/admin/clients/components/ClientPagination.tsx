@@ -43,11 +43,11 @@ export default function ClientLoadMore({
     return (
         <div className="flex flex-col items-center justify-center mt-6 gap-2">
             <Button
-                variant="outline"
+                variant="secondary"
                 size="lg"
                 onClick={onLoadMore}
                 disabled={isLoadingMore || !hasMore}
-                className="min-w-[200px]"
+                className="min-w-[200px] cursor-pointer disabled:cursor-not-allowed"
             >
                 {isLoadingMore ? (
                     <>
