@@ -95,12 +95,17 @@ interface BookingActionsProps {
 export function BookingActions({ booking }: BookingActionsProps) {
     const router = useRouter()
 
+    const [mounted, setMounted] = useState(false)
     const [isRescheduleModalOpen, setRescheduleModalOpen] = useState(false)
     const [isCancelModalOpen, setCancelModalOpen] = useState(false)
     const [isCancelling, setIsCancelling] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     const [optimisticStatus, setOptimisticStatus] = useState<Booking['status'] | null>(null)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     const bookingDateTime = new Date(
         `${booking.booking_date}T${booking.booking_time}`
@@ -199,7 +204,7 @@ export function BookingActions({ booking }: BookingActionsProps) {
                 </div>
             )}
 
-            {isRescheduleModalOpen && (
+            {isRescheduleModalOpen && mounted && createPortal(
                 <RescheduleBookingModal
                     booking={booking}
                     open={isRescheduleModalOpen}
@@ -208,7 +213,15 @@ export function BookingActions({ booking }: BookingActionsProps) {
                         // после переноса обновляем текущую страницу
                         router.refresh()
                     }}
-                />
+                    onSuccess={(updated) => {
+                        // оптимистично обновляем текущую карточку, если родитель использует данные напрямую
+                        if (booking.id === updated.id) {
+                            booking.booking_date = updated.booking_date
+                            booking.booking_time = updated.booking_time
+                        }
+                    }}
+                />,
+                document.body
             )}
 
             {isCancelModalOpen && (

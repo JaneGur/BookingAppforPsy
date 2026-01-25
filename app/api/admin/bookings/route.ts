@@ -74,6 +74,14 @@ export async function GET(request: NextRequest) {
                 .order('booking_time', { ascending: false })
         }
 
+        // Поиск на сервере по данным бронирования
+        if (search) {
+            const searchPattern = `%${search}%`
+            query = query.or(
+                `client_name.ilike.${searchPattern},client_phone.ilike.${searchPattern},client_email.ilike.${searchPattern}`
+            )
+        }
+
         // Применяем пагинацию
         query = query.range(offset, offset + limit - 1)
 
@@ -84,26 +92,12 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
-        // Поиск по имени, телефону, email (на клиенте)
-        let filteredData = data ?? []
-        if (search) {
-            const searchLower = search.toLowerCase()
-            filteredData = filteredData.filter(
-                (booking) =>
-                    booking.client_name?.toLowerCase().includes(searchLower) ||
-                    booking.client_phone?.includes(search) ||
-                    booking.client_email?.toLowerCase().includes(searchLower) ||
-                    booking.client?.name?.toLowerCase().includes(searchLower) ||
-                    booking.client?.phone?.includes(search) ||
-                    booking.client?.email?.toLowerCase().includes(searchLower)
-            )
-        }
-
+        const resultData = data ?? []
         const totalCount = count || 0
-        const hasMore = offset + limit < totalCount
+        const hasMore = resultData.length === limit && offset + limit < totalCount
 
         return NextResponse.json({
-            data: filteredData,
+            data: resultData,
             pagination: {
                 page,
                 limit,

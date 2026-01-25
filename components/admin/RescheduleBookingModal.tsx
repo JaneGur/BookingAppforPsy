@@ -32,12 +32,14 @@ interface RescheduleBookingModalProps {
     booking: Booking | null
     open: boolean
     onClose: () => void
+    onSuccess?: (booking: Booking) => void
 }
 
 export function RescheduleBookingModal({
                                            booking,
                                            open,
                                            onClose,
+                                           onSuccess,
                                        }: RescheduleBookingModalProps) {
     const bookingId = booking?.id
     const info = useRescheduleInfo(bookingId)
@@ -71,6 +73,19 @@ export function RescheduleBookingModal({
 
     const availableSlots = slotsQuery.data ?? []
 
+    useEffect(() => {
+        if (selectedDate && selectedDate !== originalDate) {
+            setSelectedTime('')
+        }
+    }, [selectedDate, originalDate])
+
+    useEffect(() => {
+        if (!availableSlots.length) return
+        if (!selectedTime || !availableSlots.includes(selectedTime)) {
+            setSelectedTime(availableSlots[0])
+        }
+    }, [availableSlots, selectedTime])
+
     const formattedCurrent = useMemo(() => {
         if (!booking) return ''
         try {
@@ -97,11 +112,16 @@ export function RescheduleBookingModal({
         setLocalError(null)
 
         try {
-            await reschedule.mutateAsync({
+            const resp = await reschedule.mutateAsync({
                 bookingId,
                 newDate: selectedDate,
                 newTime: selectedTime,
+                reason: note || null,
+                notifyTelegram: sendClientTelegram,
             })
+            if (resp?.booking) {
+                onSuccess?.(resp.booking)
+            }
             onClose()
         } catch (e) {
             setLocalError(
@@ -180,6 +200,10 @@ export function RescheduleBookingModal({
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                         Загрузка слотов…
                                     </div>
+                                ) : slotsQuery.isError ? (
+                                    <div className="text-sm text-destructive">
+                                        {(slotsQuery.error as Error)?.message || 'Не удалось загрузить слоты'}
+                                    </div>
                                 ) : availableSlots.length ? (
                                     <div className="flex flex-wrap gap-2">
                                         {availableSlots.map((t) => (
@@ -193,9 +217,10 @@ export function RescheduleBookingModal({
                                                 className={cn(
                                                     'rounded-lg px-3 py-2 text-sm font-medium transition',
                                                     t === selectedTime
-                                                        ? 'bg-primary text-primary-foreground'
+                                                        ? 'bg-primary text-primary-foreground ring-2 ring-primary/40 shadow'
                                                         : 'bg-muted hover:bg-muted/70'
                                                 )}
+                                                aria-pressed={t === selectedTime}
                                             >
                                                 {t}
                                             </button>

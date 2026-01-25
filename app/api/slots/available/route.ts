@@ -17,6 +17,12 @@ function minutesToTime(m: number) {
     return `${pad2(h)}:${pad2(mm)}`
 }
 
+function normalizeTime(value: string) {
+    const [h, m] = String(value).split(':')
+    if (!h || !m) return String(value).slice(0, 5)
+    return `${pad2(Number(h))}:${pad2(Number(m))}`
+}
+
 function getTodayMskISODate(): string {
     const nowMsk = new Date(Date.now() + 3 * 60 * 60 * 1000)
     return nowMsk.toISOString().slice(0, 10)
@@ -111,12 +117,12 @@ export async function GET(request: NextRequest) {
         const taken = new Set<string>()
             ; (bookings ?? []).forEach((b: { booking_time?: string }) => {
                 if (b.booking_time) {
-                    taken.add(String(b.booking_time).slice(0, 5))
+                    taken.add(normalizeTime(b.booking_time))
                 }
             })
             ; (blocked ?? []).forEach((b: { slot_time?: string }) => {
                 if (b.slot_time) {
-                    taken.add(String(b.slot_time).slice(0, 5))
+                    taken.add(normalizeTime(b.slot_time))
                 }
             })
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { format, parseISO, startOfDay, addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import {
@@ -8,8 +8,6 @@ import {
     Search,
     Filter,
     Plus,
-    ChevronLeft,
-    ChevronRight,
     CheckCircle,
     XCircle,
     Trash2,
@@ -33,9 +31,8 @@ import { BookingDetailsModal } from './BookingDetailsModal'
 import { useUpdateBookingStatus, useDeleteBooking, useCancelBooking } from '@/lib/hooks'
 import { RescheduleBookingModal } from '@/components/admin/RescheduleBookingModal'
 import { toast } from 'sonner'
-import { useInfinityAdminBookings } from '@/lib/hooks/useInfinityAdminBookings'
 import { LoadMoreButton } from '@/components/ui/LoadMoreButton'
-import { useQueryClient, useQuery } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface BookingsTabProps {
     onCreateBooking: () => void
@@ -46,6 +43,8 @@ type ViewMode = 'list' | 'calendar'
 type SortField = 'date' | 'created_at' | 'status' | 'amount' | 'client_name'
 type SortDirection = 'asc' | 'desc'
 type QuickFilter = 'all' | 'today' | 'week' | 'month' | 'upcoming' | 'past'
+
+const BOOKINGS_PER_PAGE = 10
 
 function StatusBadge({ status }: { status: Booking['status'] }) {
     const base = 'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-all duration-300 hover:scale-105'
@@ -81,20 +80,24 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
     const [selectedDayBookings, setSelectedDayBookings] = useState<Booking[]>([])
     const [detailsBooking, setDetailsBooking] = useState<Booking | null>(null)
 
-    // Настоящая пагинация для заказов
-    const [currentPage, setCurrentPage] = useState(1)
+    // Кнопка "Показать еще" для заказов
+    const currentPageRef = useRef(1)
     const [bookings, setBookings] = useState<Booking[]>([])
-    const [pagination, setPagination] = useState<any>(null)
     const [isLoading, setIsLoading] = useState(false)
-    const [totalCount, setTotalCount] = useState(0) // Общее количество для статистики
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
+    const [hasMore, setHasMore] = useState(false)
     const [fullStats, setFullStats] = useState<any>(null) // Полная статистика по всем данным
 
-    const loadBookings = async (page: number = 1, resetSearch: boolean = false) => {
-        setIsLoading(true)
+    const loadBookings = async (page: number = 1, append: boolean = false) => {
+        if (append) {
+            setIsLoadingMore(true)
+        } else {
+            setIsLoading(true)
+        }
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: '5', // По 5 записей на страницу
+                limit: BOOKINGS_PER_PAGE.toString(),
                 sort_by: sortField === 'date' ? 'booking_date' : sortField,
                 sort_order: sortDirection
             })
@@ -108,10 +111,8 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
             if (dateRange.end) {
                 params.append('end_date', dateRange.end)
             }
-            // Для поиска используем большой limit чтобы найти все совпадения
-            if (searchQuery && !resetSearch) {
+            if (searchQuery) {
                 params.append('search', searchQuery)
-                params.set('limit', '1000') // Увеличиваем лимит для поиска
             }
 
             const res = await fetch(`/api/admin/bookings?${params.toString()}`)
@@ -119,17 +120,32 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
             const result = await res.json()
 
             const adminBookings = result.data || []
-            setBookings(adminBookings.map((adminBooking: any) => ({
+            const normalized = adminBookings.map((adminBooking: any) => ({
                 ...adminBooking,
                 phone_hash: '' // Добавляем пустое значение для совместимости
-            })))
-            setPagination(result.pagination)
-            setTotalCount(result.pagination?.totalCount || 0) // Сохраняем общее количество
-            setCurrentPage(page)
+            }))
+            if (append) {
+                setBookings((prev) => {
+                    const existingIds = new Set(prev.map((b) => b.id))
+                    const uniqueNew = normalized.filter((b: Booking) => !existingIds.has(b.id))
+                    return [...prev, ...uniqueNew]
+                })
+            } else {
+                setBookings(normalized)
+            }
+            setHasMore(result.pagination?.hasMore || false)
+            currentPageRef.current = page
         } catch (error) {
             console.error('Error loading bookings:', error)
         } finally {
             setIsLoading(false)
+            setIsLoadingMore(false)
+        }
+    }
+
+    const loadMore = () => {
+        if (hasMore && !isLoading && !isLoadingMore) {
+            loadBookings(currentPageRef.current + 1, true)
         }
     }
 
@@ -178,26 +194,21 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
 
     // Загружаем первую страницу при монтировании
     useEffect(() => {
-        loadBookings(1)
+        currentPageRef.current = 1
+        loadBookings(1, false)
         loadFullStats() // Загружаем полную статистику при монтировании
     }, [])
 
     // Применяем быстрые фильтры
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            setCurrentPage(1)
-            loadBookings(1, true)
+            currentPageRef.current = 1
+            loadBookings(1, false)
             loadFullStats() // Загружаем полную статистику при изменении фильтров
         }, 300) // Debounce 300ms
 
         return () => clearTimeout(timeoutId)
     }, [selectedStatuses.join(','), dateRange.start, dateRange.end, searchQuery, quickFilter, sortField, sortDirection])
-
-    const handlePageChange = (page: number) => {
-        if (pagination && page >= 1 && page <= pagination.totalPages) {
-            loadBookings(page)
-        }
-    }
 
     // Группируем записи по датам
     const groupedBookings = useMemo(() => {
@@ -480,7 +491,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    loadBookings(1, true)
+                                    loadBookings(1, false)
                                 }
                             }}
                             placeholder="Поиск по имени, телефону, email..."
@@ -543,7 +554,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                 <Filter className="h-4 w-4 mr-2" />
                                 Фильтры
                             </Button>
-                            <Button variant="ghost" size="sm" onClick={() => loadBookings(1, true)}>
+                            <Button variant="ghost" size="sm" onClick={() => loadBookings(1, false)}>
                                 Применить
                             </Button>
                             <Button
@@ -557,7 +568,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                         start: format(startOfDay(new Date()), 'yyyy-MM-dd'),
                                         end: format(addDays(new Date(), 30), 'yyyy-MM-dd'),
                                     })
-                                    loadBookings(1, true)
+                                    loadBookings(1, false)
                                 }}
                             >
                                 Сбросить
@@ -936,39 +947,13 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </div>
             )}
 
-            {/* Пагинация */}
-            {pagination && pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6">
-                    <div className="text-sm text-gray-600">
-                        Показано {((currentPage - 1) * pagination.limit) + 1} - {Math.min(currentPage * pagination.limit, pagination.totalCount)} из {pagination.totalCount} записей
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage <= 1 || isLoading}
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                            Назад
-                        </Button>
-
-                        <span className="text-sm font-medium">
-                            Страница {currentPage} из {pagination.totalPages}
-                        </span>
-
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage >= pagination.totalPages || isLoading}
-                        >
-                            Вперед
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    </div>
-                </div>
+            {/* Кнопка "Показать еще" */}
+            {viewMode === 'list' && (hasMore || isLoadingMore) && (
+                <LoadMoreButton
+                    onClick={loadMore}
+                    isLoading={isLoadingMore}
+                    hasMore={hasMore}
+                />
             )}
 
             {/* Модальное окно деталей записи */}
@@ -991,6 +976,15 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                     booking={rescheduleBooking}
                     open={!!rescheduleBooking}
                     onClose={() => setRescheduleBooking(null)}
+                    onSuccess={(updated) => {
+                        setBookings((prev) =>
+                            prev.map((b) =>
+                                b.id === updated.id
+                                    ? { ...b, booking_date: updated.booking_date, booking_time: updated.booking_time }
+                                    : b
+                            )
+                        )
+                    }}
                 />
             )}
         </div>

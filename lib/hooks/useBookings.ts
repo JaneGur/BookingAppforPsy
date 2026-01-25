@@ -8,7 +8,11 @@ export function useClientBookings(phone: string | undefined) {
         queryFn: async () => {
             const res = await fetch(`/api/bookings?phone=${phone}`)
             if (!res.ok) throw new Error('Failed to fetch bookings')
-            return res.json() as Promise<Booking[]>
+            const result = await res.json()
+            if (Array.isArray(result)) {
+                return result as Booking[]
+            }
+            return (result?.data || []) as Booking[]
         },
         enabled: !!phone,
     })

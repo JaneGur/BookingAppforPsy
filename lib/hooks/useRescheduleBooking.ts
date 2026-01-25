@@ -40,11 +40,16 @@ export function useRescheduleBooking() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (params: { bookingId: number; newDate: string; newTime: string }) => {
+    mutationFn: async (params: { bookingId: number; newDate: string; newTime: string; reason?: string | null; notifyTelegram?: boolean }) => {
       const res = await fetch(`/api/bookings/${params.bookingId}/reschedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ new_date: params.newDate, new_time: params.newTime }),
+        body: JSON.stringify({
+          new_date: params.newDate,
+          new_time: params.newTime,
+          reason: params.reason ?? null,
+          notify_telegram: params.notifyTelegram ?? true,
+        }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => null) as any
@@ -57,6 +62,7 @@ export function useRescheduleBooking() {
       queryClient.invalidateQueries({ queryKey: ['bookings'] })
       queryClient.invalidateQueries({ queryKey: ['bookings', variables.bookingId] })
       queryClient.invalidateQueries({ queryKey: ['bookings', variables.bookingId, 'reschedule-info'] })
+      queryClient.invalidateQueries({ queryKey: ['slots', 'available'] })
     },
   })
 }
