@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { startOfDay, endOfDay } from 'date-fns'
 import { Client } from '@/types/client'
-import { ClientsFilters, ClientsStats, PaginationData, SortField } from '../components/types'
+import { ClientsFilters, ClientsStats, PaginationData, SortField, SortDirection } from '../components/types'
 
 const CLIENTS_PER_PAGE = 10
 
