@@ -50,6 +50,18 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
             if (filters.activeOnly) {
                 params.append('activeOnly', 'true')
             }
+            if (filters.withTelegram) {
+                params.append('withTelegram', 'true')
+            }
+            if (filters.withEmail) {
+                params.append('withEmail', 'true')
+            }
+            if (filters.dateFrom) {
+                params.append('dateFrom', filters.dateFrom)
+            }
+            if (filters.dateTo) {
+                params.append('dateTo', filters.dateTo)
+            }
 
             const res = await fetch(`/api/admin/clients?${params.toString()}`)
             if (!res.ok) throw new Error('Failed to load clients')
@@ -78,7 +90,16 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
             setIsLoading(false)
             setIsLoadingMore(false)
         }
-    }, [filters.searchQuery, filters.activeOnly, filters.sortField, filters.sortDirection])
+    }, [
+        filters.searchQuery,
+        filters.activeOnly,
+        filters.withTelegram,
+        filters.withEmail,
+        filters.dateFrom,
+        filters.dateTo,
+        filters.sortField,
+        filters.sortDirection
+    ])
 
     const loadMore = useCallback(() => {
         if (hasMore && !isLoading && !isLoadingMore) {
@@ -90,7 +111,7 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
         let result = [...clientsList]
 
         if (currentFilters.withTelegram) {
-            result = result.filter(c => c.telegram_chat_id)
+            result = result.filter(c => c.telegram_chat_id || c.telegram)
         }
 
         if (currentFilters.withEmail) {
@@ -123,6 +144,18 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
             }
             if (filters.activeOnly) {
                 params.append('activeOnly', 'true')
+            }
+            if (filters.withTelegram) {
+                params.append('withTelegram', 'true')
+            }
+            if (filters.withEmail) {
+                params.append('withEmail', 'true')
+            }
+            if (filters.dateFrom) {
+                params.append('dateFrom', filters.dateFrom)
+            }
+            if (filters.dateTo) {
+                params.append('dateTo', filters.dateTo)
             }
 
             const res = await fetch(`/api/admin/clients?${params.toString()}`)
@@ -197,7 +230,17 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
         }, 300)
 
         return () => clearTimeout(timeoutId)
-    }, [filters.searchQuery, filters.activeOnly, filters.sortField, filters.sortDirection, loadClients])
+    }, [
+        filters.searchQuery,
+        filters.activeOnly,
+        filters.withTelegram,
+        filters.withEmail,
+        filters.dateFrom,
+        filters.dateTo,
+        filters.sortField,
+        filters.sortDirection,
+        loadClients
+    ])
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {

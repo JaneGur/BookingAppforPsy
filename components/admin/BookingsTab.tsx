@@ -199,7 +199,53 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         loadFullStats() // Загружаем полную статистику при монтировании
     }, [])
 
-    // Применяем быстрые фильтры
+    useEffect(() => {
+        const today = startOfDay(new Date())
+        if (quickFilter === 'all') {
+            setDateRange({})
+            return
+        }
+
+        if (quickFilter === 'today') {
+            const day = format(today, 'yyyy-MM-dd')
+            setDateRange({ start: day, end: day })
+            return
+        }
+
+        if (quickFilter === 'week') {
+            const start = startOfWeek(today, { weekStartsOn: 1 })
+            const end = endOfWeek(today, { weekStartsOn: 1 })
+            setDateRange({
+                start: format(start, 'yyyy-MM-dd'),
+                end: format(end, 'yyyy-MM-dd'),
+            })
+            return
+        }
+
+        if (quickFilter === 'month') {
+            const start = startOfMonth(today)
+            const end = endOfMonth(today)
+            setDateRange({
+                start: format(start, 'yyyy-MM-dd'),
+                end: format(end, 'yyyy-MM-dd'),
+            })
+            return
+        }
+
+        if (quickFilter === 'upcoming') {
+            const start = format(today, 'yyyy-MM-dd')
+            const end = format(addDays(today, 30), 'yyyy-MM-dd')
+            setDateRange({ start, end })
+            return
+        }
+
+        if (quickFilter === 'past') {
+            const end = format(addDays(today, -1), 'yyyy-MM-dd')
+            setDateRange({ end })
+        }
+    }, [quickFilter])
+
+    // Применяем фильтры и сортировки
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             currentPageRef.current = 1
@@ -208,7 +254,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         }, 300) // Debounce 300ms
 
         return () => clearTimeout(timeoutId)
-    }, [selectedStatuses.join(','), dateRange.start, dateRange.end, searchQuery, quickFilter, sortField, sortDirection])
+    }, [selectedStatuses.join(','), dateRange.start, dateRange.end, searchQuery, sortField, sortDirection])
 
     // Группируем записи по датам
     const groupedBookings = useMemo(() => {
@@ -220,8 +266,45 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
             }
             groups.get(dateKey)!.push(booking)
         })
-        return Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]))
-    }, [bookings])
+
+        const compareByField = (a: Booking, b: Booking) => {
+            let value = 0
+            switch (sortField) {
+                case 'created_at':
+                    value = Date.parse(a.created_at) - Date.parse(b.created_at)
+                    break
+                case 'status':
+                    value = a.status.localeCompare(b.status)
+                    break
+                case 'amount':
+                    value = (a.amount || 0) - (b.amount || 0)
+                    break
+                case 'client_name':
+                    value = a.client_name.localeCompare(b.client_name)
+                    break
+                default:
+                    value = 0
+            }
+            return sortDirection === 'desc' ? -value : value
+        }
+
+        const entries = Array.from(groups.entries())
+
+        if (sortField === 'date') {
+            entries.sort((a, b) =>
+                sortDirection === 'asc' ? a[0].localeCompare(b[0]) : b[0].localeCompare(a[0])
+            )
+            entries.forEach(([, list]) => {
+                list.sort((a, b) => a.booking_time.localeCompare(b.booking_time))
+            })
+        } else {
+            entries.forEach(([, list]) => {
+                list.sort(compareByField)
+            })
+        }
+
+        return entries
+    }, [bookings, sortField, sortDirection])
 
     // Статистика
     const stats = useMemo(() => {

@@ -38,6 +38,16 @@ export default function ClientsPage() {
 
     const filteredClients = filterClients(clients)
 
+    const handleSort = (field: typeof filters.sortField) => {
+        if (filters.sortField === field) {
+            const nextDirection = filters.sortDirection === 'asc' ? 'desc' : 'asc'
+            updateFilter('sortDirection', nextDirection)
+            return
+        }
+        updateFilter('sortField', field)
+        updateFilter('sortDirection', 'asc')
+    }
+
     const handleDelete = async (id: string, name: string) => {
         if (!confirm(`Вы уверены, что хотите удалить клиента "${name}"? Это действие необратимо и удалит все связанные записи.`)) return
 
@@ -108,7 +118,7 @@ export default function ClientsPage() {
                 <ClientSorting
                     sortField={filters.sortField}
                     sortDirection={filters.sortDirection}
-                    onSort={(field) => updateFilter('sortField', field)}
+                    onSort={handleSort}
                 />
 
                 {/* Список клиентов */}

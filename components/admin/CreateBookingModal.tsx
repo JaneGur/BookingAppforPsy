@@ -14,9 +14,16 @@ import { useProducts } from '@/lib/hooks/useProducts'
 interface CreateBookingModalProps {
     onClose: () => void
     onSuccess: () => void
+    clientPreset?: {
+        name: string
+        phone: string
+        email?: string
+        telegram?: string
+    }
+    hideClientStep?: boolean
 }
 
-export function CreateBookingModal({ onClose, onSuccess }: CreateBookingModalProps) {
+export function CreateBookingModal({ onClose, onSuccess, clientPreset, hideClientStep }: CreateBookingModalProps) {
     const [step, setStep] = useState<'date' | 'client' | 'product'>('date')
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
     const [selectedTime, setSelectedTime] = useState<string | undefined>(undefined)
@@ -30,6 +37,7 @@ export function CreateBookingModal({ onClose, onSuccess }: CreateBookingModalPro
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [blockedDays, setBlockedDays] = useState<Set<string>>(new Set())
+    const showClientStep = !hideClientStep
 
     const { data: products = [] } = useProducts()
     const dateForQuery = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : undefined
@@ -70,6 +78,14 @@ export function CreateBookingModal({ onClose, onSuccess }: CreateBookingModalPro
 
         loadBlockedDays()
     }, [monthStart, monthEnd])
+
+    useEffect(() => {
+        if (!clientPreset) return
+        setClientName(clientPreset.name || '')
+        setClientPhone(clientPreset.phone || '')
+        setClientEmail(clientPreset.email || '')
+        setClientTelegram(clientPreset.telegram || '')
+    }, [clientPreset])
 
     // Функция для перехода к предыдущему месяцу
     const handlePreviousMonth = () => {
@@ -177,33 +193,37 @@ export function CreateBookingModal({ onClose, onSuccess }: CreateBookingModalPro
                         >
                             1. Дата и время
                         </button>
+                        {showClientStep && (
+                            <button
+                                onClick={() => selectedDate && selectedTime && setStep('client')}
+                                disabled={!selectedDate || !selectedTime}
+                                className={cn(
+                                    'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                                    step === 'client'
+                                        ? 'bg-primary-500 text-white'
+                                        : selectedDate && selectedTime
+                                            ? 'bg-gray-100 text-gray-700'
+                                            : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                                )}
+                            >
+                                2. Клиент
+                            </button>
+                        )}
                         <button
-                            onClick={() => selectedDate && selectedTime && setStep('client')}
-                            disabled={!selectedDate || !selectedTime}
-                            className={cn(
-                                'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                                step === 'client'
-                                    ? 'bg-primary-500 text-white'
-                                    : selectedDate && selectedTime
-                                        ? 'bg-gray-100 text-gray-700'
-                                        : 'bg-gray-50 text-gray-400 cursor-not-allowed'
-                            )}
-                        >
-                            2. Клиент
-                        </button>
-                        <button
-                            onClick={() => clientName && clientPhone && setStep('product')}
-                            disabled={!clientName || !clientPhone}
+                            onClick={() =>
+                                (showClientStep ? (clientName && clientPhone) : (selectedDate && selectedTime)) && setStep('product')
+                            }
+                            disabled={showClientStep ? (!clientName || !clientPhone) : (!selectedDate || !selectedTime)}
                             className={cn(
                                 'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                                 step === 'product'
                                     ? 'bg-primary-500 text-white'
-                                    : clientName && clientPhone
+                                    : (showClientStep ? (clientName && clientPhone) : (selectedDate && selectedTime))
                                         ? 'bg-gray-100 text-gray-700'
                                         : 'bg-gray-50 text-gray-400 cursor-not-allowed'
                             )}
                         >
-                            3. Продукт
+                            {showClientStep ? '3. Продукт' : '2. Продукт'}
                         </button>
                     </div>
 
@@ -395,7 +415,7 @@ export function CreateBookingModal({ onClose, onSuccess }: CreateBookingModalPro
                             )}
 
                             {selectedDate && selectedTime && (
-                                <Button onClick={() => setStep('client')} className="w-full" size="lg">
+                                <Button onClick={() => setStep(showClientStep ? 'client' : 'product')} className="w-full" size="lg">
                                     Продолжить →
                                 </Button>
                             )}
@@ -403,7 +423,7 @@ export function CreateBookingModal({ onClose, onSuccess }: CreateBookingModalPro
                     )}
 
                     {/* Шаг 2: Данные клиента */}
-                    {step === 'client' && (
+                    {showClientStep && step === 'client' && (
                         <div className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div>

@@ -29,6 +29,7 @@ import { ru } from 'date-fns/locale'
 import { toast } from 'sonner'
 import { BookingDetailsModal } from '@/components/admin/BookingDetailsModal'
 import { RescheduleBookingModal } from '@/components/admin/RescheduleBookingModal'
+import { CreateBookingModal } from '@/components/admin/CreateBookingModal'
 
 function StatusBadge({ status }: { status: Booking['status'] }) {
     const map: Record<Booking['status'], { label: string; className: string; icon: string }> = {
@@ -78,6 +79,7 @@ export default function ClientProfilePage() {
     const [editError, setEditError] = useState<string | null>(null)
     const [detailsBooking, setDetailsBooking] = useState<Booking | null>(null)
     const [rescheduleBooking, setRescheduleBooking] = useState<Booking | null>(null)
+    const [showCreateModal, setShowCreateModal] = useState(false)
 
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
@@ -480,7 +482,7 @@ export default function ClientProfilePage() {
                                         </div>
                                         История записей
                                     </CardTitle>
-                                    <Button size="lg" className="shadow-lg" onClick={() => router.push(`/admin/dashboard?client=${clientId}`)}>
+                                    <Button size="lg" className="shadow-lg" onClick={() => setShowCreateModal(true)}>
                                         <Plus className="h-5 w-5 mr-2" />
                                         Создать запись
                                     </Button>
@@ -494,7 +496,7 @@ export default function ClientProfilePage() {
                                         </div>
                                         <p className="text-lg font-semibold text-gray-900 mb-2">У клиента нет записей</p>
                                         <p className="text-sm text-gray-500 mb-6">Создайте первую запись для этого клиента</p>
-                                        <Button size="lg" className="shadow-lg" onClick={() => router.push(`/admin/dashboard?client=${clientId}`)}>
+                                        <Button size="lg" className="shadow-lg" onClick={() => setShowCreateModal(true)}>
                                             <Plus className="h-5 w-5 mr-2" />
                                             Создать запись
                                         </Button>
@@ -622,6 +624,23 @@ export default function ClientProfilePage() {
                 open={!!rescheduleBooking}
                 onClose={() => setRescheduleBooking(null)}
             />
+
+            {showCreateModal && (
+                <CreateBookingModal
+                    onClose={() => setShowCreateModal(false)}
+                    onSuccess={() => {
+                        setShowCreateModal(false)
+                        refetch()
+                    }}
+                    clientPreset={{
+                        name: profile.client.name,
+                        phone: profile.client.phone,
+                        email: profile.client.email || undefined,
+                        telegram: profile.client.telegram || undefined,
+                    }}
+                    hideClientStep
+                />
+            )}
         </div>
     )
 }

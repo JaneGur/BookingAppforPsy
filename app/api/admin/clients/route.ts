@@ -14,11 +14,17 @@ export async function GET(request: NextRequest) {
 
         const { searchParams } = new URL(request.url)
         const search = searchParams.get('search')
-        const activeOnly = searchParams.get('active_only') === 'true'
+        const activeOnly =
+            searchParams.get('active_only') === 'true' ||
+            searchParams.get('activeOnly') === 'true'
+        const withTelegram = searchParams.get('withTelegram') === 'true'
+        const withEmail = searchParams.get('withEmail') === 'true'
         const page = parseInt(searchParams.get('page') || '1')
         const limit = parseInt(searchParams.get('limit') || '5')
         const sortBy = searchParams.get('sort_by') || 'created_at'
         const sortOrder = searchParams.get('sort_order') || 'desc'
+        const dateFrom = searchParams.get('dateFrom')
+        const dateTo = searchParams.get('dateTo')
 
         const offset = (page - 1) * limit
 
@@ -51,6 +57,22 @@ export async function GET(request: NextRequest) {
                     }
                 })
             }
+        }
+
+        // Фильтры по наличию Telegram/Email
+        if (withTelegram) {
+            query = query.or('telegram.not.is.null,telegram_chat_id.not.is.null')
+        }
+
+        if (withEmail) {
+            query = query.not('email', 'is', null).neq('email', '')
+        }
+
+        if (dateFrom) {
+            query = query.gte('created_at', `${dateFrom}T00:00:00.000Z`)
+        }
+        if (dateTo) {
+            query = query.lte('created_at', `${dateTo}T23:59:59.999Z`)
         }
 
         // Поиск на сервере через Supabase (текстовый поиск)

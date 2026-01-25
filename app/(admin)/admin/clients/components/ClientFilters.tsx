@@ -45,19 +45,19 @@ export default function ClientFilters({
                 </div>
 
                 {/* Чекбоксы фильтров */}
-                <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
-                    {checkboxFilters.map(({ key, label }) => (
-                        <label key={key} className="flex items-center gap-2 cursor-pointer p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">
-                            <input
-                                type="checkbox"
-                                checked={filters[key]}
-                                onChange={(e) => onFilterChange(key, e.target.checked)}
-                                className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                            />
-                            <span className="text-xs sm:text-sm font-medium text-gray-700">{label}</span>
-                        </label>
-                    ))}
-                </div>
+                {/*<div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">*/}
+                {/*    {checkboxFilters.map(({ key, label }) => (*/}
+                {/*        <label key={key} className="flex items-center gap-2 cursor-pointer p-2 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">*/}
+                {/*            <input*/}
+                {/*                type="checkbox"*/}
+                {/*                checked={filters[key]}*/}
+                {/*                onChange={(e) => onFilterChange(key, e.target.checked)}*/}
+                {/*                className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"*/}
+                {/*            />*/}
+                {/*            <span className="text-xs sm:text-sm font-medium text-gray-700">{label}</span>*/}
+                {/*        </label>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
 
                 {/* Дата регистрации */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
