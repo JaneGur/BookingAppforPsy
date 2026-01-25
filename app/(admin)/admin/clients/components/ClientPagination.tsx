@@ -1,53 +1,57 @@
 'use client'
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { PaginationData } from './types'
 
-interface ClientPaginationProps {
-    pagination: PaginationData | null
+interface ClientLoadMoreProps {
+    hasMore: boolean
     isLoading: boolean
-    onPageChange: (page: number) => void
+    isLoadingMore: boolean
+    onLoadMore: () => void
+    currentCount?: number
+    totalCount?: number
 }
 
-export default function ClientPagination({ pagination, isLoading, onPageChange }: ClientPaginationProps) {
-    if (!pagination || pagination.totalPages <= 1) return null
-
-    const { currentPage, totalPages, totalCount, limit } = pagination
-    const startItem = ((currentPage - 1) * limit) + 1
-    const endItem = Math.min(currentPage * limit, totalCount)
+export default function ClientLoadMore({ 
+    hasMore, 
+    isLoading, 
+    isLoadingMore, 
+    onLoadMore,
+    currentCount,
+    totalCount 
+}: ClientLoadMoreProps) {
+    if (isLoading || !hasMore) {
+        // Показываем информацию о количестве только если есть данные
+        if (!isLoading && currentCount !== undefined && totalCount !== undefined) {
+            return (
+                <div className="flex items-center justify-center mt-6">
+                    <div className="text-sm text-gray-600">
+                        Показано {currentCount} из {totalCount} клиентов
+                    </div>
+                </div>
+            )
+        }
+        return null
+    }
 
     return (
-        <div className="flex items-center justify-between mt-6">
-            <div className="text-sm text-gray-600">
-                Показано {startItem} - {endItem} из {totalCount} клиентов
-            </div>
-
-            <div className="flex items-center gap-2">
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => onPageChange(currentPage - 1)}
-                    disabled={currentPage <= 1 || isLoading}
-                >
-                    <ChevronLeft className="w-4 h-4" />
-                    Назад
-                </Button>
-
-                <span className="text-sm font-medium">
-                    Страница {currentPage} из {totalPages}
-                </span>
-
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => onPageChange(currentPage + 1)}
-                    disabled={currentPage >= totalPages || isLoading}
-                >
-                    Вперед
-                    <ChevronRight className="w-4 h-4" />
-                </Button>
-            </div>
+        <div className="flex items-center justify-center mt-6">
+            <Button
+                variant="outline"
+                size="lg"
+                onClick={onLoadMore}
+                disabled={isLoadingMore || !hasMore}
+                className="min-w-[200px]"
+            >
+                {isLoadingMore ? (
+                    <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Загрузка...
+                    </>
+                ) : (
+                    'Показать ещё'
+                )}
+            </Button>
         </div>
     )
 }

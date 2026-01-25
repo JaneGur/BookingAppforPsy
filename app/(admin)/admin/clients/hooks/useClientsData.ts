@@ -1,16 +1,21 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { startOfDay, endOfDay } from 'date-fns'
 import { Client } from '@/types/client'
-import { ClientsFilters, ClientsStats, PaginationData } from '../components/types'
+import { ClientsFilters, ClientsStats, PaginationData, SortField } from '../components/types'
+
+const CLIENTS_PER_PAGE = 10
 
 export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
     const [clients, setClients] = useState<Client[]>([])
     const [fullStats, setFullStats] = useState<ClientsStats | null>(null)
     const [pagination, setPagination] = useState<PaginationData | null>(null)
     const [isLoading, setIsLoading] = useState(false)
-    const [filters, setFilters] = useState<ClientsFilters>({
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
+    const [hasMore, setHasMore] = useState(false)
+    const currentPageRef = useRef(1)
+    const filtersRef = useRef<ClientsFilters>({
         searchQuery: '',
         activeOnly: false,
         withTelegram: false,
@@ -22,20 +27,25 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
         currentPage: 1,
         ...initialFilters
     })
+    const [filters, setFilters] = useState<ClientsFilters>(filtersRef.current)
 
-    const loadClients = useCallback(async (page: number = 1, resetSearch: boolean = false) => {
-        setIsLoading(true)
+    const loadClients = useCallback(async (page: number = 1, append: boolean = false) => {
+        if (append) {
+            setIsLoadingMore(true)
+        } else {
+            setIsLoading(true)
+        }
+        
         try {
             const params = new URLSearchParams({
                 page: page.toString(),
-                limit: '5',
+                limit: CLIENTS_PER_PAGE.toString(),
                 sort_by: filters.sortField,
                 sort_order: filters.sortDirection
             })
 
-            if (filters.searchQuery && !resetSearch) {
+            if (filters.searchQuery) {
                 params.append('search', filters.searchQuery)
-                params.set('limit', '1000')
             }
             if (filters.activeOnly) {
                 params.append('activeOnly', 'true')
@@ -45,15 +55,37 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
             if (!res.ok) throw new Error('Failed to load clients')
             const result = await res.json()
 
-            setClients(result.data || [])
+            const newClients = result.data || []
+            
+            if (append) {
+                // Добавляем новые клиенты к существующим, избегая дубликатов
+                setClients(prev => {
+                    const existingIds = new Set(prev.map(c => c.id))
+                    const uniqueNewClients = newClients.filter((c: Client) => !existingIds.has(c.id))
+                    return [...prev, ...uniqueNewClients]
+                })
+            } else {
+                // Заменяем всех клиентов при первой загрузке или смене фильтров
+                setClients(newClients)
+            }
+            
             setPagination(result.pagination)
+            setHasMore(result.pagination?.hasMore || false)
+            currentPageRef.current = page
             setFilters(prev => ({ ...prev, currentPage: page }))
         } catch (error) {
             console.error('Error loading clients:', error)
         } finally {
             setIsLoading(false)
+            setIsLoadingMore(false)
         }
     }, [filters.searchQuery, filters.activeOnly, filters.sortField, filters.sortDirection])
+
+    const loadMore = useCallback(() => {
+        if (hasMore && !isLoading && !isLoadingMore) {
+            loadClients(currentPageRef.current + 1, true)
+        }
+    }, [hasMore, isLoading, isLoadingMore, loadClients])
 
     const loadFullStats = useCallback(async () => {
         try {
@@ -113,21 +145,34 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
     }, [])
 
     const updateFilter = useCallback(<K extends keyof ClientsFilters>(key: K, value: ClientsFilters[K]) => {
-        setFilters(prev => ({ ...prev, [key]: value, currentPage: 1 }))
+        setFilters(prev => {
+            const newFilters = { ...prev, [key]: value, currentPage: 1 }
+            filtersRef.current = newFilters
+            // Сбрасываем накопленные данные при изменении фильтров
+            currentPageRef.current = 1
+            setClients([])
+            setHasMore(false)
+            return newFilters
+        })
     }, [])
 
     const resetFilters = useCallback(() => {
-        setFilters({
+        const resetFilters = {
             searchQuery: '',
             activeOnly: false,
             withTelegram: false,
             withEmail: false,
             dateFrom: '',
             dateTo: '',
-            sortField: 'created_at',
-            sortDirection: 'desc',
+            sortField: 'created_at' as SortField,
+            sortDirection: 'desc' as SortDirection,
             currentPage: 1
-        })
+        }
+        filtersRef.current = resetFilters
+        currentPageRef.current = 1
+        setClients([])
+        setHasMore(false)
+        setFilters(resetFilters)
     }, [])
 
     const hasFilters = useCallback(() => {
@@ -137,20 +182,27 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            loadClients(1, true)
+            // При изменении фильтров сбрасываем и загружаем заново
+            currentPageRef.current = 1
+            setClients([])
+            setHasMore(false)
+            loadClients(1, false)
             loadFullStats()
         }, 300)
 
         return () => clearTimeout(timeoutId)
-    }, [filters.searchQuery, filters.activeOnly, filters.sortField, filters.sortDirection])
+    }, [filters.searchQuery, filters.activeOnly, filters.sortField, filters.sortDirection, loadClients, loadFullStats])
 
     return {
         clients,
         fullStats,
         pagination,
         isLoading,
+        isLoadingMore,
+        hasMore,
         filters,
         loadClients,
+        loadMore,
         loadFullStats,
         updateFilter,
         resetFilters,

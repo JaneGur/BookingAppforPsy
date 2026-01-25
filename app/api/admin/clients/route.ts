@@ -53,6 +53,13 @@ export async function GET(request: NextRequest) {
             }
         }
 
+        // Поиск на сервере через Supabase (текстовый поиск)
+        // Используем ilike для каждого поля через or() с правильным синтаксисом PostgREST
+        if (search) {
+            const searchPattern = `%${search}%`
+            query = query.or(`name.ilike.${searchPattern},phone.ilike.${searchPattern},email.ilike.${searchPattern},telegram.ilike.${searchPattern}`)
+        }
+
         // Применяем пагинацию
         query = query.range(offset, offset + limit - 1)
 
@@ -63,21 +70,10 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
-        // Поиск по имени, телефону, email (на клиенте)
-        let filteredData = data ?? []
-        if (search) {
-            const searchLower = search.toLowerCase()
-            filteredData = filteredData.filter(
-                (client) =>
-                    client.name?.toLowerCase().includes(searchLower) ||
-                    client.phone?.includes(search) ||
-                    client.email?.toLowerCase().includes(searchLower) ||
-                    client.telegram?.toLowerCase().includes(searchLower)
-            )
-        }
-
+        const filteredData = data ?? []
         const totalCount = count || 0
-        const hasMore = offset + limit < totalCount
+        // hasMore должен быть true, если мы получили полную страницу и есть еще данные
+        const hasMore = filteredData.length === limit && offset + limit < totalCount
 
         return NextResponse.json({
             data: filteredData,

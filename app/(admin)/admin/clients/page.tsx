@@ -11,7 +11,7 @@ import ClientStats from './components/ClientStats'
 import ClientFilters from './components/ClientFilters'
 import ClientSorting from './components/ClientSorting'
 import ClientList from './components/ClientList'
-import ClientPagination from './components/ClientPagination'
+import ClientLoadMore from './components/ClientPagination'
 import {useClientsData} from './hooks/useClientsData'
 
 export default function ClientsPage() {
@@ -24,8 +24,11 @@ export default function ClientsPage() {
         fullStats,
         pagination,
         isLoading,
+        isLoadingMore,
+        hasMore,
         filters,
         loadClients,
+        loadMore,
         loadFullStats,
         updateFilter,
         resetFilters,
@@ -35,18 +38,13 @@ export default function ClientsPage() {
 
     const filteredClients = filterClients(clients)
 
-    const handlePageChange = (page: number) => {
-        if (pagination && page >= 1 && page <= pagination.totalPages) {
-            loadClients(page)
-        }
-    }
-
     const handleDelete = async (id: string, name: string) => {
         if (!confirm(`Вы уверены, что хотите удалить клиента "${name}"? Это действие необратимо и удалит все связанные записи.`)) return
 
         try {
             await deleteClient.mutateAsync(id)
-            loadClients(filters.currentPage)
+            // Перезагружаем данные с первой страницы
+            loadClients(1, false)
             loadFullStats()
         } catch (error) {
             console.error('Failed to delete:', error)
@@ -55,12 +53,12 @@ export default function ClientsPage() {
     }
 
     const handleRefresh = () => {
-        loadClients(filters.currentPage, true)
+        loadClients(1, false)
         loadFullStats()
     }
 
     const handleSuccess = () => {
-        loadClients(1)
+        loadClients(1, false)
         loadFullStats()
     }
 
@@ -124,11 +122,14 @@ export default function ClientsPage() {
                 />
             </div>
 
-            {/* Пагинация */}
-            <ClientPagination
-                pagination={pagination}
+            {/* Кнопка "Показать ещё" */}
+            <ClientLoadMore
+                hasMore={hasMore}
                 isLoading={isLoading}
-                onPageChange={handlePageChange}
+                isLoadingMore={isLoadingMore}
+                onLoadMore={loadMore}
+                currentCount={filteredClients.length}
+                totalCount={pagination?.totalCount}
             />
 
             {/* Модальное окно создания */}
