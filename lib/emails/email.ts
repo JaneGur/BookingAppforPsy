@@ -55,7 +55,7 @@ export async function sendBookingConfirmationEmail({
 }) {
     try {
         const { data, error } = await resend.emails.send({
-            from: 'Арт-терапия <onboarding@resend.dev>',
+            from: 'Спокойные люди <onboarding@resend.dev>',
             to: [to],
             subject: '✅ Запись подтверждена!',
             html: `

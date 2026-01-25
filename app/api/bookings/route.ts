@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { normalizePhone } from '@/lib/utils/phone'
 import { supabase } from '@/lib/db'
+import { createServiceRoleSupabaseClient } from '@/lib/supabase/server'
 import { createHash } from 'crypto'
 import { auth } from '@/auth'
 import { sendAdminNotification, sendClientNotification, formatNewBookingNotification } from '@/lib/utils/telegram'
@@ -164,10 +165,29 @@ export async function POST(request: NextRequest) {
             bookingData.client_id = finalClientId
         }
 
-        // Также добавляем client_id из сессии если пользователь авторизован как клиент
-        // и мы не нашли клиента по телефону
-        if (session?.user?.role === 'client' && session.user.id && !existingClientId) {
-            bookingData.client_id = session.user.id
+        // Также добавляем client_id из сессии, только если он реально существует
+        if (session?.user?.role === 'client' && session.user.id) {
+            let adminSupabase = supabase
+            try {
+                adminSupabase = createServiceRoleSupabaseClient()
+            } catch (error) {
+                console.warn('Service role недоступен, используем anon для проверки клиента')
+            }
+
+            const { data: sessionClient, error: sessionClientError } = await adminSupabase
+                .from('clients')
+                .select('id, phone_hash')
+                .eq('id', session.user.id)
+                .maybeSingle()
+
+            if (sessionClientError) {
+                console.warn('Не удалось проверить клиента по сессии:', sessionClientError)
+            } else if (sessionClient?.id) {
+                // Привязываем только если это тот же клиент по телефону
+                if (sessionClient.phone_hash === phone_hash) {
+                    bookingData.client_id = session.user.id
+                }
+            }
         }
 
         const { data, error } = await supabase

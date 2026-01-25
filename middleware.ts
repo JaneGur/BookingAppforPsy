@@ -37,10 +37,9 @@ export async function middleware(request: NextRequest) {
 
     // Личный кабинет клиента: только для авторизованных
     if (pathname.startsWith(Path.ClientDashboard)) {
-        // Временно отключено для тестирования
-        // if (!session) {
-        //     return NextResponse.redirect(new URL(Path.Login, request.url))
-        // }
+        if (!session) {
+            return NextResponse.redirect(new URL(Path.Login, request.url))
+        }
 
         return NextResponse.next()
     }
