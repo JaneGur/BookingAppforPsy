@@ -107,9 +107,11 @@ export function TelegramConnect({
             
             // Если подключение успешно, скрываем ссылку
             if (telegramChatId) {
+                console.log('tg успешно')
                 setTelegramLink(null);
             }
         } catch (err) {
+            console.log('tg не успешно')
             setError('Ошибка проверки статуса');
         } finally {
             setIsCheckingStatus(false);
