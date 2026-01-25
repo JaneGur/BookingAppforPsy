@@ -20,9 +20,14 @@ export default function ClientLoadMore({
     currentCount,
     totalCount 
 }: ClientLoadMoreProps) {
-    if (isLoading || !hasMore) {
-        // Показываем информацию о количестве только если есть данные
-        if (!isLoading && currentCount !== undefined && totalCount !== undefined) {
+    // Не показываем ничего во время первоначальной загрузки
+    if (isLoading && currentCount === 0) {
+        return null
+    }
+
+    // Если нет больше данных, показываем информацию о количестве
+    if (!hasMore) {
+        if (currentCount !== undefined && totalCount !== undefined && totalCount > 0) {
             return (
                 <div className="flex items-center justify-center mt-6">
                     <div className="text-sm text-gray-600">
@@ -34,10 +39,11 @@ export default function ClientLoadMore({
         return null
     }
 
+    // Показываем кнопку "Показать ещё" если есть еще данные
     return (
-        <div className="flex items-center justify-center mt-6">
+        <div className="flex flex-col items-center justify-center mt-6 gap-2">
             <Button
-                variant="secondary"
+                variant="outline"
                 size="lg"
                 onClick={onLoadMore}
                 disabled={isLoadingMore || !hasMore}
@@ -52,6 +58,11 @@ export default function ClientLoadMore({
                     'Показать ещё'
                 )}
             </Button>
+            {currentCount !== undefined && totalCount !== undefined && (
+                <div className="text-xs text-gray-500">
+                    Показано {currentCount} из {totalCount} клиентов
+                </div>
+            )}
         </div>
     )
 }

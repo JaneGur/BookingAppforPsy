@@ -118,7 +118,7 @@ export function useClientsData(initialFilters?: Partial<ClientsFilters>) {
         } catch (error) {
             console.error('Error loading full client stats:', error)
         }
-    }, [filters])
+    }, [filters, filterClients])
 
     const filterClients = useCallback((clientsList: Client[], currentFilters: ClientsFilters) => {
         let result = [...clientsList]
