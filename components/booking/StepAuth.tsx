@@ -77,7 +77,7 @@ export function StepAuth() {
             identifier: loginIdentifier,
             password: loginPassword,
             redirect: false,
-            callbackUrl: '/dashboard',
+            callbackUrl: '/dashboard?connectTelegram=1',
         })
 
         if (!result || result.error) {
@@ -143,7 +143,7 @@ export function StepAuth() {
             identifier: regEmail || phone,
             password: regPassword,
             redirect: false,
-            callbackUrl: '/dashboard',
+            callbackUrl: '/dashboard?connectTelegram=1',
         })
 
         if (!loginResult || loginResult.error) {

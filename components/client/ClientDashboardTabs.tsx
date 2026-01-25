@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Calendar, Home, LineChart, MessageSquare, User, Mail, Phone, Lock, Bell, BellOff } from 'lucide-react'
 
@@ -48,6 +48,7 @@ function StatusBadge({ status }: { status: Booking['status'] }) {
 
 export function ClientDashboardTabs() {
     const router = useRouter()
+    const searchParams = useSearchParams()
     const { data: session, status } = useSession()
 
     const [tab, setTab] = useState<TabKey>('home')
@@ -83,6 +84,12 @@ export function ClientDashboardTabs() {
 
         loadProfile()
     }, [session?.user?.id])
+
+    useEffect(() => {
+        if (searchParams?.get('connectTelegram') === '1') {
+            setTab('telegram')
+        }
+    }, [searchParams])
 
     const upcomingConfirmed = useMemo(() => {
         if (!Array.isArray(bookings)) return []
