@@ -37,7 +37,7 @@ export default function ClientLoadMore({
     return (
         <div className="flex items-center justify-center mt-6">
             <Button
-                variant="outline"
+                variant="secondary"
                 size="lg"
                 onClick={onLoadMore}
                 disabled={isLoadingMore || !hasMore}
