@@ -66,7 +66,8 @@ export async function POST(request: NextRequest) {
 
         const botToken = process.env.TELEGRAM_BOT_TOKEN;
         if (botToken) {
-            const webhookUrl = `${request.nextUrl.origin}/api/telegram/webhook/`;
+            // Telegram не следует редиректам, нужен URL без слэша на конце
+            const webhookUrl = `${request.nextUrl.origin}/api/telegram/webhook`;
             try {
                 await fetch(`https://api.telegram.org/bot${botToken}/setWebhook`, {
                     method: 'POST',
