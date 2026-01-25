@@ -958,6 +958,11 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                                                 </div>
                                                             )}
                                                         </div>
+                                                        {booking.product_description && (
+                                                            <div className="mt-2 p-3 rounded-lg bg-purple-50 border border-purple-200">
+                                                                <p className="text-sm text-purple-900 break-words">📝 {booking.product_description}</p>
+                                                            </div>
+                                                        )}
                                                         {booking.notes && (
                                                             <div className="mt-2 p-3 rounded-lg bg-gray-50 border border-gray-200">
                                                                 <p className="text-sm text-gray-700 italic break-words">💬 {booking.notes}</p>

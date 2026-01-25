@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS public.bookings (
   notes text,
   status text NOT NULL CHECK (status IN ('pending_payment', 'confirmed', 'completed', 'cancelled')),
   product_id bigint NOT NULL REFERENCES public.products(id),
+  product_description text,
   amount integer NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now()
 );

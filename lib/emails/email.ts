@@ -86,12 +86,14 @@ export async function sendBookingReminderEmail({
                                                    bookingDate,
                                                    bookingTime,
                                                    productName,
+                                                   productDescription,
                                                }: {
     to: string;
     userName: string;
     bookingDate: string;
     bookingTime: string;
     productName: string;
+    productDescription?: string;
 }) {
     try {
         const { data, error } = await resend.emails.send({
@@ -278,6 +280,7 @@ export async function sendBookingReminderEmail({
                                     <div class="detail-content">
                                         <h3>Тип консультации</h3>
                                         <p>${productName}</p>
+                                        ${productDescription ? `<p style="margin: 8px 0 0; color: #475569; font-size: 14px;">${productDescription}</p>` : ''}
                                     </div>
                                 </div>
                             </div>

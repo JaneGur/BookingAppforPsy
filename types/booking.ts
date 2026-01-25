@@ -14,6 +14,7 @@ export interface Booking {
     phone_hash: string
     telegram_chat_id?: string
     product_id?: number
+    product_description?: string
     amount?: number
     paid_at?: string
     created_at: string

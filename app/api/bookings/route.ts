@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
         const { data: product, error: productError } = await supabase
             .from('products')
-            .select('id, price_rub, is_active')
+            .select('id, price_rub, is_active, name, description')
             .eq('id', Number(product_id))
             .maybeSingle()
 
@@ -59,6 +59,8 @@ export async function POST(request: NextRequest) {
         }
 
         const amount = Number(product.price_rub)
+        const productName = product?.name
+        const productDescription = product?.description
 
         // Шаг 1: Проверка существования клиента
         let clientId: string | undefined = undefined
@@ -150,6 +152,7 @@ export async function POST(request: NextRequest) {
             client_phone: normalizedPhone,
             phone_hash,
             product_id: Number(product_id),
+            product_description: productDescription || null,
             amount,
             telegram_chat_id: telegramChatId,
             ...otherFields
@@ -187,13 +190,6 @@ export async function POST(request: NextRequest) {
 
         const newBooking = data[0];
 
-        // Получаем название продукта для уведомления
-        const { data: productData } = await supabase
-            .from('products')
-            .select('name')
-            .eq('id', Number(product_id))
-            .single();
-
         // Отправляем уведомление админу в Telegram
         await sendAdminNotification(
             formatNewBookingNotification({
@@ -203,7 +199,8 @@ export async function POST(request: NextRequest) {
                 client_email: otherFields.client_email,
                 booking_date,
                 booking_time,
-                product_name: productData?.name,
+                product_name: productName,
+                product_description: productDescription,
                 amount,
             })
         );
@@ -211,7 +208,7 @@ export async function POST(request: NextRequest) {
         // Отправляем уведомление клиенту в Telegram (если подключен)
         if (telegramChatId) {
             const bookingDateFormatted = format(parseISO(booking_date), 'd MMMM yyyy', { locale: ru });
-            const clientMessage = `✅ <b>Запись создана!</b>\n\n📅 <b>Дата:</b> ${bookingDateFormatted}\n⏰ <b>Время:</b> ${booking_time}\n${productData?.name ? `🎯 <b>Услуга:</b> ${productData.name}\n` : ''}💰 <b>Сумма:</b> ${amount.toLocaleString('ru-RU')} ₽\n\n⏳ Ожидайте подтверждения записи.`;
+            const clientMessage = `✅ <b>Запись создана!</b>\n\n📅 <b>Дата:</b> ${bookingDateFormatted}\n⏰ <b>Время:</b> ${booking_time}\n${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}💰 <b>Сумма:</b> ${amount.toLocaleString('ru-RU')} ₽\n\n⏳ Ожидайте подтверждения записи.`;
 
             await sendClientNotification(telegramChatId, clientMessage);
         }

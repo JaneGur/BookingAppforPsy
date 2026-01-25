@@ -139,7 +139,8 @@ export async function POST(
                 client_name: booking.client_name,
                 booking_date: booking.booking_date,
                 booking_time: booking.booking_time,
-                cancelled_by: session.user.name || session.user.email || 'Пользователь'
+                cancelled_by: session.user.name || session.user.email || 'Пользователь',
+                product_description: booking.product_description || undefined
             })
 
             await sendAdminNotification(adminMessage)
@@ -156,7 +157,7 @@ export async function POST(
                 const bookingDateFormatted = format(parseISO(booking.booking_date), 'd MMMM yyyy', { locale: ru })
                 const cancelledByText = isOwner ? 'вами' : 'администратором'
 
-                const clientMessage = `❌ <b>Запись отменена</b>\n\n📅 <b>Дата:</b> ${bookingDateFormatted}\n⏰ <b>Время:</b> ${booking.booking_time}\n\nЗапись была отменена ${cancelledByText}.\n\nЕсли у вас есть вопросы, свяжитесь с нами.`
+                const clientMessage = `❌ <b>Запись отменена</b>\n\n📅 <b>Дата:</b> ${bookingDateFormatted}\n⏰ <b>Время:</b> ${booking.booking_time}\n${booking.product_description ? `📝 <b>Описание:</b> ${booking.product_description}\n` : ''}\nЗапись была отменена ${cancelledByText}.\n\nЕсли у вас есть вопросы, свяжитесь с нами.`
 
                 await sendClientNotification(booking.telegram_chat_id, clientMessage)
                 console.log('✅ Уведомление клиенту отправлено')

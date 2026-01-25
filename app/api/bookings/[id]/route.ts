@@ -163,6 +163,7 @@ export async function DELETE(
             client_name: booking.client_name,
             booking_date: booking.booking_date,
             booking_time: booking.booking_time,
+            product_description: booking.product_description || undefined,
         })
 
         console.log(`[DELETE] Запись ${bookingId} успешно удалена из базы`)

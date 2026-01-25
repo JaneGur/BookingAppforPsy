@@ -83,6 +83,7 @@ create table if not exists public.bookings (
   notes text,
   status text not null check (status in ('pending_payment', 'confirmed', 'completed', 'cancelled')),
   product_id bigint not null references public.products(id),
+  product_description text,
   amount integer not null,
   paid_at timestamptz,
   created_at timestamptz not null default now(),

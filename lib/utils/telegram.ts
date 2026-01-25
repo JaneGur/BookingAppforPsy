@@ -110,9 +110,10 @@ export function formatNewBookingNotification(data: {
     booking_date: string;
     booking_time: string;
     product_name?: string;
+    product_description?: string;
     amount: number;
 }): string {
-    const { id, client_name, client_phone, client_email, booking_date, booking_time, product_name, amount } = data;
+    const { id, client_name, client_phone, client_email, booking_date, booking_time, product_name, product_description, amount } = data;
 
     return `
 🆕 <b>НОВАЯ ЗАПИСЬ #${id}</b>
@@ -123,6 +124,7 @@ ${client_email ? `📧 <b>Email:</b> ${client_email}\n` : ''}
 📅 <b>Дата:</b> ${booking_date}
 ⏰ <b>Время:</b> ${booking_time}
 ${product_name ? `🎯 <b>Услуга:</b> ${product_name}\n` : ''}
+${product_description ? `📝 <b>Описание:</b> ${product_description}\n` : ''}
 💰 <b>Сумма:</b> ${amount.toLocaleString('ru-RU')} ₽
 `.trim();
 }
@@ -136,8 +138,9 @@ export function formatCancelBookingNotification(data: {
     booking_date: any;
     booking_time: any;
     cancelled_by: string
+    product_description?: string;
 }): string {
-    const { id, client_name, booking_date, booking_time } = data;
+    const { id, client_name, booking_date, booking_time, product_description } = data;
 
     return `
 ❌ <b>ЗАПИСЬ ОТМЕНЕНА #${id}</b>
@@ -145,6 +148,7 @@ export function formatCancelBookingNotification(data: {
 👤 <b>Клиент:</b> ${client_name}
 📅 <b>Дата:</b> ${booking_date}
 ⏰ <b>Время:</b> ${booking_time}
+${product_description ? `📝 <b>Описание:</b> ${product_description}\n` : ''}
 `.trim();
 }
 
@@ -158,8 +162,9 @@ export function formatRescheduleBookingNotification(data: {
     old_time: string;
     new_date: string;
     new_time: string;
+    product_description?: string;
 }): string {
-    const { id, client_name, old_date, old_time, new_date, new_time } = data;
+    const { id, client_name, old_date, old_time, new_date, new_time, product_description } = data;
 
     return `
 🔄 <b>ЗАПИСЬ ПЕРЕНЕСЕНА #${id}</b>
@@ -171,6 +176,7 @@ export function formatRescheduleBookingNotification(data: {
 
 <b>Стало:</b>
 📅 ${new_date} ⏰ ${new_time}
+${product_description ? `\n📝 <b>Описание:</b> ${product_description}` : ''}
 `.trim();
 }
 
@@ -182,8 +188,9 @@ export function formatDeleteBookingNotification(data: {
     client_name: string;
     booking_date: string;
     booking_time: string;
+    product_description?: string;
 }): string {
-    const { id, client_name, booking_date, booking_time } = data;
+    const { id, client_name, booking_date, booking_time, product_description } = data;
 
     return `
 🗑️ <b>ЗАПИСЬ УДАЛЕНА #${id}</b>
@@ -191,6 +198,7 @@ export function formatDeleteBookingNotification(data: {
 👤 <b>Клиент:</b> ${client_name}
 📅 <b>Дата:</b> ${booking_date}
 ⏰ <b>Время:</b> ${booking_time}
+${product_description ? `📝 <b>Описание:</b> ${product_description}\n` : ''}
 `.trim();
 }
 
@@ -226,8 +234,9 @@ export function formatStatusChangeNotification(data: {
     new_status: string;
     booking_date: string;
     booking_time: string;
+    product_description?: string;
 }): string {
-    const { id, client_name, old_status, new_status, booking_date, booking_time } = data;
+    const { id, client_name, old_status, new_status, booking_date, booking_time, product_description } = data;
 
     const statusLabels: Record<string, string> = {
         pending_payment: '⏳ Ожидает оплаты',
@@ -242,6 +251,7 @@ export function formatStatusChangeNotification(data: {
 👤 <b>Клиент:</b> ${client_name}
 📅 <b>Дата:</b> ${booking_date}
 ⏰ <b>Время:</b> ${booking_time}
+${product_description ? `📝 <b>Описание:</b> ${product_description}\n` : ''}
 
 <b>Было:</b> ${statusLabels[old_status] || old_status}
 <b>Стало:</b> ${statusLabels[new_status] || new_status}
@@ -258,8 +268,9 @@ export function formatBookingReminderNotification(data: {
     client_email?: string;
     booking_time: string;
     product_name?: string;
+    product_description?: string;
 }): string {
-    const { id, client_name, client_phone, client_email, booking_time, product_name } = data;
+    const { id, client_name, client_phone, client_email, booking_time, product_name, product_description } = data;
 
     return `
 ⏰ <b>НАПОМИНАНИЕ: ЗАПИСЬ ЧЕРЕЗ 1 ЧАС!</b>
@@ -267,6 +278,7 @@ export function formatBookingReminderNotification(data: {
 📋 <b>Запись #${id}</b>
 ⏰ <b>Время:</b> ${booking_time} (через ~1 час)
 ${product_name ? `🎯 <b>Услуга:</b> ${product_name}\n` : ''}
+${product_description ? `📝 <b>Описание:</b> ${product_description}\n` : ''}
 👤 <b>Клиент:</b> ${client_name}
 📞 <b>Телефон:</b> ${client_phone}
 ${client_email ? `📧 <b>Email:</b> ${client_email}\n` : ''}
@@ -281,9 +293,10 @@ export function formatClientReminderNotification(data: {
     booking_date: string;
     booking_time: string;
     product_name?: string;
+    product_description?: string;
     hoursUntil: number;
 }): string {
-    const { booking_date, booking_time, product_name, hoursUntil } = data;
+    const { booking_date, booking_time, product_name, product_description, hoursUntil } = data;
     const timeText = hoursUntil === 24 ? 'завтра' : 'через 1 час';
 
     return `
@@ -292,6 +305,7 @@ export function formatClientReminderNotification(data: {
 📅 <b>Дата:</b> ${booking_date}
 ⏰ <b>Время:</b> ${booking_time}
 ${product_name ? `🎯 <b>Услуга:</b> ${product_name}\n` : ''}
+${product_description ? `📝 <b>Описание:</b> ${product_description}\n` : ''}
 ⏳ <b>До консультации:</b> ${timeText}
 
 Увидимся на консультации! 👋
@@ -309,6 +323,7 @@ export async function sendRescheduleNotification(
     newDate: string,
     newTime: string,
     productName?: string,
+    productDescription?: string,
     rescheduledBy: 'admin' | 'client' = 'client'
 ) {
     // Форматируем даты для читаемого отображения
@@ -322,6 +337,7 @@ export async function sendRescheduleNotification(
         `⏰ <b>Было:</b> ${oldDateFormatted} ${oldTime}\n` +
         `⏰ <b>Стало:</b> ${newDateFormatted} ${newTime}\n\n` +
         `${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}` +
+        `${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}` +
         `👤 <b>Перенес:</b> ${rescheduledBy === 'admin' ? 'Администратор' : 'Клиент'}`
 
     return await sendAdminNotification(message)
@@ -339,6 +355,7 @@ export function formatRescheduleNotification(
     newDate: string,
     newTime: string,
     productName?: string,
+    productDescription?: string,
     rescheduledBy: 'admin' | 'client' = 'client'
 ) {
     const oldDateFormatted = format(parseISO(oldDate), 'd MMMM yyyy', { locale: ru })
@@ -351,6 +368,7 @@ export function formatRescheduleNotification(
         `⏰ <b>Было:</b> ${oldDateFormatted} ${oldTime}\n` +
         `⏰ <b>Стало:</b> ${newDateFormatted} ${newTime}\n\n` +
         `${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}` +
+        `${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}` +
         `👤 <b>Перенес:</b> ${rescheduledBy === 'admin' ? 'Администратор' : 'Клиент'}\n` +
         `🕐 <b>Время изменения:</b> ${format(new Date(), 'd MMMM yyyy HH:mm', { locale: ru })}`
 
@@ -366,6 +384,7 @@ export function formatClientRescheduleNotification(
     newDate: string,
     newTime: string,
     productName?: string,
+    productDescription?: string,
     psychologistName: string = 'психолога'
 ) {
     const oldDateFormatted = format(parseISO(oldDate), 'd MMMM yyyy', { locale: ru })
@@ -375,6 +394,7 @@ export function formatClientRescheduleNotification(
         `⏰ <b>Было:</b> ${oldDateFormatted} ${oldTime}\n` +
         `⏰ <b>Стало:</b> ${newDateFormatted} ${newTime}\n\n` +
         `${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}` +
+        `${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}` +
         `👤 <b>Специалист:</b> ${psychologistName}\n\n` +
         `✅ Запись успешно обновлена.\n\n` +
         `💡 <i>Если у вас возникли вопросы или вы хотите перенести запись повторно, пожалуйста, свяжитесь с администратором.</i>`
@@ -389,13 +409,15 @@ export function formatRescheduleDeclinedNotification(
     bookingDate: string,
     bookingTime: string,
     reason: string,
-    productName?: string
+    productName?: string,
+    productDescription?: string
 ) {
     const dateFormatted = format(parseISO(bookingDate), 'd MMMM yyyy', { locale: ru })
 
     const message = `⛔ <b>Запрос на перенос отклонен</b>\n\n` +
         `📅 <b>Запись:</b> ${dateFormatted} ${bookingTime}\n` +
-        `${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}\n` +
+        `${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}` +
+        `${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}\n` +
         `❌ <b>Причина:</b> ${reason}\n\n` +
         `ℹ️ <i>Перенос возможен только за 24 часа до консультации.\n` +
         `Если вам нужно изменить время, пожалуйста, свяжитесь с администратором.</i>`
@@ -416,6 +438,7 @@ export function formatRescheduleSuccessNotification(
         newDate: string;
         newTime: string;
         productName?: string;
+        productDescription?: string;
         amount?: number;
     },
     rescheduledBy: 'admin' | 'client'
@@ -430,6 +453,7 @@ export function formatRescheduleSuccessNotification(
         `⏰ <b>Было:</b> ${oldDateFormatted} ${bookingDetails.oldTime}\n` +
         `⏰ <b>Стало:</b> ${newDateFormatted} ${bookingDetails.newTime}\n\n` +
         `${bookingDetails.productName ? `🎯 <b>Услуга:</b> ${bookingDetails.productName}\n` : ''}` +
+        `${bookingDetails.productDescription ? `📝 <b>Описание:</b> ${bookingDetails.productDescription}\n` : ''}` +
         `${bookingDetails.amount ? `💰 <b>Сумма:</b> ${bookingDetails.amount.toLocaleString('ru-RU')} ₽\n` : ''}` +
         `👤 <b>Инициатор:</b> ${rescheduledBy === 'admin' ? 'Администратор' : 'Клиент'}\n` +
         `🕐 <b>Время изменения:</b> ${format(new Date(), 'd MMMM yyyy HH:mm', { locale: ru })}`

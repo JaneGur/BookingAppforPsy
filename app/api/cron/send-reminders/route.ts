@@ -19,6 +19,7 @@ interface BookingWithProduct {
     reminder_1h_sent: boolean;
     products: {
         name: string;
+        description?: string;
     } | null;
 }
 
@@ -64,7 +65,8 @@ export async function GET(request: NextRequest) {
                 paid_at,
                 reminder_24h_sent,
                 products (
-                    name
+                    name,
+                    description
                 )
             `)
             .eq('booking_date', tomorrowDate)
@@ -97,6 +99,7 @@ export async function GET(request: NextRequest) {
                             bookingDate: bookingDateFormatted,
                             bookingTime: booking.booking_time,
                             productName: (booking.products as any)?.name || 'Консультация',
+                            productDescription: (booking.products as any)?.description || undefined,
                         });
 
                         if (emailResult.success) {
@@ -119,6 +122,7 @@ export async function GET(request: NextRequest) {
                             booking_date: bookingDateFormatted,
                             booking_time: booking.booking_time,
                             product_name: (booking.products as any)?.name || 'Консультация',
+                            product_description: (booking.products as any)?.description || undefined,
                             hoursUntil: 24,
                         });
 
@@ -199,7 +203,8 @@ export async function GET(request: NextRequest) {
                 paid_at,
                 reminder_1h_sent,
                 products (
-                    name
+                    name,
+                    description
                 )
             `)
             .eq('booking_date', todayDate)
@@ -228,6 +233,7 @@ export async function GET(request: NextRequest) {
                             bookingDate: 'сегодня',
                             bookingTime: booking.booking_time,
                             productName: (booking.products as any)?.name || 'Консультация',
+                            productDescription: (booking.products as any)?.description || undefined,
                         });
 
                         if (emailResult.success) {
@@ -246,6 +252,7 @@ export async function GET(request: NextRequest) {
                             booking_date: 'сегодня',
                             booking_time: booking.booking_time,
                             product_name: (booking.products as any)?.name || 'Консультация',
+                            product_description: (booking.products as any)?.description || undefined,
                             hoursUntil: 1,
                         });
 
@@ -270,6 +277,7 @@ export async function GET(request: NextRequest) {
                         client_email: booking.client_email || undefined,
                         booking_time: booking.booking_time,
                         product_name: (booking.products as any)?.name || 'Консультация',
+                        product_description: (booking.products as any)?.description || undefined,
                     });
 
                     const telegramResult = await sendAdminNotification(telegramMessage);
