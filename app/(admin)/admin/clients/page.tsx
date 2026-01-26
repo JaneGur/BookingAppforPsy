@@ -81,17 +81,17 @@ export default function ClientsPage() {
                         className="absolute inset-x-0 bottom-0 h-[80vh] bg-white rounded-t-2xl shadow-xl animate-slideInUp"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="p-4 border-b">
-                            <div className="flex items-center justify-between">
-                                <span className="font-semibold text-gray-900">Фильтры и сортировка</span>
-                                <button
-                                    onClick={() => setShowMobileFilters(false)}
-                                    className="p-2 hover:bg-gray-100 rounded-lg"
-                                >
-                                    <X className="h-5 w-5" />
-                                </button>
-                            </div>
-                        </div>
+                        {/*<div className="p-4 border-b">*/}
+                        {/*    <div className="flex items-center justify-between">*/}
+                        {/*        <span className="font-semibold text-gray-900">Фильтры и сортировка</span>*/}
+                        {/*        <button*/}
+                        {/*            onClick={() => setShowMobileFilters(false)}*/}
+                        {/*            className="p-2 hover:bg-gray-100 rounded-lg"*/}
+                        {/*        >*/}
+                        {/*            <X className="h-5 w-5" />*/}
+                        {/*        </button>*/}
+                        {/*    </div>*/}
+                        {/*</div>*/}
                         <div className="p-4 h-[calc(100%-80px)] overflow-y-auto space-y-6">
                             {/* Фильтры для мобильных */}
                             <ClientFilters

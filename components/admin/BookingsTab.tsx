@@ -1022,144 +1022,162 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                 {dateBookings.map((booking) => (
                                     <div key={booking.id} className="booking-card border-2 p-3 sm:p-5 hover:shadow-xl transition-all">
                                         <div className="flex flex-col gap-3 sm:gap-4">
-                                            <div className="flex items-start gap-2 sm:gap-3">
-                                                <button
-                                                    onClick={() => handleSelectBooking(booking.id)}
-                                                    className="mt-0.5 hover:scale-110 transition-transform flex-shrink-0"
-                                                >
-                                                    {selectedBookings.has(booking.id) ? (
-                                                        <CheckSquare className="h-4 w-4 sm:h-6 sm:w-6 text-primary-600" />
-                                                    ) : (
-                                                        <Square className="h-4 w-4 sm:h-6 sm:w-6 text-gray-400" />
-                                                    )}
-                                                </button>
-                                                <div className="flex-1 min-w-0 space-y-2 sm:space-y-3">
-                                                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                                                        <StatusBadge status={booking.status} />
-                                                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
-                                                            <Clock className="h-3 w-3 text-blue-600 flex-shrink-0" />
-                                                            <span className="text-xs sm:text-sm font-bold text-blue-900 whitespace-nowrap">
-                                                                {booking.booking_time}
-                                                            </span>
-                                                        </div>
-                                                        <div className="px-2 py-1 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200">
-                                                            <span className="text-xs sm:text-sm font-bold text-purple-900 whitespace-nowrap">
-                                                                {(booking.amount || 0).toLocaleString('ru-RU')} ₽
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="space-y-1.5 sm:space-y-2">
-                                                        <Link
-                                                            href={`/admin/clients/${booking.client_id}`}
-                                                            className="group inline-block"
-                                                            onClick={(e) => e.stopPropagation()}
-                                                        >
-                                                            <p className="text-sm sm:text-lg font-bold text-blue-900 break-words hover:text-primary-700 hover:underline transition-colors flex items-center gap-1.5">
-                                                                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 text-primary-500 group-hover:text-primary-600 transition-colors" />
-                                                                {booking.client_name}
-                                                            </p>
-                                                        </Link>
-                                                        <div className="space-y-1">
-                                                            <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
-                                                                <span className="flex-shrink-0">📱</span>
-                                                                <span className="break-all">{booking.client_phone}</span>
-                                                            </div>
-                                                            {booking.client_email && (
-                                                                <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
-                                                                    <span className="flex-shrink-0">✉️</span>
-                                                                    <span className="break-all">{booking.client_email}</span>
+                                            {/* Верхняя строка: чекбокс + статус + время + сумма */}
+                                            <div className="flex items-start justify-between gap-2 sm:gap-3">
+                                                <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+                                                    <button
+                                                        onClick={() => handleSelectBooking(booking.id)}
+                                                        className="mt-0.5 hover:scale-110 transition-transform flex-shrink-0"
+                                                    >
+                                                        {selectedBookings.has(booking.id) ? (
+                                                            <CheckSquare className="h-4 w-4 sm:h-6 sm:w-6 text-primary-600" />
+                                                        ) : (
+                                                            <Square className="h-4 w-4 sm:h-6 sm:w-6 text-gray-400" />
+                                                        )}
+                                                    </button>
+
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-1.5 sm:gap-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <StatusBadge status={booking.status} />
+                                                                <div className="sm:hidden flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
+                                                                    <Clock className="h-3 w-3 text-blue-600 flex-shrink-0" />
+                                                                    <span className="text-xs font-bold text-blue-900 whitespace-nowrap">
+                                            {booking.booking_time}
+                                        </span>
                                                                 </div>
-                                                            )}
+                                                            </div>
+
+                                                            {/* Время - скрыто на мобилке, показывается выше */}
+                                                            <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
+                                                                <Clock className="h-3 w-3 text-blue-600 flex-shrink-0" />
+                                                                <span className="text-sm font-bold text-blue-900 whitespace-nowrap">
+                                        {booking.booking_time}
+                                    </span>
+                                                            </div>
+
+                                                            <div className="px-2 py-1 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200 w-fit">
+                                    <span className="text-xs sm:text-sm font-bold text-purple-900 whitespace-nowrap">
+                                        {(booking.amount || 0).toLocaleString('ru-RU')} ₽
+                                    </span>
+                                                            </div>
                                                         </div>
-                                                        {booking.product_description && (
-                                                            <div className="mt-1.5 p-2 sm:p-3 rounded-lg bg-purple-50 border border-purple-200">
-                                                                <p className="text-xs sm:text-sm text-purple-900 break-words">📝 {booking.product_description}</p>
-                                                            </div>
-                                                        )}
-                                                        {booking.notes && (
-                                                            <div className="mt-1.5 p-2 sm:p-3 rounded-lg bg-gray-50 border border-gray-200">
-                                                                <p className="text-xs sm:text-sm text-gray-700 italic break-words">💬 {booking.notes}</p>
-                                                            </div>
-                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-wrap gap-1.5 pt-2 sm:pt-3 border-t border-gray-100">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => setDetailsBooking(booking)}
-                                                    className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
-                                                >
-                                                    <Eye className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                    <span className="hidden sm:inline">Детали</span>
-                                                    <span className="sm:hidden">Дет.</span>
-                                                </Button>
 
-                                                <Button
-                                                    asChild
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
+                                            {/* Информация о клиенте */}
+                                            <div className="space-y-2 sm:space-y-2 pl-6 sm:pl-9">
+                                                <Link
+                                                    href={`/admin/clients/${booking.client_id}`}
+                                                    className="group inline-block"
+                                                    onClick={(e) => e.stopPropagation()}
                                                 >
-                                                    <Link href={`/admin/clients/${booking.client_id}`}>
-                                                        <User className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                        <span className="hidden sm:inline">Клиент</span>
-                                                        <span className="sm:hidden">Кл.</span>
-                                                    </Link>
-                                                </Button>
+                                                    <p className="text-sm sm:text-lg font-bold text-blue-900 break-words hover:text-primary-700 hover:underline transition-colors flex items-center gap-1.5">
+                                                        <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 text-primary-500 group-hover:text-primary-600 transition-colors" />
+                                                        {booking.client_name}
+                                                    </p>
+                                                </Link>
 
-                                                {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                                                <div className="space-y-1.5">
+                                                    <div className="flex items-start gap-1.5 text-xs sm:text-sm text-gray-600">
+                                                        <span className="flex-shrink-0 mt-0.5">📱</span>
+                                                        <span className="break-all">{booking.client_phone}</span>
+                                                    </div>
+                                                    {booking.client_email && (
+                                                        <div className="flex items-start gap-1.5 text-xs sm:text-sm text-gray-600">
+                                                            <span className="flex-shrink-0 mt-0.5">✉️</span>
+                                                            <span className="break-all">{booking.client_email}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Описание и заметки - вертикальный стек на мобилке */}
+                                            <div className="space-y-2 pl-6 sm:pl-9">
+                                                {booking.product_description && (
+                                                    <div className="p-2 sm:p-3 rounded-lg bg-purple-50 border border-purple-200">
+                                                        <p className="text-xs sm:text-sm text-purple-900 break-words">📝 {booking.product_description}</p>
+                                                    </div>
+                                                )}
+
+                                                {booking.notes && (
+                                                    <div className="p-2 sm:p-3 rounded-lg bg-gray-50 border border-gray-200">
+                                                        <p className="text-xs sm:text-sm text-gray-700 italic break-words">💬 {booking.notes}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Кнопки действий - адаптивная сетка */}
+                                            <div className="pt-2 sm:pt-3 border-t border-gray-100 pl-6 sm:pl-9">
+                                                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1.5">
                                                     <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setDetailsBooking(booking)}
+                                                        className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm justify-start"
+                                                    >
+                                                        <Eye className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
+                                                        <span>Детали</span>
+                                                    </Button>
+
+                                                    <Button
+                                                        asChild
                                                         variant="secondary"
                                                         size="sm"
-                                                        onClick={() => handleRescheduleOpen(booking)}
-                                                        className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
-                                                        title="Перенести"
+                                                        className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm justify-start"
                                                     >
-                                                        <Edit className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                        <span className="hidden sm:inline">Перенести</span>
-                                                        <span className="sm:hidden">Перен.</span>
+                                                        <Link href={`/admin/clients/${booking.client_id}`}>
+                                                            <User className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
+                                                            <span>Клиент</span>
+                                                        </Link>
                                                     </Button>
-                                                )}
 
-                                                {booking.status === 'pending_payment' && (
+                                                    {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                                                        <>
+                                                            <Button
+                                                                variant="secondary"
+                                                                size="sm"
+                                                                onClick={() => handleRescheduleOpen(booking)}
+                                                                className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm justify-start"
+                                                            >
+                                                                <Edit className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
+                                                                <span>Перенести</span>
+                                                            </Button>
+
+                                                            <Button
+                                                                variant="secondary"
+                                                                size="sm"
+                                                                onClick={() => handleCancel(booking.id)}
+                                                                className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm justify-start"
+                                                            >
+                                                                <Ban className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
+                                                                <span>Отменить</span>
+                                                            </Button>
+                                                        </>
+                                                    )}
+
+                                                    {booking.status === 'pending_payment' && (
+                                                        <Button
+                                                            size="sm"
+                                                            onClick={() => handleMarkPaid(booking.id)}
+                                                            className="bg-green-600 hover:bg-green-700 text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm justify-start col-span-2 sm:col-span-1"
+                                                        >
+                                                            <CheckCircle className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
+                                                            <span>Оплачено</span>
+                                                        </Button>
+                                                    )}
+
                                                     <Button
+                                                        variant="ghost"
                                                         size="sm"
-                                                        onClick={() => handleMarkPaid(booking.id)}
-                                                        className="bg-green-600 hover:bg-green-700 text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
+                                                        onClick={() => handleDelete(booking.id)}
+                                                        className="hover:bg-red-50 hover:text-red-600 text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm justify-start col-span-2 sm:col-span-1"
                                                     >
-                                                        <CheckCircle className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                        <span className="hidden sm:inline">Оплачено</span>
-                                                        <span className="sm:hidden">Оплата</span>
+                                                        <Trash2 className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
+                                                        <span>Удалить</span>
                                                     </Button>
-                                                )}
-
-                                                {booking.status !== 'cancelled' && booking.status !== 'completed' && (
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => handleCancel(booking.id)}
-                                                        className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
-                                                        title="Отменить"
-                                                    >
-                                                        <Ban className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                        <span className="hidden sm:inline">Отменить</span>
-                                                        <span className="sm:hidden">Отмена</span>
-                                                    </Button>
-                                                )}
-
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => handleDelete(booking.id)}
-                                                    className="hover:bg-red-50 hover:text-red-600 text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
-                                                    title="Удалить"
-                                                >
-                                                    <Trash2 className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                    <span className="hidden sm:inline">Удалить</span>
-                                                    <span className="sm:hidden">Удалить</span>
-                                                </Button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
