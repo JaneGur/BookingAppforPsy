@@ -17,6 +17,7 @@ import { BookingActions } from '@/components/client/BookingActions'
 import { ClientNewBookingForm } from '@/components/client/ClientNewBookingForm'
 import { TelegramConnect } from '@/components/client/TelegramConnect'
 import { formatDateRu } from '@/lib/utils/date'
+import { ClientBookingsCalendar } from '@/components/client/ClientBookingsCalendar'
 
 type TabKey = 'home' | 'new' | 'history' | 'profile' | 'telegram'
 
@@ -418,11 +419,11 @@ export function ClientDashboardTabs() {
                     <CardHeader>
                         <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg">
-                                <LineChart className="h-6 w-6 text-white" />
+                                <Calendar className="h-6 w-6 text-white" />
                             </div>
                             <div>
                                 <CardTitle className="text-2xl">История записей</CardTitle>
-                                <p className="text-sm text-gray-600 mt-1">Все ваши консультации</p>
+                                <p className="text-sm text-gray-600 mt-1">Все ваши консультации в календаре</p>
                             </div>
                         </div>
                     </CardHeader>
@@ -449,31 +450,7 @@ export function ClientDashboardTabs() {
                                 </Button>
                             </div>
                         ) : (
-                            <div className="space-y-4">
-                                {/* Актуальные записи */}
-                                {Array.isArray(bookings) && bookings
-                                    .filter((booking: Booking) => booking.status !== 'cancelled')
-                                    .sort((a, b) => {
-                                        const aDt = Date.parse(`${a.booking_date}T${a.booking_time}:00`)
-                                        const bDt = Date.parse(`${b.booking_date}T${b.booking_time}:00`)
-                                        return bDt - aDt // Сначала новые
-                                    })
-                                    .map((b) => (
-                                        <BookingHistoryItem key={b.id} booking={b} />
-                                    ))}
-
-                                {/* Отмененные записи */}
-                                {Array.isArray(bookings) && bookings
-                                    .filter((booking: Booking) => booking.status === 'cancelled')
-                                    .sort((a, b) => {
-                                        const aDt = Date.parse(`${a.booking_date}T${a.booking_time}:00`)
-                                        const bDt = Date.parse(`${b.booking_date}T${b.booking_time}:00`)
-                                        return bDt - aDt // Сначала новые отмененные
-                                    })
-                                    .map((b) => (
-                                        <BookingHistoryItem key={b.id} booking={b} />
-                                    ))}
-                            </div>
+                            <ClientBookingsCalendar bookings={bookings} />
                         )}
                     </CardContent>
                 </Card>

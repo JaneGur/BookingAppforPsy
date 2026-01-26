@@ -30,38 +30,7 @@ import { toast } from 'sonner'
 import { BookingDetailsModal } from '@/components/admin/BookingDetailsModal'
 import { RescheduleBookingModal } from '@/components/admin/RescheduleBookingModal'
 import { CreateBookingModal } from '@/components/admin/CreateBookingModal'
-
-function StatusBadge({ status }: { status: Booking['status'] }) {
-    const map: Record<Booking['status'], { label: string; className: string; icon: string }> = {
-        pending_payment: {
-            label: 'Ожидает оплаты',
-            className: 'bg-gradient-to-br from-yellow-50 to-yellow-100 text-yellow-700 border-2 border-yellow-200',
-            icon: '⏳',
-        },
-        confirmed: {
-            label: 'Подтверждена',
-            className: 'bg-gradient-to-br from-green-50 to-green-100 text-green-700 border-2 border-green-200',
-            icon: '✓',
-        },
-        completed: {
-            label: 'Завершена',
-            className: 'bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-700 border-2 border-emerald-200',
-            icon: '✓',
-        },
-        cancelled: {
-            label: 'Отменена',
-            className: 'bg-gradient-to-br from-red-50 to-red-100 text-red-700 border-2 border-red-200',
-            icon: '✕',
-        },
-    }
-    const item = map[status]
-    return (
-        <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold shadow-md hover:scale-105 transition-transform ${item.className}`}>
-            <span>{item.icon}</span>
-            {item.label}
-        </span>
-    )
-}
+import { AdminClientBookingsCalendar } from '@/components/admin/AdminClientBookingsCalendar'
 
 export default function ClientProfilePage() {
     const params = useParams()
@@ -475,14 +444,14 @@ export default function ClientProfilePage() {
                     <div className="lg:col-span-2 space-y-4 sm:space-y-6">
                         <Card className="booking-card border-2">
                             <CardHeader>
-                                <div className="flex items-center justify-between">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                                     <CardTitle className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-50 to-yellow-50 flex items-center justify-center border-2 border-amber-200/50">
                                             <Calendar className="w-5 h-5 text-amber-600" />
                                         </div>
                                         История записей
                                     </CardTitle>
-                                    <Button size="lg" className="shadow-lg" onClick={() => setShowCreateModal(true)}>
+                                    <Button size="lg" className="shadow-lg w-full sm:w-auto" onClick={() => setShowCreateModal(true)}>
                                         <Plus className="h-5 w-5 mr-2" />
                                         Создать запись
                                     </Button>
@@ -500,105 +469,16 @@ export default function ClientProfilePage() {
                                             <Plus className="h-5 w-5 mr-2" />
                                             Создать запись
                                         </Button>
-
                                     </div>
                                 ) : (
-                                    <div className="space-y-3 sm:space-y-4">
-                                        {bookings.map((booking) => (
-                                            <div key={booking.id} className="booking-card border-2 p-4 sm:p-5 hover:shadow-xl transition-all">
-                                                <div className="flex flex-col gap-4">
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="flex-1 min-w-0 space-y-3">
-                                                            <div className="flex flex-wrap items-center gap-2">
-                                                                <StatusBadge status={booking.status} />
-                                                                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
-                                                                    <Clock className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
-                                                                    <span className="text-sm font-bold text-blue-900 whitespace-nowrap">
-                                                                        {booking.booking_time}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200">
-                                                                    <span className="text-sm font-bold text-purple-900 whitespace-nowrap">
-                                                                        {(booking.amount || 0).toLocaleString('ru-RU')} ₽
-                                                                    </span>
-                                                                </div>
-                                                                <div className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100/50 border border-gray-200">
-                                                                    <span className="text-sm font-bold text-gray-900 whitespace-nowrap">
-                                                                        {format(parseISO(booking.booking_date), 'd MMMM yyyy', { locale: ru })}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <p className="text-base sm:text-lg font-bold text-gray-900 break-words">
-                                                                    {booking?.product_description || 'Услуга не указана'}
-                                                                </p>
-                                                                {booking.notes && (
-                                                                    <div className="mt-2 p-3 rounded-lg bg-gray-50 border border-gray-200">
-                                                                        <p className="text-sm text-gray-700 italic break-words">💬 {booking.notes}</p>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t border-gray-100">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => setDetailsBooking(booking)}
-                                                            className="w-full sm:w-auto justify-center sm:justify-start"
-                                                        >
-                                                            <Eye className="h-4 w-4 mr-2" />
-                                                            Детали
-                                                        </Button>
-                                                        {booking.status !== 'cancelled' && booking.status !== 'completed' && (
-                                                            <Button
-                                                                variant="secondary"
-                                                                size="sm"
-                                                                onClick={() => handleRescheduleOpen(booking)}
-                                                                className="w-full sm:w-auto justify-center sm:justify-start"
-                                                                title="Перенести дату/время записи"
-                                                            >
-                                                                <Edit className="h-4 w-4 mr-2" />
-                                                                Перенести
-                                                            </Button>
-                                                        )}
-                                                        {booking.status === 'pending_payment' && (
-                                                            <Button
-                                                                size="sm"
-                                                                onClick={() => handleMarkPaid(booking.id)}
-                                                                className="bg-green-600 hover:bg-green-700 w-full sm:w-auto justify-center sm:justify-start"
-                                                            >
-                                                                <CheckCircle className="h-4 w-4 mr-2" />
-                                                                Оплачено
-                                                            </Button>
-                                                        )}
-                                                        {booking.status !== 'cancelled' && booking.status !== 'completed' && (
-                                                            <Button
-                                                                variant="secondary"
-                                                                size="sm"
-                                                                onClick={() => handleCancelBooking(booking.id)}
-                                                                className="w-full sm:w-auto justify-center sm:justify-start"
-                                                                title="Отменить запись (остается в истории)"
-                                                            >
-                                                                <Ban className="h-4 w-4 mr-2" />
-                                                                Отменить
-                                                            </Button>
-                                                        )}
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => handleDeleteBooking(booking.id)}
-                                                            className="hover:bg-red-50 hover:text-red-600 w-full sm:w-auto justify-center sm:justify-start"
-                                                            title="Полностью удалить запись из базы"
-                                                        >
-                                                            <Trash2 className="h-4 w-4 mr-2" />
-                                                            Удалить
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <AdminClientBookingsCalendar
+                                        bookings={bookings}
+                                        onReschedule={handleRescheduleOpen}
+                                        onViewDetails={setDetailsBooking}
+                                        onMarkPaid={handleMarkPaid}
+                                        onCancel={handleCancelBooking}
+                                        onDelete={handleDeleteBooking}
+                                    />
                                 )}
                             </CardContent>
                         </Card>
@@ -606,41 +486,40 @@ export default function ClientProfilePage() {
                 </div>
             </div>
 
-            {/* Модальное окно деталей записи */}
-            <BookingDetailsModal
-                booking={detailsBooking}
-                onClose={() => setDetailsBooking(null)}
-                onDelete={handleDeleteBooking}
-                onCancel={handleCancelBooking}
-                onReschedule={(b) => {
-                    setDetailsBooking(null)
-                    handleRescheduleOpen(b)
-                }}
-                onStatusChange={handleStatusChange}
-            />
+            {/* Модальные окна */}
+            {detailsBooking && (
+                <BookingDetailsModal
+                    booking={detailsBooking}
+                    open={!!detailsBooking}
+                    onClose={() => setDetailsBooking(null)}
+                />
+            )}
 
-            <RescheduleBookingModal
-                booking={rescheduleBooking}
-                open={!!rescheduleBooking}
-                onClose={() => setRescheduleBooking(null)}
-            />
+            {rescheduleBooking && (
+                <RescheduleBookingModal
+                    booking={rescheduleBooking}
+                    open={!!rescheduleBooking}
+                    onClose={() => setRescheduleBooking(null)}
+                    onSuccess={() => {
+                        setRescheduleBooking(null)
+                        refetch()
+                    }}
+                />
+            )}
 
             {showCreateModal && (
                 <CreateBookingModal
+                    open={showCreateModal}
                     onClose={() => setShowCreateModal(false)}
+                    clientId={clientId}
+                    clientPhone={profile.client.phone}
                     onSuccess={() => {
                         setShowCreateModal(false)
                         refetch()
                     }}
-                    clientPreset={{
-                        name: profile.client.name,
-                        phone: profile.client.phone,
-                        email: profile.client.email || undefined,
-                        telegram: profile.client.telegram || undefined,
-                    }}
-                    hideClientStep
                 />
             )}
         </div>
     )
 }
+
