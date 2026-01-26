@@ -19,7 +19,7 @@ import {
     Square,
     List,
     CalendarDays,
-    Ban,
+    Ban, User
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -33,6 +33,8 @@ import { RescheduleBookingModal } from '@/components/admin/RescheduleBookingModa
 import { toast } from 'sonner'
 import { LoadMoreButton } from '@/components/ui/LoadMoreButton'
 import { useQueryClient } from '@tanstack/react-query'
+import Link from 'next/link'
+
 
 interface BookingsTabProps {
     onCreateBooking: () => void
@@ -910,8 +912,8 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                         {format(parseISO(date), 'd MMMM yyyy', { locale: ru })}
                                     </CardTitle>
                                     <span className="ml-auto text-xs sm:text-sm font-medium text-gray-600">
-                                        {dateBookings.length} {dateBookings.length === 1 ? 'запись' : 'записей'}
-                                    </span>
+                                {dateBookings.length} {dateBookings.length === 1 ? 'запись' : 'записей'}
+                            </span>
                                 </div>
                             </CardHeader>
                             <CardContent className="p-2 sm:p-4 space-y-2 sm:space-y-3">
@@ -935,17 +937,27 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
                                                             <Clock className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
                                                             <span className="text-sm font-bold text-blue-900 whitespace-nowrap">
-                                                                {booking.booking_time}
-                                                            </span>
+                                                        {booking.booking_time}
+                                                    </span>
                                                         </div>
                                                         <div className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200">
-                                                            <span className="text-sm font-bold text-purple-900 whitespace-nowrap">
-                                                                {(booking.amount || 0).toLocaleString('ru-RU')} ₽
-                                                            </span>
+                                                    <span className="text-sm font-bold text-purple-900 whitespace-nowrap">
+                                                        {(booking.amount || 0).toLocaleString('ru-RU')} ₽
+                                                    </span>
                                                         </div>
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <p className="text-base sm:text-lg font-bold text-gray-900 break-words">{booking.client_name}</p>
+                                                        {/* Кликабельное имя клиента */}
+                                                        <Link
+                                                            href={`/admin/clients/${booking.client_id}`}
+                                                            className="group inline-block"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        >
+                                                            <p className="text-base sm:text-lg font-bold text-blue-900 break-words hover:text-primary-700 hover:underline transition-colors flex items-center gap-2">
+                                                                <User className="h-4 w-4 flex-shrink-0 text-primary-500 group-hover:text-primary-600 transition-colors" />
+                                                                {booking.client_name}
+                                                            </p>
+                                                        </Link>
                                                         <div className="space-y-1.5">
                                                             <div className="flex items-center gap-2 text-sm text-gray-600">
                                                                 <span className="flex-shrink-0">📱</span>
@@ -980,6 +992,18 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                                 >
                                                     <Eye className="h-4 w-4 mr-2" />
                                                     Детали
+                                                </Button>
+                                                {/* Кнопка перехода к клиенту */}
+                                                <Button
+                                                    asChild
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className="w-full sm:w-auto justify-center sm:justify-start"
+                                                >
+                                                    <Link href={`/admin/clients/${booking.client_id}`}>
+                                                        <User className="h-4 w-4 mr-2" />
+                                                        Профиль клиента
+                                                    </Link>
                                                 </Button>
                                                 {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                                                     <Button

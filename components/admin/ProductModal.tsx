@@ -87,7 +87,7 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
     }, [product, isOpen])
 
     const handleSave = async () => {
-        if (!formData.name || !formData.price_rub) {
+        if (!formData.name || formData.price_rub < 0) {
             setError('Название и цена обязательны')
             return
         }
