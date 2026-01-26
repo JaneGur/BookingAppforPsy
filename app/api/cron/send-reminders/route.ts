@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
 
                         const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
                             ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
-                            : 'https://calmpeople.vercel.app//dashboard';
+                            : 'https://calmpeople.vercel.app/dashboard';
 
                         const telegramResult = await sendClientNotification(
                             (booking as any).telegram_chat_id,
