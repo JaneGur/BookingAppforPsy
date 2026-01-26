@@ -120,7 +120,7 @@ export default function HomePage() {
                                 </Link>
                             </Button>
                             <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
                                 onClick={() => {
                                     setIsContactModalOpen(true)
@@ -252,7 +252,7 @@ export default function HomePage() {
                         </Link>
                     </Button>
                     <Button
-                        variant="outline"
+                        variant="secondary"
                         size="sm"
                         onClick={() => setIsContactModalOpen(true)}
                         className="flex-1 mx-1"
