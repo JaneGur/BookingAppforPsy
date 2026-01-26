@@ -31,7 +31,9 @@ import {
     CreditCard,
     DollarSign,
     FileText,
-    ArrowLeft
+    ArrowLeft,
+    BarChart3,
+    Sparkles
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -100,6 +102,8 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [showSortOptions, setShowSortOptions] = useState(false)
     const [showMobileActions, setShowMobileActions] = useState(false)
+    const [showStats, setShowStats] = useState(false) // 🆕 Мобильная статистика
+    const [showSearch, setShowSearch] = useState(false) // 🆕 Мобильный поиск
 
     const currentPageRef = useRef(1)
     const [bookings, setBookings] = useState<Booking[]>([])
@@ -108,6 +112,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
     const [hasMore, setHasMore] = useState(false)
     const [fullStats, setFullStats] = useState<any>(null)
 
+    // 🎯 Загрузка данных (оставляем как есть)
     const loadBookings = async (page: number = 1, append: boolean = false) => {
         if (append) {
             setIsLoadingMore(true)
@@ -163,6 +168,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         }
     }
 
+    // 🎯 Остальные функции загрузки и обработки (оставляем как есть)
     const loadMore = () => {
         if (hasMore && !isLoading && !isLoadingMore) {
             loadBookings(currentPageRef.current + 1, true)
@@ -216,6 +222,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         loadFullStats()
     }, [])
 
+    // 🎯 Эффекты для фильтров (оставляем как есть)
     useEffect(() => {
         const today = startOfDay(new Date())
         if (quickFilter === 'all') {
@@ -272,6 +279,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         return () => clearTimeout(timeoutId)
     }, [selectedStatuses.join(','), dateRange.start, dateRange.end, searchQuery, sortField, sortDirection])
 
+    // 🎯 Группировка и сортировка (оставляем как есть)
     const groupedBookings = useMemo(() => {
         const groups = new Map<string, Booking[]>()
         bookings.forEach((booking) => {
@@ -331,6 +339,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         }
     }, [fullStats])
 
+    // 🎯 Остальные обработчики (оставляем как есть)
     const handleStatusToggle = (status: string) => {
         setSelectedStatuses((prev) =>
             prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
@@ -482,7 +491,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
 
     return (
         <div className="space-y-4 sm:space-y-8">
-            {/* Мобильное меню действий */}
+            {/* 🎯 Мобильное меню действий */}
             {showMobileActions && (
                 <div className="fixed inset-0 z-50 bg-black/50 md:hidden" onClick={() => setShowMobileActions(false)}>
                     <div
@@ -543,7 +552,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </div>
             )}
 
-            {/* Заголовок - мобильная адаптация */}
+            {/* 🎯 Заголовок - мобильная адаптация */}
             <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
                 <CardContent className="p-3 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
@@ -557,7 +566,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                             </div>
                         </div>
 
-                        {/* Мобильное меню кнопка */}
+                        {/* 🎯 Мобильное меню кнопка */}
                         <Button
                             variant="ghost"
                             size="icon"
@@ -582,17 +591,36 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </CardContent>
             </Card>
 
-            {/* Статистика - мобильная адаптация */}
+            {/* 🎯 Статистика - мобильная адаптация с аккордеоном */}
             <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
-                <CardHeader className="pb-2 px-3 sm:px-6">
+                <button
+                    onClick={() => setShowStats(!showStats)}
+                    className="w-full p-3 sm:p-6 flex items-center justify-between hover:bg-gray-50 transition-colors md:hidden"
+                >
+                    <CardTitle className="text-sm sm:text-lg flex items-center gap-2 m-0">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center border-2 border-emerald-200/50 flex-shrink-0">
+                            <BarChart3 className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <span>Статистика записей</span>
+                    </CardTitle>
+                    {showStats ? (
+                        <ChevronUp className="h-5 w-5 text-gray-500" />
+                    ) : (
+                        <ChevronDown className="h-5 w-5 text-gray-500" />
+                    )}
+                </button>
+
+                {/* Десктоп заголовок */}
+                <CardHeader className="hidden md:block pb-2 px-3 sm:px-6">
                     <CardTitle className="text-sm sm:text-lg flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-50 to-primary-50 flex items-center justify-center border-2 border-primary-200/50">
-                            <Calendar className="w-4 h-4 text-primary-600" />
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center border-2 border-emerald-200/50">
+                            <BarChart3 className="w-4 h-4 text-emerald-600" />
                         </div>
                         Статистика записей
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="px-3 sm:px-6 pt-0">
+
+                <CardContent className={`px-3 sm:px-6 pt-0 ${!showStats && 'hidden md:block'} md:pt-0`}>
                     <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-5 sm:gap-2">
                         <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200">
                             <div className="flex items-center justify-between mb-1 sm:mb-2">
@@ -633,7 +661,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </CardContent>
             </Card>
 
-            {/* Поиск и фильтры - мобильная адаптация */}
+            {/* 🎯 Поиск и фильтры - мобильная адаптация */}
             <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
                 <CardHeader className="pb-2 px-3 sm:px-6">
                     <div className="flex items-center justify-between">
@@ -654,8 +682,39 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-3 px-3 sm:px-6">
-                    {/* Поиск */}
-                    <div className="relative">
+                    {/* 🎯 Мобильный поиск - сворачиваемый */}
+                    <div className="sm:hidden">
+                        <button
+                            onClick={() => setShowSearch(!showSearch)}
+                            className="w-full flex items-center justify-between p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                            <div className="flex items-center gap-2">
+                                <Search className="h-3.5 w-3.5 text-gray-500" />
+                                <span className="text-sm font-medium text-gray-700">
+                                    {searchQuery ? `Поиск: "${searchQuery}"` : 'Поиск...'}
+                                </span>
+                            </div>
+                            {showSearch ? (
+                                <ChevronUp className="h-4 w-4 text-gray-500" />
+                            ) : (
+                                <ChevronDown className="h-4 w-4 text-gray-500" />
+                            )}
+                        </button>
+                        {showSearch && (
+                            <div className="mt-2 relative">
+                                <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                                <Input
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Введите имя, телефон..."
+                                    className="pl-9 text-sm h-10"
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Десктопный поиск */}
+                    <div className="hidden sm:block relative">
                         <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
                         <Input
                             value={searchQuery}
@@ -852,7 +911,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </CardContent>
             </Card>
 
-            {/* Массовые действия - мобильная адаптация */}
+            {/* 🎯 Массовые действия - мобильная адаптация */}
             {selectedBookings.size > 0 && (
                 <Card className="booking-card border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-white shadow-sm">
                     <CardContent className="p-3">
@@ -900,8 +959,8 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </Card>
             )}
 
-            {/* Календарное представление */}
-            {viewMode === 'calendar' && !isLoading && (
+            {/* 🎯 Календарное представление - на мобильных не показываем */}
+            {viewMode === 'calendar' && !isLoading && window.innerWidth >= 768 && (
                 <>
                     <BookingsCalendar
                         bookings={bookings}
@@ -961,7 +1020,29 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </>
             )}
 
-            {/* Список записей - мобильная адаптация */}
+            {/* 🎯 Предупреждение о календаре на мобильных */}
+            {viewMode === 'calendar' && window.innerWidth < 768 && (
+                <Card className="booking-card border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-white shadow-sm">
+                    <CardContent className="p-4 text-center">
+                        <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                            <CalendarDays className="h-5 w-5 text-white" />
+                        </div>
+                        <h3 className="text-base font-bold text-gray-900 mb-1">Календарь на мобильных</h3>
+                        <p className="text-xs text-gray-600 mb-3">Для удобства просмотра календаря перейдите в режим списка или используйте десктопную версию</p>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setViewMode('list')}
+                            className="w-full"
+                        >
+                            <List className="h-3.5 w-3.5 mr-1.5" />
+                            Перейти к списку
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* 🎯 Список записей - мобильная адаптация */}
             {viewMode === 'list' && isLoading ? (
                 <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
                     <CardContent className="py-8 text-center">
@@ -987,121 +1068,72 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </Card>
             ) : viewMode === 'list' && (
                 <div className="space-y-3">
-                    {/* Сортировка - мобильная адаптация */}
+                    {/* 🎯 Сортировка - мобильная адаптация */}
                     <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
-                        <CardHeader className="pb-2 px-3">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-sm flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-gray-50 to-primary-50 flex items-center justify-center border-2 border-primary-200/50">
-                                        <ArrowUpDown className="w-3 h-3 text-primary-600" />
-                                    </div>
-                                    Сортировка
-                                </CardTitle>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="sm:hidden h-6 w-6 p-0"
-                                    onClick={() => setShowSortOptions(!showSortOptions)}
-                                >
-                                    {showSortOptions ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                                </Button>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-2 px-3 pt-0">
-                            {/* Мобильная сортировка */}
-                            <div className="sm:hidden">
-                                <div className="flex flex-wrap gap-1.5">
-                                    <button
-                                        onClick={() => handleSort('date')}
-                                        className={cn(
-                                            'px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 flex-1 min-w-[100px]',
-                                            sortField === 'date'
-                                                ? 'bg-primary-500 text-white'
-                                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
-                                        )}
-                                    >
-                                        Дата
-                                        {sortField === 'date' && (
-                                            <ArrowUpDown className={cn(
-                                                "h-2.5 w-2.5 transition-transform",
-                                                sortDirection === 'desc' && 'rotate-180'
-                                            )} />
-                                        )}
-                                    </button>
-                                    <button
-                                        onClick={() => handleSort('client_name')}
-                                        className={cn(
-                                            'px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 flex-1 min-w-[100px]',
-                                            sortField === 'client_name'
-                                                ? 'bg-primary-500 text-white'
-                                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
-                                        )}
-                                    >
-                                        Имя
-                                        {sortField === 'client_name' && (
-                                            <ArrowUpDown className={cn(
-                                                "h-2.5 w-2.5 transition-transform",
-                                                sortDirection === 'desc' && 'rotate-180'
-                                            )} />
-                                        )}
-                                    </button>
-                                    <button
-                                        onClick={() => setShowSortOptions(!showSortOptions)}
-                                        className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-700 border border-gray-200 hover:bg-primary-50"
-                                    >
-                                        Ещё
-                                    </button>
+                        <button
+                            onClick={() => setShowSortOptions(!showSortOptions)}
+                            className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                        >
+                            <CardTitle className="text-sm flex items-center gap-2 m-0">
+                                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-gray-50 to-primary-50 flex items-center justify-center border-2 border-primary-200/50">
+                                    <ArrowUpDown className="w-3 h-3 text-primary-600" />
                                 </div>
+                                Сортировка
+                            </CardTitle>
+                            {showSortOptions ? (
+                                <ChevronUp className="h-4 w-4 text-gray-500" />
+                            ) : (
+                                <ChevronDown className="h-4 w-4 text-gray-500" />
+                            )}
+                        </button>
 
-                                {showSortOptions && (
-                                    <div className="mt-2 space-y-1.5">
-                                        {[
-                                            { key: 'created_at' as SortField, label: 'По созданию' },
-                                            { key: 'status' as SortField, label: 'По статусу' },
-                                            { key: 'amount' as SortField, label: 'По сумме' },
-                                        ].map(({ key, label }) => (
-                                            <button
-                                                key={key}
-                                                onClick={() => handleSort(key)}
-                                                className={cn(
-                                                    'w-full px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-between',
-                                                    sortField === key
-                                                        ? 'bg-primary-500 text-white'
-                                                        : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
-                                                )}
-                                            >
-                                                {label}
-                                                {sortField === key && (
-                                                    <ArrowUpDown className={cn(
-                                                        "h-3 w-3 transition-transform",
-                                                        sortDirection === 'desc' && 'rotate-180'
-                                                    )} />
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
+                        <CardContent className={`space-y-2 px-3 pt-0 ${!showSortOptions && 'hidden'}`}>
+                            <div className="grid grid-cols-2 gap-2">
+                                {[
+                                    { key: 'date' as SortField, label: 'Дата' },
+                                    { key: 'client_name' as SortField, label: 'Имя' },
+                                    { key: 'created_at' as SortField, label: 'Создание' },
+                                    { key: 'status' as SortField, label: 'Статус' },
+                                    { key: 'amount' as SortField, label: 'Сумма' },
+                                ].map(({ key, label }) => (
+                                    <button
+                                        key={key}
+                                        onClick={() => handleSort(key)}
+                                        className={cn(
+                                            'px-2 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between gap-1',
+                                            sortField === key
+                                                ? 'bg-primary-500 text-white'
+                                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
+                                        )}
+                                    >
+                                        {label}
+                                        {sortField === key && (
+                                            <ArrowUpDown className={cn(
+                                                "h-2.5 w-2.5 transition-transform",
+                                                sortDirection === 'desc' && 'rotate-180'
+                                            )} />
+                                        )}
+                                    </button>
+                                ))}
                             </div>
 
                             {bookings.length > 0 && (
-                                <div className="pt-2 border-t border-gray-100">
-                                    <button
-                                        onClick={handleSelectAll}
-                                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2 w-full"
-                                    >
-                                        {selectedBookings.size === bookings.length ? (
-                                            <CheckSquare className="h-4 w-4 text-primary-600" />
-                                        ) : (
-                                            <Square className="h-4 w-4 text-gray-400" />
-                                        )}
-                                        {selectedBookings.size === bookings.length ? 'Снять выбор со всех' : 'Выбрать все'}
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={handleSelectAll}
+                                    className="w-full px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2 justify-center mt-2"
+                                >
+                                    {selectedBookings.size === bookings.length ? (
+                                        <CheckSquare className="h-4 w-4 text-primary-600" />
+                                    ) : (
+                                        <Square className="h-4 w-4 text-gray-400" />
+                                    )}
+                                    {selectedBookings.size === bookings.length ? 'Снять выбор со всех' : 'Выбрать все'}
+                                </button>
                             )}
                         </CardContent>
                     </Card>
 
-                    {/* Список записей по датам - мобильная адаптация */}
+                    {/* 🎯 Список записей по датам - мобильная адаптация */}
                     {groupedBookings.map(([date, dateBookings]) => (
                         <Card key={date} className="booking-card border-2 border-gray-200 bg-white shadow-sm">
                             <CardHeader className="pb-2 px-3 bg-gradient-to-br from-amber-50 to-white border-b border-amber-100">
@@ -1183,76 +1215,20 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {/* 🎯 Мобильные кнопки - только Детали */}
                                             <div className="flex flex-wrap gap-1 pt-2 border-t border-gray-100">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setDetailsBooking(booking)}
-                                                    className="text-xs h-7 px-2"
+                                                    className="text-xs h-7 px-2 flex-1 min-w-[100px]"
                                                 >
                                                     <Eye className="h-3 w-3 mr-1" />
-                                                    Дет.
+                                                    Детали
                                                 </Button>
 
-                                                <Button
-                                                    asChild
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    className="text-xs h-7 px-2"
-                                                >
-                                                    <Link href={`/admin/clients/${booking.client_id}`}>
-                                                        <User className="h-3 w-3 mr-1" />
-                                                        Клиент
-                                                    </Link>
-                                                </Button>
-
-                                                {booking.status !== 'cancelled' && booking.status !== 'completed' && (
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => handleRescheduleOpen(booking)}
-                                                        className="text-xs h-7 px-2"
-                                                        title="Перенести"
-                                                    >
-                                                        <Edit className="h-3 w-3 mr-1" />
-                                                        Перен.
-                                                    </Button>
-                                                )}
-
-                                                {booking.status === 'pending_payment' && (
-                                                    <Button
-                                                        size="sm"
-                                                        onClick={() => handleMarkPaid(booking.id)}
-                                                        className="bg-green-600 hover:bg-green-700 text-xs h-7 px-2"
-                                                    >
-                                                        <CheckCircle className="h-3 w-3 mr-1" />
-                                                        Оплата
-                                                    </Button>
-                                                )}
-
-                                                {booking.status !== 'cancelled' && booking.status !== 'completed' && (
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => handleCancel(booking.id)}
-                                                        className="text-xs h-7 px-2"
-                                                        title="Отменить"
-                                                    >
-                                                        <Ban className="h-3 w-3 mr-1" />
-                                                        Отмена
-                                                    </Button>
-                                                )}
-
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => handleDelete(booking.id)}
-                                                    className="hover:bg-red-50 hover:text-red-600 text-xs h-7 px-2"
-                                                    title="Удалить"
-                                                >
-                                                    <Trash2 className="h-3 w-3 mr-1" />
-                                                    Удалить
-                                                </Button>
+                                                {/* Остальные кнопки только в деталях */}
                                             </div>
                                         </div>
                                     </div>
@@ -1274,7 +1250,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </div>
             )}
 
-            {/* Модальные окна */}
+            {/* 🎯 Модальные окна */}
             {detailsBooking && (
                 <BookingDetailsModal
                     booking={detailsBooking}
