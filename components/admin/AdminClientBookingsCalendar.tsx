@@ -223,7 +223,7 @@ export function AdminClientBookingsCalendar({
                                 <CalendarDays className="h-5 w-5 md:h-6 md:w-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-xl md:text-3xl font-bold text-gray-900">
+                                <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">
                                     Календарь
                                 </h1>
                                 <div className="text-sm text-gray-500 mt-0.5 flex items-center gap-2">
@@ -254,15 +254,15 @@ export function AdminClientBookingsCalendar({
                                 {bookings.length} {bookings.length === 1 ? 'запись' : 'записей'}
                             </span>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setShowLegend(!showLegend)}
-                            className="h-7 px-2 text-xs"
-                        >
-                            <Filter className="h-3.5 w-3.5 mr-1" />
-                            Легенда
-                        </Button>
+                        {/*<Button*/}
+                        {/*    variant="ghost"*/}
+                        {/*    size="sm"*/}
+                        {/*    onClick={() => setShowLegend(!showLegend)}*/}
+                        {/*    className="h-7 px-2 text-xs"*/}
+                        {/*>*/}
+                        {/*    <Filter className="h-3.5 w-3.5 mr-1" />*/}
+                        {/*    Легенда*/}
+                        {/*</Button>*/}
                     </div>
 
                     {/* Управление календарем - мобильная версия */}
