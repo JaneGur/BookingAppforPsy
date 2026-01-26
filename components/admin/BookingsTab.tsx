@@ -1,43 +1,40 @@
 'use client'
 
-import { useState, useMemo, useEffect, useRef } from 'react'
-import { format, parseISO, startOfDay, addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns'
-import { ru } from 'date-fns/locale'
+import {useEffect, useMemo, useRef, useState} from 'react'
+import {addDays, endOfMonth, endOfWeek, format, parseISO, startOfDay, startOfMonth, startOfWeek} from 'date-fns'
+import {ru} from 'date-fns/locale'
 import {
+    ArrowUpDown,
+    Ban,
     Calendar,
-    Search,
-    Filter,
-    Plus,
+    CalendarDays,
     CheckCircle,
-    XCircle,
-    Trash2,
+    CheckSquare,
+    Clock,
     Edit,
     Eye,
-    Clock,
-    ArrowUpDown,
-    CheckSquare,
-    Square,
+    Filter,
     List,
-    CalendarDays,
-    Ban,
+    Plus,
+    Search,
+    Square,
+    Trash2,
     User,
     X,
-    Menu,
-    ChevronDown,
-    ChevronUp
+    XCircle
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Booking } from '@/types/booking'
-import { cn } from '@/lib/utils/cn'
-import { BookingsCalendar } from './BookingsCalendar'
-import { BookingDetailsModal } from './BookingDetailsModal'
-import { useUpdateBookingStatus, useDeleteBooking, useCancelBooking } from '@/lib/hooks'
-import { RescheduleBookingModal } from '@/components/admin/RescheduleBookingModal'
-import { toast } from 'sonner'
-import { LoadMoreButton } from '@/components/ui/LoadMoreButton'
-import { useQueryClient } from '@tanstack/react-query'
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
+import {Booking} from '@/types/booking'
+import {cn} from '@/lib/utils/cn'
+import {BookingsCalendar} from './BookingsCalendar'
+import {BookingDetailsModal} from './BookingDetailsModal'
+import {useCancelBooking, useDeleteBooking, useUpdateBookingStatus} from '@/lib/hooks'
+import {RescheduleBookingModal} from '@/components/admin/RescheduleBookingModal'
+import {toast} from 'sonner'
+import {LoadMoreButton} from '@/components/ui/LoadMoreButton'
+import {useQueryClient} from '@tanstack/react-query'
 import Link from 'next/link'
 
 
@@ -595,7 +592,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
 
                             <div className="flex items-center justify-between gap-2">
                                 <Button
-                                    variant="outline"
+                                    variant="secondary"
                                     size="sm"
                                     onClick={() => setShowMobileFilters(!showMobileFilters)}
                                     className="flex-1"
@@ -720,7 +717,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
 
                                 <div className="flex gap-2">
                                     <Button
-                                        variant="outline"
+                                        variant="secondary"
                                         size="sm"
                                         onClick={() => {
                                             setSearchQuery('')
