@@ -2,7 +2,7 @@
 
 import {useState} from 'react'
 import {useRouter} from 'next/navigation'
-import {Plus, Users} from 'lucide-react'
+import {Plus, Users, Menu, X} from 'lucide-react'
 import {Card, CardContent} from '@/components/ui/card'
 import {Button} from '@/components/ui/button'
 import {useDeleteClient} from '@/lib/hooks'
@@ -17,6 +17,7 @@ import {useClientsData} from './hooks/useClientsData'
 export default function ClientsPage() {
     const router = useRouter()
     const [showCreateModal, setShowCreateModal] = useState(false)
+    const [showMobileFilters, setShowMobileFilters] = useState(false)
     const deleteClient = useDeleteClient()
 
     const {
@@ -49,11 +50,10 @@ export default function ClientsPage() {
     }
 
     const handleDelete = async (id: string, name: string) => {
-        if (!confirm(`Вы уверены, что хотите удалить клиента "${name}"? Это действие необратимо и удалит все связанные записи.`)) return
+        if (!confirm(`Удалить клиента "${name}"? Это действие необратимо.`)) return
 
         try {
             await deleteClient.mutateAsync(id)
-            // Перезагружаем данные с первой страницы
             loadClients(1, false)
             loadFullStats()
         } catch (error) {
@@ -73,38 +73,100 @@ export default function ClientsPage() {
     }
 
     return (
-        <div className="booking-page-surface min-h-screen p-3 sm:p-4 lg:p-8">
-            <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 animate-[fadeInUp_0.6s_ease-out]">
-                {/* Заголовок */}
-                <Card className="booking-card border-2">
-                    <CardContent className="p-4 sm:p-6">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-center gap-3 sm:gap-4">
-                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg flex-shrink-0">
-                                    <Users className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                                </div>
-                                <div className="min-w-0">
-                                    <h1 className="text-2xl font-bold text-gray-900 truncate">
-                                        Клиенты
-                                    </h1>
-                                    <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">Управление базой клиентов</p>
-                                </div>
+        <div className="min-h-screen p-2 sm:p-3 lg:p-8 bg-gradient-to-br from-gray-50 to-white">
+            {/* Мобильные фильтры */}
+            {showMobileFilters && (
+                <div className="fixed inset-0 z-50 bg-black/50 md:hidden" onClick={() => setShowMobileFilters(false)}>
+                    <div
+                        className="absolute inset-x-0 bottom-0 h-[80vh] bg-white rounded-t-2xl shadow-xl animate-slideInUp"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="p-4 border-b">
+                            <div className="flex items-center justify-between">
+                                <span className="font-semibold text-gray-900">Фильтры и сортировка</span>
+                                <button
+                                    onClick={() => setShowMobileFilters(false)}
+                                    className="p-2 hover:bg-gray-100 rounded-lg"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
                             </div>
-                            <Button size="lg" onClick={() => setShowCreateModal(true)} className="shadow-xl w-full sm:w-auto">
-                                <Plus className="h-5 w-5 mr-2" />
-                                Создать клиента
+                        </div>
+                        <div className="p-4 h-[calc(100%-80px)] overflow-y-auto space-y-6">
+                            {/* Фильтры для мобильных */}
+                            <ClientFilters
+                                filters={filters}
+                                hasFilters={hasFilters}
+                                onFilterChange={updateFilter}
+                                onReset={resetFilters}
+                                onRefresh={handleRefresh}
+                                isMobile
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4 lg:space-y-6">
+                {/* Заголовок */}
+                <Card className="border-2 border-gray-200 bg-white shadow-sm">
+                    <CardContent className="p-3 sm:p-4 lg:p-6">
+                        <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex items-center justify-between gap-2 sm:gap-3 lg:gap-4">
+                                <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 flex-1 min-w-0">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl lg:rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-md lg:shadow-lg flex-shrink-0">
+                                        <Users className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-white" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
+                                            Клиенты
+                                        </h1>
+                                        <p className="text-xs text-gray-600 mt-0.5">Управление базой клиентов</p>
+                                    </div>
+                                </div>
+
+                                {/* Мобильное меню кнопка */}
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setShowMobileFilters(true)}
+                                    className="md:hidden h-8 w-8 flex-shrink-0"
+                                >
+                                    <Menu className="h-4 w-4" />
+                                </Button>
+                            </div>
+
+                            {/* Основные действия */}
+                            <Button
+                                size="lg"
+                                onClick={() => setShowCreateModal(true)}
+                                className="shadow-xl w-full lg:w-auto mt-2 lg:mt-0"
+                            >
+                                <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                                <span className="hidden sm:inline">Создать клиента</span>
+                                <span className="sm:hidden">Новый клиент</span>
                             </Button>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Фильтры */}
-                <ClientFilters
-                    filters={filters}
-                    hasFilters={hasFilters}
-                    onFilterChange={updateFilter}
-                    onReset={resetFilters}
-                    onRefresh={handleRefresh}
+                {/* Фильтры - десктоп */}
+                <div className="hidden md:block">
+                    <ClientFilters
+                        filters={filters}
+                        hasFilters={hasFilters}
+                        onFilterChange={updateFilter}
+                        onReset={resetFilters}
+                        onRefresh={handleRefresh}
+                    />
+                </div>
+
+                {/* Сортировка */}
+                <ClientSorting
+                    sortField={filters.sortField}
+                    sortDirection={filters.sortDirection}
+                    onSort={handleSort}
+                    onOpenMobileFilters={() => setShowMobileFilters(true)}
                 />
 
                 {/* Статистика */}
@@ -112,13 +174,6 @@ export default function ClientsPage() {
                     stats={fullStats}
                     filteredCount={filteredClients.length}
                     isLoading={isLoading}
-                />
-
-                {/* Сортировка */}
-                <ClientSorting
-                    sortField={filters.sortField}
-                    sortDirection={filters.sortDirection}
-                    onSort={handleSort}
                 />
 
                 {/* Список клиентов */}
