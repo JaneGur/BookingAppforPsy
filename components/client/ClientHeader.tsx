@@ -54,7 +54,7 @@ export function ClientHeader() {
                             <span className="text-2xl">🌿</span>
                         </div>
                         <span className="text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors duration-300 hidden md:block">
-                            Арт-терапия
+                            Спокойные люди
                         </span>
                     </Link>
 
