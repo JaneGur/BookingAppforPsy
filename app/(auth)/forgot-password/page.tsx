@@ -1,21 +1,52 @@
 // app/(auth)/forgot-password/page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { Mail, Phone, ArrowRight, Lock, ShieldCheck, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Path } from '@/lib/routing'
 
 export default function ForgotPasswordPage() {
     const router = useRouter()
+    const { data: session, status } = useSession()
     const [email, setEmail] = useState('')
     const [phone, setPhone] = useState('')
     const [message, setMessage] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [errorText, setErrorText] = useState<string | null>(null)
+
+    // Редирект уже авторизованных пользователей
+    useEffect(() => {
+        if (status === 'authenticated' && session?.user) {
+            if (session.user.role === 'admin') {
+                router.push(Path.AdminDashboard)
+            } else {
+                router.push(Path.ClientDashboard)
+            }
+        }
+    }, [status, session, router])
+
+    // Показываем загрузку пока проверяем сессию
+    if (status === 'loading') {
+        return (
+            <div className="booking-page-surface min-h-screen px-4 py-12 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+                    <p className="text-gray-600 font-medium">Загрузка...</p>
+                </div>
+            </div>
+        )
+    }
+
+    // Если пользователь авторизован, не показываем форму (он будет редиректнут)
+    if (status === 'authenticated') {
+        return null
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()

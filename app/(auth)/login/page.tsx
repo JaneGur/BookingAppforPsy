@@ -2,8 +2,8 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState, Suspense } from 'react'
-import { signIn } from 'next-auth/react'
+import { useState, Suspense, useEffect } from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { Lock, Mail, Phone, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,12 +14,41 @@ import { Path } from '@/lib/routing'
 function LoginForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const { data: session, status } = useSession()
 
     const [isLoading, setIsLoading] = useState(false)
     const [errorText, setErrorText] = useState<string | null>(null)
 
     const callbackUrl = searchParams.get('callbackUrl') || Path.ClientDashboard
     const isAdminLogin = callbackUrl.includes('/admin')
+
+    // Редирект уже авторизованных пользователей
+    useEffect(() => {
+        if (status === 'authenticated' && session?.user) {
+            if (session.user.role === 'admin') {
+                router.push(Path.AdminDashboard)
+            } else {
+                router.push(callbackUrl)
+            }
+        }
+    }, [status, session, router, callbackUrl])
+
+    // Показываем загрузку пока проверяем сессию
+    if (status === 'loading') {
+        return (
+            <div className="booking-page-surface min-h-screen px-4 py-12 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+                    <p className="text-gray-600 font-medium">Загрузка...</p>
+                </div>
+            </div>
+        )
+    }
+
+    // Если пользователь авторизован, не показываем форму (он будет редиректнут)
+    if (status === 'authenticated') {
+        return null
+    }
 
     async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()

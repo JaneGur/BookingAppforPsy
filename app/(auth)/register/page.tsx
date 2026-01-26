@@ -2,20 +2,50 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { useState, useEffect } from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { User, Mail, Phone, Lock, UserPlus, ArrowRight, AlertCircle, Check } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { normalizePhone, validatePhone } from '@/lib/utils/phone'
+import { Path } from '@/lib/routing'
 
 export default function Page() {
     const router = useRouter()
+    const { data: session, status } = useSession()
 
     const [isLoading, setIsLoading] = useState(false)
     const [errorText, setErrorText] = useState<string | null>(null)
+
+    // Редирект уже авторизованных пользователей
+    useEffect(() => {
+        if (status === 'authenticated' && session?.user) {
+            if (session.user.role === 'admin') {
+                router.push(Path.AdminDashboard)
+            } else {
+                router.push(Path.ClientDashboard)
+            }
+        }
+    }, [status, session, router])
+
+    // Показываем загрузку пока проверяем сессию
+    if (status === 'loading') {
+        return (
+            <div className="booking-page-surface min-h-screen px-4 py-12 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+                    <p className="text-gray-600 font-medium">Загрузка...</p>
+                </div>
+            </div>
+        )
+    }
+
+    // Если пользователь авторизован, не показываем форму (он будет редиректнут)
+    if (status === 'authenticated') {
+        return null
+    }
 
     async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()

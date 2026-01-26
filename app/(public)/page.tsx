@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Sparkles, Star, ShieldCheck, LayoutDashboard } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { StepUserData } from '@/components/booking/StepUserData'
@@ -13,12 +14,43 @@ import { useBookingForm } from '@/lib/contexts/BookingContext'
 import { Button } from '@/components/ui/button'
 import { InfoPanel } from '@/components/shared/InfoPanel'
 import { ContactModal } from '@/components/contact/ContactModal'
+import { Path } from '@/lib/routing'
 
 export default function HomePage() {
+    const router = useRouter()
     const { step } = useBookingForm()
-    const { data: session } = useSession()
+    const { data: session, status } = useSession()
     const isAuthenticated = !!session?.user
     const [isContactModalOpen, setIsContactModalOpen] = useState(false)
+
+    // Редирект авторизованных пользователей в личный кабинет
+    useEffect(() => {
+        if (status === 'authenticated' && session?.user) {
+            // Если админ, редиректим в админку, иначе в клиентский кабинет
+            if (session.user.role === 'admin') {
+                router.push(Path.AdminDashboard)
+            } else {
+                router.push(Path.ClientDashboard)
+            }
+        }
+    }, [status, session, router])
+
+    // Показываем загрузку пока проверяем сессию
+    if (status === 'loading') {
+        return (
+            <div className="booking-page-surface min-h-screen flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+                    <p className="text-gray-600 font-medium">Загрузка...</p>
+                </div>
+            </div>
+        )
+    }
+
+    // Если пользователь авторизован, не показываем главную страницу (он будет редиректнут)
+    if (status === 'authenticated') {
+        return null
+    }
     
     const heroHighlights = [
         {
