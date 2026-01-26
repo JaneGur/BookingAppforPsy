@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button'
 import { Booking } from '@/types/booking'
 import { cn } from '@/lib/utils/cn'
 import { formatDateRu, formatTimeSlot } from '@/lib/utils/date'
+import {format, parseISO} from "date-fns";
+import {ru} from "date-fns/locale";
 
 interface BookingDetailsModalProps {
     booking: Booking | null
