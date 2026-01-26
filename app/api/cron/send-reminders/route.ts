@@ -261,9 +261,8 @@ export async function GET(request: NextRequest) {
                             hoursUntil: 1,
                         });
 
-                        const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
-                            ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
-                            : 'https://your-domain.com/dashboard';
+                        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+                        const dashboardUrl = `${baseUrl}/dashboard`;
 
                         const clientTelegramResult = await sendClientNotification(
                             (booking as any).telegram_chat_id,

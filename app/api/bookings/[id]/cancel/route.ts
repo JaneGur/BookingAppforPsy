@@ -160,9 +160,8 @@ export async function POST(
 
                 const clientMessage = `❌ <b>Запись отменена</b>\n\n📅 <b>Дата:</b> ${bookingDateFormatted}\n⏰ <b>Время:</b> ${booking.booking_time}\n${booking.product_description ? `📝 <b>Описание:</b> ${booking.product_description}\n` : ''}\nЗапись была отменена ${cancelledByText}.\n\nЕсли у вас есть вопросы, свяжитесь с нами.`
 
-                const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
-                    ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
-                    : 'https://your-domain.com/dashboard';
+                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+                const dashboardUrl = `${baseUrl}/dashboard`;
 
                 await sendClientNotification(booking.telegram_chat_id, clientMessage, {
                     dashboardUrl

@@ -119,9 +119,8 @@ export async function PATCH(
                     `<b>Было:</b> ${statusLabels[existing.booking.status] || existing.booking.status}\n` +
                     `<b>Стало:</b> ${statusLabels[body.status] || body.status}`
                 
-                const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
-                    ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
-                    : 'https://your-domain.com/dashboard';
+                const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
+                const dashboardUrl = `${baseUrl}/dashboard`;
                 
                 await sendClientNotification(existing.booking.telegram_chat_id, clientMessage, {
                     dashboardUrl

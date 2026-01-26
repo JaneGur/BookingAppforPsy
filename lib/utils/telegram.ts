@@ -99,6 +99,7 @@ export async function sendClientNotification(
             
             // Кнопка личного кабинета
             if (options.dashboardUrl) {
+                console.log('✅ Добавляем кнопку в личный кабинет:', options.dashboardUrl);
                 buttons.push([{ text: '🏠 Перейти в личный кабинет', url: options.dashboardUrl }]);
             }
             
@@ -110,6 +111,9 @@ export async function sendClientNotification(
             payload.reply_markup = {
                 inline_keyboard: buttons
             };
+            console.log('📲 Payload с кнопками:', JSON.stringify(payload, null, 2));
+        } else {
+            console.log('⚠️ Кнопки не добавлены. Options:', options);
         }
 
         const response = await fetch(telegramApiUrl, {
