@@ -136,7 +136,7 @@ export function StepDateTime() {
                         </h3>
                         <div className="flex items-center gap-1 sm:gap-2">
                             <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
                                 onClick={() => setCurrentMonth(addMonths(currentMonth, -1))}
                                 disabled={isSameMonth(currentMonth, today)}
@@ -145,7 +145,7 @@ export function StepDateTime() {
                                 <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
                             </Button>
                             <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
                                 onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
                                 disabled={!canGoToNextMonth()}
@@ -266,7 +266,7 @@ export function StepDateTime() {
                 {!isCalendarExpanded && (
                     <div className="md:hidden">
                         <Button
-                            variant="outline"
+                            variant="secondary"
                             size="sm"
                             onClick={() => setIsCalendarExpanded(true)}
                             className="w-full text-primary-600 hover:text-primary-700 border-primary-200"
