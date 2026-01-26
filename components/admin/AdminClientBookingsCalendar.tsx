@@ -223,7 +223,7 @@ export function AdminClientBookingsCalendar({
                                 <CalendarDays className="h-5 w-5 md:h-6 md:w-6 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-lg md:text-2xl lg:text-3xl font-bold text-gray-900">
+                                <h1 className="text-base md:text-xl lg:text-2xl font-bold text-gray-900">
                                     Календарь
                                 </h1>
                                 <div className="text-sm text-gray-500 mt-0.5 flex items-center gap-2">
