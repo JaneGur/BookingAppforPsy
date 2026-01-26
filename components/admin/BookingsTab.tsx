@@ -1089,69 +1089,74 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setDetailsBooking(booking)}
-                                                    className="text-xs h-8 px-2"
+                                                    className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
                                                 >
-                                                    <Eye className="h-3 w-3 mr-1" />
+                                                    <Eye className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
                                                     <span className="hidden sm:inline">Детали</span>
-                                                    <span className="sm:hidden">Детали</span>
+                                                    <span className="sm:hidden">Дет.</span>
                                                 </Button>
+
                                                 <Button
                                                     asChild
                                                     variant="secondary"
                                                     size="sm"
-                                                    className="text-xs h-8 px-2"
+                                                    className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
                                                 >
                                                     <Link href={`/admin/clients/${booking.client_id}`}>
-                                                        <User className="h-3 w-3 mr-1" />
+                                                        <User className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
                                                         <span className="hidden sm:inline">Клиент</span>
-                                                        <span className="sm:hidden">Клиент</span>
+                                                        <span className="sm:hidden">Кл.</span>
                                                     </Link>
                                                 </Button>
+
                                                 {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                                                     <Button
                                                         variant="secondary"
                                                         size="sm"
                                                         onClick={() => handleRescheduleOpen(booking)}
-                                                        className="text-xs h-8 px-2"
+                                                        className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
                                                         title="Перенести"
                                                     >
-                                                        <Edit className="h-3 w-3 mr-1" />
+                                                        <Edit className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
                                                         <span className="hidden sm:inline">Перенести</span>
-                                                        <span className="sm:hidden">Перенести</span>
+                                                        <span className="sm:hidden">Перен.</span>
                                                     </Button>
                                                 )}
+
                                                 {booking.status === 'pending_payment' && (
                                                     <Button
                                                         size="sm"
                                                         onClick={() => handleMarkPaid(booking.id)}
-                                                        className="bg-green-600 hover:bg-green-700 text-xs h-8 px-2"
+                                                        className="bg-green-600 hover:bg-green-700 text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
                                                     >
-                                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                                        <CheckCircle className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
                                                         <span className="hidden sm:inline">Оплачено</span>
                                                         <span className="sm:hidden">Оплата</span>
                                                     </Button>
                                                 )}
+
                                                 {booking.status !== 'cancelled' && booking.status !== 'completed' && (
                                                     <Button
                                                         variant="secondary"
                                                         size="sm"
                                                         onClick={() => handleCancel(booking.id)}
-                                                        className="text-xs h-8 px-2"
+                                                        className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
                                                         title="Отменить"
                                                     >
-                                                        <Ban className="h-3 w-3 mr-1" />
+                                                        <Ban className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
                                                         <span className="hidden sm:inline">Отменить</span>
                                                         <span className="sm:hidden">Отмена</span>
                                                     </Button>
                                                 )}
+
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => handleDelete(booking.id)}
-                                                    className="hover:bg-red-50 hover:text-red-600 text-xs h-8 px-2"
+                                                    className="hover:bg-red-50 hover:text-red-600 text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
                                                     title="Удалить"
                                                 >
-                                                    <Trash2 className="h-3 w-3 mr-1" />
+                                                    <Trash2 className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
                                                     <span className="hidden sm:inline">Удалить</span>
                                                     <span className="sm:hidden">Удалить</span>
                                                 </Button>
