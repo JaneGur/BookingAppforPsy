@@ -60,17 +60,21 @@ export default function HomePage() {
                             </p>
                         </div>
                         <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 animate-[fadeInUp_0.8s_ease-out_0.3s_backwards]">
-                            <Button size="lg" asChild className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 h-auto shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
+                            <Button
+                                size="lg"
+                                asChild
+                                className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 h-auto shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 w-full sm:w-auto bg-white text-primary-700 hover:bg-white/95 border-2 border-white"
+                            >
                                 <Link href="#booking-flow">
                                     <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                                     Начать запись
                                 </Link>
                             </Button>
-                            <Button 
-                                variant="secondary" 
-                                size="lg" 
+                            <Button
+                                variant="secondary"
+                                size="lg"
                                 onClick={() => setIsContactModalOpen(true)}
-                                className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 h-auto shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 w-full sm:w-auto"
+                                className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 h-auto shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] transform hover:scale-105 transition-all duration-300 w-full sm:w-auto bg-white/10 text-white hover:bg-white/15 border border-white/20"
                             >
                                 <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                                 Написать терапевту
