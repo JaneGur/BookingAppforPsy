@@ -713,7 +713,7 @@ export function AdminClientBookingsCalendar({
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Button
-                                        variant="outline"
+                                        variant="secondary"
                                         onClick={() => setSelectedDate(null)}
                                         className="h-10 px-6 border-gray-300 hover:shadow-sm"
                                     >
