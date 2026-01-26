@@ -6,6 +6,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Booking } from '@/types/booking'
@@ -22,7 +23,8 @@ import {
 } from 'lucide-react'
 import { format, parseISO } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import {cn} from "@/lib/utils/cn";
+import { cn } from "@/lib/utils/cn"
+import { formatTimeSlot } from '@/lib/utils/date'
 
 interface RescheduleBookingModalProps {
     booking: Booking
@@ -42,7 +44,7 @@ export function RescheduleBookingModal({
     const reschedule = useRescheduleBooking()
 
     const originalDate = String(booking.booking_date)
-    const originalTime = String(booking.booking_time).slice(0, 5)
+    const originalTime = formatTimeSlot(String(booking.booking_time))
 
     const [selectedDate, setSelectedDate] = useState(originalDate)
     const [selectedTime, setSelectedTime] = useState(originalTime)
@@ -54,8 +56,7 @@ export function RescheduleBookingModal({
             setSelectedTime(originalTime)
             setLocalError(null)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open, bookingId])
+    }, [open, originalDate, originalTime])
 
     const minDate = info.data?.minRescheduleDate
     const slotsQuery = useAvailableSlotsForReschedule({
@@ -251,17 +252,15 @@ export function RescheduleBookingModal({
                     )}
 
                     {/* Actions */}
-                    <div className="flex gap-3 pt-2">
+                    <DialogFooter>
                         <Button
                             variant="ghost"
-                            className="flex-1"
                             onClick={onClose}
                             disabled={reschedule.isPending}
                         >
                             Отмена
                         </Button>
                         <Button
-                            className="flex-1"
                             onClick={handleSubmit}
                             disabled={!canSubmit || !canReschedule}
                         >
@@ -274,7 +273,7 @@ export function RescheduleBookingModal({
                                 'Перенести'
                             )}
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </div>
             </DialogContent>
         </Dialog>

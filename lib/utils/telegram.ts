@@ -1,8 +1,9 @@
 /**
  * Утилита для отправки уведомлений в Telegram
  */
-import {format, parseISO} from "date-fns";
-import {ru} from "date-fns/locale";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
+import { formatDateRu } from "./date";
 
 interface TelegramMessage {
     text: string;
@@ -312,69 +313,6 @@ ${product_description ? `📝 <b>Описание:</b> ${product_description}\n`
 `.trim();
 }
 
-// Добавляем в существующий файл
-
-export async function sendRescheduleNotification(
-    bookingId: number,
-    clientName: string,
-    clientPhone: string,
-    oldDate: string,
-    oldTime: string,
-    newDate: string,
-    newTime: string,
-    productName?: string,
-    productDescription?: string,
-    rescheduledBy: 'admin' | 'client' = 'client'
-) {
-    // Форматируем даты для читаемого отображения
-    const oldDateFormatted = format(parseISO(oldDate), 'd MMMM yyyy', { locale: ru })
-    const newDateFormatted = format(parseISO(newDate), 'd MMMM yyyy', { locale: ru })
-
-    const message = `🔄 <b>Запись перенесена!</b>\n\n` +
-        `📋 <b>ID:</b> ${bookingId}\n` +
-        `👤 <b>Клиент:</b> ${clientName}\n` +
-        `📞 <b>Телефон:</b> ${clientPhone}\n\n` +
-        `⏰ <b>Было:</b> ${oldDateFormatted} ${oldTime}\n` +
-        `⏰ <b>Стало:</b> ${newDateFormatted} ${newTime}\n\n` +
-        `${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}` +
-        `${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}` +
-        `👤 <b>Перенес:</b> ${rescheduledBy === 'admin' ? 'Администратор' : 'Клиент'}`
-
-    return await sendAdminNotification(message)
-}
-
-/**
- * Форматирует уведомление о переносе записи для администратора
- */
-export function formatRescheduleNotification(
-    bookingId: number,
-    clientName: string,
-    clientPhone: string,
-    oldDate: string,
-    oldTime: string,
-    newDate: string,
-    newTime: string,
-    productName?: string,
-    productDescription?: string,
-    rescheduledBy: 'admin' | 'client' = 'client'
-) {
-    const oldDateFormatted = format(parseISO(oldDate), 'd MMMM yyyy', { locale: ru })
-    const newDateFormatted = format(parseISO(newDate), 'd MMMM yyyy', { locale: ru })
-
-    const message = `🔄 <b>Запись перенесена!</b>\n\n` +
-        `📋 <b>ID:</b> ${bookingId}\n` +
-        `👤 <b>Клиент:</b> ${clientName}\n` +
-        `📞 <b>Телефон:</b> ${clientPhone}\n\n` +
-        `⏰ <b>Было:</b> ${oldDateFormatted} ${oldTime}\n` +
-        `⏰ <b>Стало:</b> ${newDateFormatted} ${newTime}\n\n` +
-        `${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}` +
-        `${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}` +
-        `👤 <b>Перенес:</b> ${rescheduledBy === 'admin' ? 'Администратор' : 'Клиент'}\n` +
-        `🕐 <b>Время изменения:</b> ${format(new Date(), 'd MMMM yyyy HH:mm', { locale: ru })}`
-
-    return message
-}
-
 /**
  * Форматирует уведомление о переносе записи для клиента
  */
@@ -387,8 +325,8 @@ export function formatClientRescheduleNotification(
     productDescription?: string,
     psychologistName: string = 'психолога'
 ) {
-    const oldDateFormatted = format(parseISO(oldDate), 'd MMMM yyyy', { locale: ru })
-    const newDateFormatted = format(parseISO(newDate), 'd MMMM yyyy', { locale: ru })
+    const oldDateFormatted = formatDateRu(oldDate)
+    const newDateFormatted = formatDateRu(newDate)
 
     const message = `🔄 <b>Ваша запись перенесена!</b>\n\n` +
         `⏰ <b>Было:</b> ${oldDateFormatted} ${oldTime}\n` +
@@ -401,61 +339,3 @@ export function formatClientRescheduleNotification(
     return message
 }
 
-/**
- * Форматирует уведомление о невозможности переноса для клиента
- */
-export function formatRescheduleDeclinedNotification(
-    bookingDate: string,
-    bookingTime: string,
-    reason: string,
-    productName?: string,
-    productDescription?: string
-) {
-    const dateFormatted = format(parseISO(bookingDate), 'd MMMM yyyy', { locale: ru })
-
-    const message = `⛔ <b>Запрос на перенос отклонен</b>\n\n` +
-        `📅 <b>Запись:</b> ${dateFormatted} ${bookingTime}\n` +
-        `${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}` +
-        `${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}\n` +
-        `❌ <b>Причина:</b> ${reason}\n\n` +
-        `ℹ️ <i>Перенос возможен только за 24 часа до консультации.\n` +
-        `Если вам нужно изменить время, пожалуйста, свяжитесь с администратором.</i>`
-
-    return message
-}
-
-/**
- * Форматирует уведомление об успешном переносе с деталями
- */
-export function formatRescheduleSuccessNotification(
-    bookingDetails: {
-        id: number;
-        clientName: string;
-        clientPhone: string;
-        oldDate: string;
-        oldTime: string;
-        newDate: string;
-        newTime: string;
-        productName?: string;
-        productDescription?: string;
-        amount?: number;
-    },
-    rescheduledBy: 'admin' | 'client'
-) {
-    const oldDateFormatted = format(parseISO(bookingDetails.oldDate), 'd MMMM yyyy', { locale: ru })
-    const newDateFormatted = format(parseISO(bookingDetails.newDate), 'd MMMM yyyy', { locale: ru })
-
-    const message = `✅ <b>Перенос успешно выполнен</b>\n\n` +
-        `📋 <b>ID записи:</b> ${bookingDetails.id}\n` +
-        `👤 <b>Клиент:</b> ${bookingDetails.clientName}\n` +
-        `📞 <b>Телефон:</b> ${bookingDetails.clientPhone}\n\n` +
-        `⏰ <b>Было:</b> ${oldDateFormatted} ${bookingDetails.oldTime}\n` +
-        `⏰ <b>Стало:</b> ${newDateFormatted} ${bookingDetails.newTime}\n\n` +
-        `${bookingDetails.productName ? `🎯 <b>Услуга:</b> ${bookingDetails.productName}\n` : ''}` +
-        `${bookingDetails.productDescription ? `📝 <b>Описание:</b> ${bookingDetails.productDescription}\n` : ''}` +
-        `${bookingDetails.amount ? `💰 <b>Сумма:</b> ${bookingDetails.amount.toLocaleString('ru-RU')} ₽\n` : ''}` +
-        `👤 <b>Инициатор:</b> ${rescheduledBy === 'admin' ? 'Администратор' : 'Клиент'}\n` +
-        `🕐 <b>Время изменения:</b> ${format(new Date(), 'd MMMM yyyy HH:mm', { locale: ru })}`
-
-    return message
-}

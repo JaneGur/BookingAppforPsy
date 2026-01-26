@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 
 import { MessageCircle } from 'lucide-react'
-import {ContactForm} from './ContactForm'
+import { ContactForm } from '@/components/shared/ContactForm'
 
 interface ContactModalProps {
     isOpen: boolean;

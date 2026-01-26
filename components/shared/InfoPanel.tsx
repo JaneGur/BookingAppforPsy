@@ -266,7 +266,7 @@ export function InfoPanel() {
             </div>
 
             {/* Форма обратной связи */}
-            <ContactForm />
+            <ContactForm showCard showInlineSuccess />
         </div>
     )
 }

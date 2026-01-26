@@ -25,7 +25,8 @@ import {
 import { format, parseISO } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import { Input } from '@/components/ui/input'
-import {cn} from "@/lib/utils/cn";
+import { cn } from "@/lib/utils/cn"
+import { formatTimeSlot } from '@/lib/utils/date'
 
 
 interface RescheduleBookingModalProps {
@@ -46,7 +47,7 @@ export function RescheduleBookingModal({
     const reschedule = useRescheduleBooking()
 
     const originalDate = booking ? String(booking.booking_date) : ''
-    const originalTime = booking ? String(booking.booking_time).slice(0, 5) : ''
+    const originalTime = booking ? formatTimeSlot(String(booking.booking_time)) : ''
 
     const [selectedDate, setSelectedDate] = useState(originalDate)
     const [selectedTime, setSelectedTime] = useState(originalTime)
@@ -57,12 +58,12 @@ export function RescheduleBookingModal({
     useEffect(() => {
         if (open && booking) {
             setSelectedDate(String(booking.booking_date))
-            setSelectedTime(String(booking.booking_time).slice(0, 5))
+            setSelectedTime(formatTimeSlot(String(booking.booking_time)))
             setNote('')
             setSendClientTelegram(true)
             setLocalError(null)
         }
-    }, [open, bookingId])
+    }, [open, booking])
 
     const minDate = info.data?.minRescheduleDate
     const slotsQuery = useAvailableSlotsForReschedule({

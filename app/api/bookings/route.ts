@@ -7,8 +7,7 @@ import { createHash } from 'crypto'
 import { auth } from '@/auth'
 import { sendAdminNotification, sendClientNotification, formatNewBookingNotification } from '@/lib/utils/telegram'
 import { sendBookingCreatedEmail } from '@/lib/emails/email'
-import { format, parseISO } from 'date-fns'
-import { ru } from 'date-fns/locale'
+import { formatDateRu } from '@/lib/utils/date'
 
 export async function POST(request: NextRequest) {
     try {
@@ -228,7 +227,7 @@ export async function POST(request: NextRequest) {
 
         // Отправляем уведомление клиенту в Telegram (если подключен)
         if (telegramChatId) {
-            const bookingDateFormatted = format(parseISO(booking_date), 'd MMMM yyyy', { locale: ru });
+            const bookingDateFormatted = formatDateRu(booking_date);
             const clientMessage = `✅ <b>Запись создана!</b>\n\n📅 <b>Дата:</b> ${bookingDateFormatted}\n⏰ <b>Время:</b> ${booking_time}\n${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}💰 <b>Сумма:</b> ${amount.toLocaleString('ru-RU')} ₽\n\n⏳ Ожидайте подтверждения записи.`;
 
             await sendClientNotification(telegramChatId, clientMessage);

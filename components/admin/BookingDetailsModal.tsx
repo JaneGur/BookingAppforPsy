@@ -1,8 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { format, parseISO } from 'date-fns'
-import { ru } from 'date-fns/locale'
 import {
     X, Calendar, Clock, User, Phone, Mail, MessageSquare, DollarSign,
     FileText, CheckCircle, XCircle, Edit, Trash2, Ban
@@ -11,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button'
 import { Booking } from '@/types/booking'
 import { cn } from '@/lib/utils/cn'
+import { formatDateRu, formatTimeSlot } from '@/lib/utils/date'
 
 interface BookingDetailsModalProps {
     booking: Booking | null
@@ -111,7 +110,7 @@ export function BookingDetailsModal({
                                 <div>
                                     <div className="text-xs font-medium text-gray-600">Дата</div>
                                     <div className="text-lg font-bold text-gray-900">
-                                        {format(parseISO(booking.booking_date), 'd MMMM yyyy', { locale: ru })}
+                                        {formatDateRu(booking.booking_date)}
                                     </div>
                                 </div>
                             </div>
@@ -123,7 +122,7 @@ export function BookingDetailsModal({
                                 </div>
                                 <div>
                                     <div className="text-xs font-medium text-gray-600">Время</div>
-                                    <div className="text-lg font-bold text-gray-900">{booking.booking_time}</div>
+                                    <div className="text-lg font-bold text-gray-900">{formatTimeSlot(booking.booking_time)}</div>
                                 </div>
                             </div>
                         </div>

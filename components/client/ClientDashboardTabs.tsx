@@ -10,12 +10,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Booking } from '@/types/booking'
-import { format, formatDistanceToNowStrict, parseISO } from 'date-fns'
+import { formatDistanceToNowStrict } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import { useClientBookings, usePendingBooking, useUpcomingBooking } from '@/lib/hooks/useBookings'
 import { BookingActions } from '@/components/client/BookingActions'
 import { ClientNewBookingForm } from '@/components/client/ClientNewBookingForm'
 import { TelegramConnect } from '@/components/client/TelegramConnect'
+import { formatDateRu } from '@/lib/utils/date'
 
 type TabKey = 'home' | 'new' | 'history' | 'profile' | 'telegram'
 
@@ -25,10 +26,6 @@ interface ClientProfile {
     phone: string
     telegram_chat_id?: string
     telegram?: string
-}
-
-function formatDateRu(date: string) {
-    return format(parseISO(date), 'd MMMM yyyy', { locale: ru })
 }
 
 function StatusBadge({ status }: { status: Booking['status'] }) {
