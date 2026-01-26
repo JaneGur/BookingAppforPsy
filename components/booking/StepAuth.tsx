@@ -314,6 +314,7 @@ export function StepAuth() {
                                 <Input
                                     type="text"
                                     value={regTelegram}
+                                    disabled
                                     onChange={(e) => setRegTelegram(e.target.value)}
                                     placeholder="@username"
                                 />
