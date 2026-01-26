@@ -1,15 +1,26 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { format, parseISO, startOfDay, addDays, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isAfter, isBefore } from 'date-fns'
-import { ru } from 'date-fns/locale'
-import { X, Calendar, Clock, User, Phone, Mail, MessageSquare, Package, ChevronLeft, ChevronRight } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils/cn'
-import { useAvailableSlots } from '@/lib/hooks/useSlots'
-import { useProducts } from '@/lib/hooks/useProducts'
+import {useEffect, useMemo, useState} from 'react'
+import {
+    addDays,
+    addMonths,
+    eachDayOfInterval,
+    endOfMonth,
+    format,
+    isAfter,
+    isBefore,
+    isSameMonth,
+    startOfDay,
+    startOfMonth
+} from 'date-fns'
+import {ru} from 'date-fns/locale'
+import {ChevronLeft, ChevronRight, Clock, Mail, MessageSquare, Package, Phone, User, X} from 'lucide-react'
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
+import {cn} from '@/lib/utils/cn'
+import {useAvailableSlots} from '@/lib/hooks/useSlots'
+import {useProducts} from '@/lib/hooks/useProducts'
 
 interface CreateBookingModalProps {
     onClose: () => void
@@ -21,6 +32,9 @@ interface CreateBookingModalProps {
         telegram?: string
     }
     hideClientStep?: boolean
+    open: boolean
+    clientId: string
+    clientPhone:string
 }
 
 export function CreateBookingModal({ onClose, onSuccess, clientPreset, hideClientStep }: CreateBookingModalProps) {
