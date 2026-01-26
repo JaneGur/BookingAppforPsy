@@ -32,12 +32,10 @@ export async function PATCH(request: NextRequest) {
     const body = (await request.json().catch(() => null)) as {
         name?: string
         email?: string
-        telegram?: string
     } | null
 
     const name = (body?.name ?? '').trim()
     const email = (body?.email ?? '').trim().toLowerCase()
-    const telegram = (body?.telegram ?? '').trim()
 
     if (!name) {
         return NextResponse.json({ error: 'Имя обязательно' }, { status: 400 })
@@ -49,7 +47,6 @@ export async function PATCH(request: NextRequest) {
     }
 
     update.email = email || null
-    update.telegram = telegram || null
 
     const { data, error } = await supabase
         .from('clients')

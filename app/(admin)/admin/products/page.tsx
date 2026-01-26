@@ -1,29 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import {
-    Package,
-    Plus,
-    Edit,
-    Trash2,
-    Star,
-    Check,
-    X,
-    AlertCircle,
-    Tag,
-    Percent,
-    Gift,
-    TrendingUp,
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { useAdminProducts, useDeleteProduct } from '@/lib/hooks'
-import { Product, ProductFormData } from '@/types/product'
-import { cn } from '@/lib/utils/cn'
-import { ProductModal } from '@/components/admin/ProductModal'
-import { Toast, useToast } from '@/components/ui/toast'
-import { StatCardSkeleton, ProductCardSkeleton } from '@/components/ui/skeleton'
+import {useState} from 'react'
+import {AlertCircle, Check, Edit, Gift, Package, Percent, Plus, Star, Tag, Trash2, TrendingUp, X,} from 'lucide-react'
+import {Card, CardContent} from '@/components/ui/card'
+import {Button} from '@/components/ui/button'
+import {useAdminProducts, useDeleteProduct} from '@/lib/hooks'
+import {Product} from '@/types/product'
+import {cn} from '@/lib/utils/cn'
+import {ProductModal} from '@/components/admin/ProductModal'
+import {Toast, useToast} from '@/components/ui/toast'
+import {ProductCardSkeleton, StatCardSkeleton} from '@/components/ui/skeleton'
 
 export default function ProductsPage() {
     const { data: products = [], isLoading, error, refetch } = useAdminProducts()

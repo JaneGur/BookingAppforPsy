@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Calendar, Home, LineChart, MessageSquare, User, Mail, Phone, Lock, Bell, BellOff } from 'lucide-react'
+import { Calendar, Home, LineChart, MessageSquare, User, Mail, Phone, Lock, Bell, BellOff, CheckCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -456,21 +456,21 @@ export function ClientDashboardTabs() {
                 </Card>
             )}
 
-            {tab === 'profile' && <ProfileTab profile={profile} setProfile={setProfile} />}
+            {tab === 'profile' && <ProfileTab profile={profile} setProfile={setProfile} setTab={setTab} />}
 
             {tab === 'telegram' && <TelegramTab profile={profile} />}
         </div>
     )
 }
 
-function ProfileTab({ profile, setProfile }: {
+function ProfileTab({ profile, setProfile, setTab }: {
     profile: ClientProfile | null;
-    setProfile: (profile: ClientProfile) => void
+    setProfile: (profile: ClientProfile) => void;
+    setTab: (tab: TabKey) => void;
 }) {
     const { data: session } = useSession()
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
-    const [telegram, setTelegram] = useState('')
 
     const [currentPassword, setCurrentPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
@@ -483,7 +483,6 @@ function ProfileTab({ profile, setProfile }: {
         if (profile) {
             setName(String(profile.name ?? ''))
             setEmail(String(profile.email ?? ''))
-            setTelegram(String(profile.telegram ?? ''))
         }
     }, [profile])
 
@@ -547,7 +546,34 @@ function ProfileTab({ profile, setProfile }: {
                                     <MessageSquare className="h-4 w-4 text-primary-600" />
                                     Telegram
                                 </label>
-                                <Input value={telegram} onChange={(e) => setTelegram(e.target.value)} placeholder="@username" className="h-12" />
+                                {profile?.telegram_chat_id ? (
+                                    <div className="relative">
+                                        <Input 
+                                            value={profile.telegram ? `@${profile.telegram}` : 'Подключен'} 
+                                            disabled 
+                                            className="h-12 bg-green-50 border-green-300 text-green-900 font-semibold pr-10" 
+                                        />
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            <CheckCircle className="h-5 w-5 text-green-500" />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="relative">
+                                        <Input 
+                                            value="Telegram не подключен" 
+                                            disabled 
+                                            className="h-12 bg-gray-100 border-gray-300 text-gray-600" 
+                                        />
+                                        <Button 
+                                            variant="ghost" 
+                                            size="sm"
+                                            onClick={() => setTab('telegram')}
+                                            className="absolute right-1 top-1/2 -translate-y-1/2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 h-10"
+                                        >
+                                            Подключить
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -559,7 +585,7 @@ function ProfileTab({ profile, setProfile }: {
                             const res = await fetch('/api/profile', {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ name, email, telegram }),
+                                body: JSON.stringify({ name, email }),
                             })
                             const data = (await res.json().catch(() => null)) as any
                             if (res.ok) {
