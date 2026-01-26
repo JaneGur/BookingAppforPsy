@@ -182,32 +182,32 @@ export default function DocumentsSettings({
                 </div>
 
                 {/* Переключатель метода загрузки */}
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => handleUploadMethodChange('file')}
-                        className={cn(
-                            'flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all font-bold border-2',
-                            formData.uploadMethod === 'file'
-                                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white border-orange-600 shadow-lg'
-                                : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300'
-                        )}
-                    >
-                        <Upload className="h-5 w-5" />
-                        Загрузить файл
-                    </button>
-                    <button
-                        onClick={() => handleUploadMethodChange('url')}
-                        className={cn(
-                            'flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all font-bold border-2',
-                            formData.uploadMethod === 'url'
-                                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white border-orange-600 shadow-lg'
-                                : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300'
-                        )}
-                    >
-                        <LinkIcon className="h-5 w-5" />
-                        Указать URL
-                    </button>
-                </div>
+                {/*<div className="flex gap-2">*/}
+                {/*    <button*/}
+                {/*        onClick={() => handleUploadMethodChange('file')}*/}
+                {/*        className={cn(*/}
+                {/*            'flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all font-bold border-2',*/}
+                {/*            formData.uploadMethod === 'file'*/}
+                {/*                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white border-orange-600 shadow-lg'*/}
+                {/*                : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300'*/}
+                {/*        )}*/}
+                {/*    >*/}
+                {/*        <Upload className="h-5 w-5" />*/}
+                {/*        Загрузить файл*/}
+                {/*    </button>*/}
+                {/*    <button*/}
+                {/*        onClick={() => handleUploadMethodChange('url')}*/}
+                {/*        className={cn(*/}
+                {/*            'flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all font-bold border-2',*/}
+                {/*            formData.uploadMethod === 'url'*/}
+                {/*                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white border-orange-600 shadow-lg'*/}
+                {/*                : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300'*/}
+                {/*        )}*/}
+                {/*    >*/}
+                {/*        <LinkIcon className="h-5 w-5" />*/}
+                {/*        Указать URL*/}
+                {/*    </button>*/}
+                {/*</div>*/}
 
                 {/* Тип документа */}
                 <div className="grid gap-4 sm:grid-cols-2">

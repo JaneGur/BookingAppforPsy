@@ -45,6 +45,34 @@ function StatusBadge({ status }: { status: Booking['status'] }) {
     return <span className={`${base} ${item.className}`}><span className="text-sm">{item.icon}</span> {item.label}</span>
 }
 
+// 🔧 АДАПТИВНАЯ КНОПКА
+function ResponsiveButton({
+                              children,
+                              icon,
+                              size = "default",
+                              variant = "default",
+                              className = "",
+                              ...props
+                          }: any) {
+    return (
+        <Button
+            size={size}
+            variant={variant}
+            className={cn(
+                "transition-all duration-300",
+                size === "lg" && "h-10 md:h-12 px-4 md:px-6 text-sm md:text-base",
+                size === "default" && "h-9 md:h-10 px-3 md:px-4 text-xs md:text-sm",
+                size === "sm" && "h-8 md:h-9 px-2 md:px-3 text-xs",
+                className
+            )}
+            {...props}
+        >
+            {icon && <span className="mr-2">{icon}</span>}
+            {children}
+        </Button>
+    )
+}
+
 export function ClientDashboardTabs() {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -121,14 +149,13 @@ export function ClientDashboardTabs() {
         <div className="space-y-4 md:space-y-6 lg:space-y-8 animate-[fadeInUp_0.6s_ease-out]">
             {/* Мобильное меню */}
             <div className="lg:hidden fixed top-4 right-4 z-50">
-                <Button
+                <ResponsiveButton
                     variant="secondary"
                     size="icon"
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                     className="h-12 w-12 rounded-xl shadow-lg bg-white border-2"
-                >
-                    {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </Button>
+                    icon={mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                />
 
                 {mobileMenuOpen && (
                     <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl border-2 border-primary-200 shadow-2xl p-2 animate-fadeInUp">
@@ -279,7 +306,7 @@ export function ClientDashboardTabs() {
                         {pendingBooking ? (
                             <Card className="booking-card border-2 border-yellow-300/50 bg-gradient-to-br from-yellow-50/50 to-white relative overflow-hidden p-4 md:p-6">
                                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400" />
-                                <div className="flex items-start gap-3 md:gap-4">
+                                <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4">
                                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg flex-shrink-0">
                                         <span className="text-xl md:text-2xl">⏳</span>
                                     </div>
@@ -295,7 +322,9 @@ export function ClientDashboardTabs() {
                                                     {formatDateRu(pendingBooking.booking_date)} в {pendingBooking.booking_time}
                                                 </div>
                                             </div>
-                                            <BookingActions booking={pendingBooking} />
+                                            <div className="flex flex-wrap gap-2">
+                                                <BookingActions booking={pendingBooking} />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -305,7 +334,7 @@ export function ClientDashboardTabs() {
                         {upcomingBooking ? (
                             <Card className="booking-card border-2 border-green-300/50 bg-gradient-to-br from-green-50/50 to-white relative overflow-hidden p-4 md:p-6">
                                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-green-500 to-green-400" />
-                                <div className="flex items-start gap-3 md:gap-4">
+                                <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4">
                                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg flex-shrink-0">
                                         <Calendar className="h-5 w-5 md:h-6 md:w-6 text-white" />
                                     </div>
@@ -323,9 +352,9 @@ export function ClientDashboardTabs() {
                                             </div>
                                             <div className="flex items-center gap-2 p-3 md:p-4 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/50 border-2 border-blue-200">
                                                 <div className="text-xl md:text-2xl">⏱️</div>
-                                                <div>
-                                                    <div className="text-xs font-semibold text-blue-700 uppercase">До начала</div>
-                                                    <div className="text-sm md:text-base font-bold text-blue-900">
+                                                <div className="min-w-0">
+                                                    <div className="text-xs font-semibold text-blue-700 uppercase truncate">До начала</div>
+                                                    <div className="text-sm md:text-base font-bold text-blue-900 truncate">
                                                         {(() => {
                                                             try {
                                                                 const dateStr = `${upcomingBooking.booking_date}T${upcomingBooking.booking_time}`;
@@ -341,9 +370,11 @@ export function ClientDashboardTabs() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {(upcomingBooking.status === 'confirmed' || upcomingBooking.status === 'pending_payment') ? (
-                                                <BookingActions booking={upcomingBooking} />
-                                            ) : null}
+                                            {(upcomingBooking.status === 'confirmed' || upcomingBooking.status === 'pending_payment') && (
+                                                <div className="flex flex-wrap gap-2">
+                                                    <BookingActions booking={upcomingBooking} />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -362,10 +393,15 @@ export function ClientDashboardTabs() {
                                     <p className="text-sm md:text-base text-gray-600 mb-4 md:mb-6 max-w-md mx-auto">
                                         Запишитесь на новую консультацию и начните свой путь к внутренней гармонии
                                     </p>
-                                    <Button onClick={() => setTab('new')} size="lg" className="w-full md:w-auto shadow-lg">
-                                        <Calendar className="h-4 w-4 md:h-5 md:w-5 mr-2" />
+                                    <ResponsiveButton
+                                        onClick={() => setTab('new')}
+                                        size="lg"
+                                        variant="default"
+                                        className="w-full md:w-auto shadow-lg"
+                                        icon={<Calendar className="h-4 w-4 md:h-5 md:w-5" />}
+                                    >
                                         Записаться на консультацию
-                                    </Button>
+                                    </ResponsiveButton>
                                 </CardContent>
                             </Card>
                         ) : null}
@@ -381,8 +417,8 @@ export function ClientDashboardTabs() {
                                 <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
                                     <div className="rounded-xl md:rounded-2xl bg-gradient-to-br from-primary-50 to-white border-2 border-primary-200/50 p-3 md:p-4 hover:shadow-lg transition-shadow">
                                         <div className="flex items-center justify-between mb-1 md:mb-2">
-                                            <div className="text-xs md:text-sm font-semibold text-primary-700">Предстоящих</div>
-                                            <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
+                                            <div className="text-xs md:text-sm font-semibold text-primary-700 truncate">Предстоящих</div>
+                                            <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary-600 flex-shrink-0" />
                                         </div>
                                         <div className="text-xl md:text-2xl lg:text-3xl font-bold text-primary-900">
                                             {upcomingConfirmed.length}
@@ -390,8 +426,8 @@ export function ClientDashboardTabs() {
                                     </div>
                                     <div className="rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-50 to-white border-2 border-blue-200/50 p-3 md:p-4 hover:shadow-lg transition-shadow">
                                         <div className="flex items-center justify-between mb-1 md:mb-2">
-                                            <div className="text-xs md:text-sm font-semibold text-blue-700">Всего записей</div>
-                                            <LineChart className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
+                                            <div className="text-xs md:text-sm font-semibold text-blue-700 truncate">Всего записей</div>
+                                            <LineChart className="h-4 w-4 md:h-5 md:w-5 text-blue-600 flex-shrink-0" />
                                         </div>
                                         <div className="text-xl md:text-2xl lg:text-3xl font-bold text-blue-900">
                                             {Array.isArray(bookings) ? bookings.length : 0}
@@ -399,21 +435,21 @@ export function ClientDashboardTabs() {
                                     </div>
                                     <div className="col-span-2 md:col-span-1 rounded-xl md:rounded-2xl bg-gradient-to-br from-green-50 to-white border-2 border-green-200/50 p-3 md:p-4 hover:shadow-lg transition-shadow">
                                         <div className="flex items-center justify-between mb-1 md:mb-2">
-                                            <div className="text-xs md:text-sm font-semibold text-green-700">Telegram</div>
-                                            <MessageSquare className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
+                                            <div className="text-xs md:text-sm font-semibold text-green-700 truncate">Telegram</div>
+                                            <MessageSquare className="h-4 w-4 md:h-5 md:w-5 text-green-600 flex-shrink-0" />
                                         </div>
-                                        <div className="text-sm md:text-base font-bold text-green-900">
+                                        <div className="text-sm md:text-base font-bold text-green-900 truncate">
                                             {hasTelegramNotifications ? '✅ Подключен' : '❌ Не подключен'}
                                         </div>
                                         {!hasTelegramNotifications && (
-                                            <Button
+                                            <ResponsiveButton
                                                 onClick={() => setTab('telegram')}
                                                 variant="ghost"
                                                 size="sm"
-                                                className="w-full mt-2 text-xs"
+                                                className="w-full mt-2"
                                             >
                                                 Подключить
-                                            </Button>
+                                            </ResponsiveButton>
                                         )}
                                     </div>
                                 </div>
@@ -424,25 +460,25 @@ export function ClientDashboardTabs() {
                         {hasTelegramNotifications ? (
                             <div className="lg:hidden p-3 rounded-xl bg-gradient-to-br from-green-50 to-green-100/30 border-2 border-green-200">
                                 <div className="flex items-center gap-2">
-                                    <Bell className="h-4 w-4 text-green-600" />
-                                    <span className="text-sm font-medium text-green-800">Уведомления Telegram активны</span>
+                                    <Bell className="h-4 w-4 text-green-600 flex-shrink-0" />
+                                    <span className="text-sm font-medium text-green-800 truncate">Уведомления Telegram активны</span>
                                 </div>
                             </div>
                         ) : (
                             <div className="lg:hidden p-3 rounded-xl bg-gradient-to-br from-yellow-50 to-yellow-100/30 border-2 border-yellow-200">
                                 <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <BellOff className="h-4 w-4 text-yellow-600" />
-                                        <span className="text-sm font-medium text-yellow-800">Без уведомлений</span>
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <BellOff className="h-4 w-4 text-yellow-600 flex-shrink-0" />
+                                        <span className="text-sm font-medium text-yellow-800 truncate">Без уведомлений</span>
                                     </div>
-                                    <Button
+                                    <ResponsiveButton
                                         onClick={() => setTab('telegram')}
                                         variant="ghost"
                                         size="sm"
-                                        className="h-8 text-xs"
+                                        className="h-8 flex-shrink-0"
                                     >
                                         Подключить
-                                    </Button>
+                                    </ResponsiveButton>
                                 </div>
                             </div>
                         )}
@@ -452,11 +488,11 @@ export function ClientDashboardTabs() {
 
             {tab === 'new' && (
                 <Card className="booking-card border-2 p-4 md:p-6">
-                    <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-6">
+                    <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4 mb-4 md:mb-6">
                         <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg flex-shrink-0">
                             <Calendar className="h-5 w-5 md:h-6 md:w-6 text-white" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                             <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">Новая запись</h2>
                             <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">Выберите удобное время для консультации</p>
                         </div>
@@ -465,39 +501,49 @@ export function ClientDashboardTabs() {
                     <CardContent className="space-y-4 md:space-y-6 p-0">
                         {pendingBooking ? (
                             <div className="bg-gradient-to-br from-yellow-50 to-yellow-100/50 border-2 border-yellow-300 p-4 md:p-6 rounded-xl md:rounded-2xl">
-                                <div className="flex items-start gap-3 md:gap-4">
+                                <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4">
                                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-yellow-400 flex items-center justify-center flex-shrink-0">
                                         <span className="text-xl md:text-2xl">⏳</span>
                                     </div>
-                                    <div className="flex-1">
+                                    <div className="flex-1 min-w-0">
                                         <h3 className="text-base md:text-lg font-bold text-yellow-900 mb-1 md:mb-2">
                                             У вас уже есть созданный заказ
                                         </h3>
                                         <p className="text-xs md:text-sm text-yellow-800 mb-3 md:mb-4">
                                             Пожалуйста, завершите оплату существующей записи перед созданием новой
                                         </p>
-                                        <Button onClick={() => setTab('home')} size="lg" className="w-full md:w-auto bg-yellow-600 hover:bg-yellow-700">
+                                        <ResponsiveButton
+                                            onClick={() => setTab('home')}
+                                            size="lg"
+                                            variant="default"
+                                            className="w-full md:w-auto bg-yellow-600 hover:bg-yellow-700"
+                                        >
                                             Вернуться на главную
-                                        </Button>
+                                        </ResponsiveButton>
                                     </div>
                                 </div>
                             </div>
                         ) : upcomingConfirmed.length > 0 ? (
                             <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 border-2 border-amber-300 p-4 md:p-6 rounded-xl md:rounded-2xl">
-                                <div className="flex items-start gap-3 md:gap-4">
+                                <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4">
                                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-amber-400 flex items-center justify-center flex-shrink-0">
                                         <span className="text-xl md:text-2xl">⚠️</span>
                                     </div>
-                                    <div className="flex-1">
+                                    <div className="flex-1 min-w-0">
                                         <h3 className="text-base md:text-lg font-bold text-amber-900 mb-1 md:mb-2">
                                             У вас уже есть активная запись
                                         </h3>
                                         <p className="text-xs md:text-sm text-amber-800 mb-3 md:mb-4">
                                             Вы можете создать новую запись после завершения текущей консультации
                                         </p>
-                                        <Button onClick={() => setTab('home')} size="lg" variant="secondary" className="w-full md:w-auto">
+                                        <ResponsiveButton
+                                            onClick={() => setTab('home')}
+                                            size="lg"
+                                            variant="secondary"
+                                            className="w-full md:w-auto"
+                                        >
                                             Посмотреть на главной
-                                        </Button>
+                                        </ResponsiveButton>
                                     </div>
                                 </div>
                             </div>
@@ -510,11 +556,11 @@ export function ClientDashboardTabs() {
 
             {tab === 'history' && (
                 <Card className="booking-card border-2 p-4 md:p-6">
-                    <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-6">
+                    <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4 mb-4 md:mb-6">
                         <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg flex-shrink-0">
                             <Calendar className="h-5 w-5 md:h-6 md:w-6 text-white" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                             <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">История записей</h2>
                             <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">Все ваши консультации в календаре</p>
                         </div>
@@ -535,10 +581,15 @@ export function ClientDashboardTabs() {
                                 <p className="text-sm md:text-base text-gray-600 mb-4 md:mb-6 max-w-md mx-auto">
                                     Создайте первую запись, чтобы начать отслеживать свои консультации
                                 </p>
-                                <Button onClick={() => setTab('new')} size="lg" className="w-full md:w-auto shadow-lg">
-                                    <Calendar className="h-4 w-4 md:h-5 md:w-5 mr-2" />
+                                <ResponsiveButton
+                                    onClick={() => setTab('new')}
+                                    size="lg"
+                                    variant="default"
+                                    className="w-full md:w-auto shadow-lg"
+                                    icon={<Calendar className="h-4 w-4 md:h-5 md:w-5" />}
+                                >
                                     Создать первую запись
-                                </Button>
+                                </ResponsiveButton>
                             </div>
                         ) : (
                             <ClientBookingsCalendar bookings={bookings} />
@@ -565,16 +616,16 @@ function MobileTabButton({ icon, label, active, onClick }: {
         <button
             onClick={onClick}
             className={cn(
-                "flex flex-col items-center justify-center p-3 rounded-xl min-w-[80px] flex-shrink-0 transition-all duration-300",
+                "flex flex-col items-center justify-center p-2 md:p-3 rounded-xl min-w-[70px] md:min-w-[80px] flex-shrink-0 transition-all duration-300",
                 active
                     ? "bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-lg"
                     : "bg-white text-gray-700 border-2 border-gray-200 hover:bg-primary-50"
             )}
         >
-            <div className={cn("mb-1.5", active ? "text-white" : "text-primary-600")}>
+            <div className={cn("mb-1", active ? "text-white" : "text-primary-600")}>
                 {icon}
             </div>
-            <span className="text-xs font-semibold whitespace-nowrap">{label}</span>
+            <span className="text-xs font-semibold whitespace-nowrap truncate">{label}</span>
         </button>
     )
 }
@@ -615,13 +666,13 @@ function MobileMenuItem({ icon, label, active, onClick }: {
                     : "text-gray-700 hover:bg-gray-50"
             )}
         >
-            <div className="flex items-center gap-3">
-                <div className={cn("p-1.5 rounded-md", active ? "bg-primary-500 text-white" : "bg-gray-100 text-gray-600")}>
+            <div className="flex items-center gap-3 min-w-0">
+                <div className={cn("p-1.5 rounded-md flex-shrink-0", active ? "bg-primary-500 text-white" : "bg-gray-100 text-gray-600")}>
                     {icon}
                 </div>
-                <span className="font-medium">{label}</span>
+                <span className="font-medium truncate">{label}</span>
             </div>
-            <ChevronRight className={cn("h-4 w-4", active ? "text-primary-500" : "text-gray-400")} />
+            <ChevronRight className={cn("h-4 w-4 flex-shrink-0", active ? "text-primary-500" : "text-gray-400")} />
         </button>
     )
 }
@@ -657,11 +708,11 @@ function ProfileTab({ profile, setProfile, setTab }: {
 
     return (
         <Card className="booking-card border-2 p-4 md:p-6">
-            <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-6">
+            <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4 mb-4 md:mb-6">
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg flex-shrink-0">
                     <User className="h-5 w-5 md:h-6 md:w-6 text-white" />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                     <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900">Профиль</h2>
                     <p className="text-xs md:text-sm text-gray-600 mt-0.5 md:mt-1">Управление личными данными</p>
                 </div>
@@ -670,42 +721,42 @@ function ProfileTab({ profile, setProfile, setTab }: {
             <CardContent className="space-y-6 p-0">
                 {message && (
                     <div className="bg-gradient-to-br from-primary-50 to-primary-100/50 border-2 border-primary-200 p-3 md:p-4 rounded-xl md:rounded-2xl text-sm font-semibold text-gray-800 flex items-center gap-2 md:gap-3">
-                        <span className="text-lg">{message.includes('✅') ? '✅' : 'ℹ️'}</span>
-                        <span className="text-xs md:text-sm">{message}</span>
+                        <span className="text-lg flex-shrink-0">{message.includes('✅') ? '✅' : 'ℹ️'}</span>
+                        <span className="text-xs md:text-sm truncate">{message}</span>
                     </div>
                 )}
 
                 <div className="space-y-6">
                     <div>
                         <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 flex items-center gap-2">
-                            <User className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
+                            <User className="h-4 w-4 md:h-5 md:w-5 text-primary-600 flex-shrink-0" />
                             Основная информация
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                             <div>
                                 <label className="text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2 block flex items-center gap-1 md:gap-2">
-                                    <User className="h-3 w-3 md:h-4 md:w-4 text-primary-600" />
+                                    <User className="h-3 w-3 md:h-4 md:w-4 text-primary-600 flex-shrink-0" />
                                     Имя <span className="text-red-500">*</span>
                                 </label>
-                                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-10 md:h-12" />
+                                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-10 md:h-12 text-sm md:text-base" />
                             </div>
                             <div>
                                 <label className="text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2 block flex items-center gap-1 md:gap-2">
-                                    <Mail className="h-3 w-3 md:h-4 md:w-4 text-primary-600" />
+                                    <Mail className="h-3 w-3 md:h-4 md:w-4 text-primary-600 flex-shrink-0" />
                                     Email
                                 </label>
-                                <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="h-10 md:h-12" />
+                                <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="h-10 md:h-12 text-sm md:text-base" />
                             </div>
                             <div>
                                 <label className="text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2 block flex items-center gap-1 md:gap-2">
-                                    <Phone className="h-3 w-3 md:h-4 md:w-4 text-primary-600" />
+                                    <Phone className="h-3 w-3 md:h-4 md:w-4 text-primary-600 flex-shrink-0" />
                                     Телефон
                                 </label>
-                                <Input value={phone ?? ''} className="h-10 md:h-12 bg-gray-50" />
+                                <Input value={phone ?? ''} className="h-10 md:h-12 bg-gray-50 text-sm md:text-base" />
                             </div>
                             <div>
                                 <label className="text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2 block flex items-center gap-1 md:gap-2">
-                                    <MessageSquare className="h-3 w-3 md:h-4 md:w-4 text-primary-600" />
+                                    <MessageSquare className="h-3 w-3 md:h-4 md:w-4 text-primary-600 flex-shrink-0" />
                                     Telegram
                                 </label>
                                 {profile?.telegram_chat_id ? (
@@ -726,123 +777,129 @@ function ProfileTab({ profile, setProfile, setTab }: {
                                             disabled
                                             className="h-10 md:h-12 bg-gray-100 border-gray-300 text-gray-600 text-xs md:text-sm"
                                         />
-                                        <Button
+                                        <ResponsiveButton
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => setTab('telegram')}
-                                            className="absolute right-1 top-1/2 -translate-y-1/2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 h-8 md:h-10 text-xs"
+                                            className="absolute right-1 top-1/2 -translate-y-1/2 text-primary-600 hover:text-primary-700 hover:bg-primary-50 h-8 md:h-10"
                                         >
                                             Подключить
-                                        </Button>
+                                        </ResponsiveButton>
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    <Button
-                        onClick={async () => {
-                            setIsLoading(true)
-                            setMessage(null)
-                            const res = await fetch('/api/profile', {
-                                method: 'PATCH',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ name, email }),
-                            })
-                            const data = (await res.json().catch(() => null)) as any
-                            if (res.ok) {
-                                setMessage('✅ Профиль обновлен')
-                                if (data) {
-                                    setProfile(data)
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <ResponsiveButton
+                            onClick={async () => {
+                                setIsLoading(true)
+                                setMessage(null)
+                                const res = await fetch('/api/profile', {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ name, email }),
+                                })
+                                const data = (await res.json().catch(() => null)) as any
+                                if (res.ok) {
+                                    setMessage('✅ Профиль обновлен')
+                                    if (data) {
+                                        setProfile(data)
+                                    }
+                                } else {
+                                    setMessage(String(data?.error ?? 'Ошибка'))
                                 }
-                            } else {
-                                setMessage(String(data?.error ?? 'Ошибка'))
-                            }
-                            setIsLoading(false)
-                        }}
-                        disabled={isLoading}
-                        size="lg"
-                        className="w-full md:w-auto"
-                    >
-                        {isLoading ? (
-                            <>
-                                <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                <span className="ml-2">Сохранение…</span>
-                            </>
-                        ) : (
-                            <>💾 Сохранить изменения</>
-                        )}
-                    </Button>
+                                setIsLoading(false)
+                            }}
+                            disabled={isLoading}
+                            size="lg"
+                            className="w-full sm:w-auto"
+                            icon={isLoading ? null : '💾'}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                                    Сохранение…
+                                </>
+                            ) : (
+                                'Сохранить изменения'
+                            )}
+                        </ResponsiveButton>
+                    </div>
                 </div>
 
                 <div className="border-t-2 border-gray-200 pt-4 md:pt-6 space-y-4 md:space-y-6">
                     <h3 className="text-base md:text-lg font-bold text-gray-800 flex items-center gap-2">
-                        <Lock className="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
+                        <Lock className="h-4 w-4 md:h-5 md:w-5 text-primary-600 flex-shrink-0" />
                         Смена пароля
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                         <div className="md:col-span-2">
                             <label className="text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2 block flex items-center gap-1 md:gap-2">
-                                <Lock className="h-3 w-3 md:h-4 md:w-4 text-primary-600" />
+                                <Lock className="h-3 w-3 md:h-4 md:w-4 text-primary-600 flex-shrink-0" />
                                 Текущий пароль
                             </label>
-                            <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="h-10 md:h-12" />
+                            <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="h-10 md:h-12 text-sm md:text-base" />
                         </div>
                         <div>
                             <label className="text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2 block flex items-center gap-1 md:gap-2">
-                                <Lock className="h-3 w-3 md:h-4 md:w-4 text-primary-600" />
+                                <Lock className="h-3 w-3 md:h-4 md:w-4 text-primary-600 flex-shrink-0" />
                                 Новый пароль
                             </label>
-                            <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="h-10 md:h-12" />
+                            <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="h-10 md:h-12 text-sm md:text-base" />
                         </div>
                         <div>
                             <label className="text-xs md:text-sm font-semibold text-gray-700 mb-1.5 md:mb-2 block flex items-center gap-1 md:gap-2">
-                                <Lock className="h-3 w-3 md:h-4 md:w-4 text-primary-600" />
+                                <Lock className="h-3 w-3 md:h-4 md:w-4 text-primary-600 flex-shrink-0" />
                                 Подтверждение
                             </label>
-                            <Input type="password" value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} className="h-10 md:h-12" />
+                            <Input type="password" value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} className="h-10 md:h-12 text-sm md:text-base" />
                         </div>
                     </div>
-                    <Button
-                        variant="secondary"
-                        onClick={async () => {
-                            if (!currentPassword || !newPassword || !newPasswordConfirm) {
-                                setMessage('Заполните поля пароля')
-                                return
-                            }
-                            if (newPassword !== newPasswordConfirm) {
-                                setMessage('Новый пароль и подтверждение не совпадают')
-                                return
-                            }
-                            setIsLoading(true)
-                            setMessage(null)
-                            const res = await fetch('/api/auth/change-password', {
-                                method: 'PATCH',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
-                            })
-                            const data = (await res.json().catch(() => null)) as any
-                            setIsLoading(false)
-                            setMessage(res.ok ? '✅ Пароль изменен' : String(data?.error ?? 'Ошибка'))
-                            if (res.ok) {
-                                setCurrentPassword('')
-                                setNewPassword('')
-                                setNewPasswordConfirm('')
-                            }
-                        }}
-                        disabled={isLoading}
-                        size="lg"
-                        className="w-full md:w-auto"
-                    >
-                        {isLoading ? (
-                            <>
-                                <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-primary-600/30 border-t-primary-600 rounded-full animate-spin" />
-                                <span className="ml-2">Изменение…</span>
-                            </>
-                        ) : (
-                            <>🔐 Изменить пароль</>
-                        )}
-                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <ResponsiveButton
+                            variant="secondary"
+                            onClick={async () => {
+                                if (!currentPassword || !newPassword || !newPasswordConfirm) {
+                                    setMessage('Заполните поля пароля')
+                                    return
+                                }
+                                if (newPassword !== newPasswordConfirm) {
+                                    setMessage('Новый пароль и подтверждение не совпадают')
+                                    return
+                                }
+                                setIsLoading(true)
+                                setMessage(null)
+                                const res = await fetch('/api/auth/change-password', {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+                                })
+                                const data = (await res.json().catch(() => null)) as any
+                                setIsLoading(false)
+                                setMessage(res.ok ? '✅ Пароль изменен' : String(data?.error ?? 'Ошибка'))
+                                if (res.ok) {
+                                    setCurrentPassword('')
+                                    setNewPassword('')
+                                    setNewPasswordConfirm('')
+                                }
+                            }}
+                            disabled={isLoading}
+                            size="lg"
+                            className="w-full sm:w-auto"
+                            icon={isLoading ? null : '🔐'}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-primary-600/30 border-t-primary-600 rounded-full animate-spin mr-2" />
+                                    Изменение…
+                                </>
+                            ) : (
+                                'Изменить пароль'
+                            )}
+                        </ResponsiveButton>
+                    </div>
                 </div>
             </CardContent>
         </Card>
@@ -903,18 +960,18 @@ function BookingHistoryItem({ booking }: { booking: Booking }) {
             <div className="space-y-3 md:space-y-4">
                 {/* Шапка с датой и статусом */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-3">
-                    <div className="flex items-center gap-2 md:gap-3">
+                    <div className="flex items-center gap-2 md:gap-3 min-w-0">
                         <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${booking.status === 'cancelled'
                             ? 'bg-gradient-to-br from-gray-400 to-gray-600'
                             : 'bg-gradient-to-br from-primary-400 to-primary-600'
                         }`}>
                             <Calendar className="h-4 w-4 md:h-5 md:w-5 text-white" />
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="min-w-0">
                             <div className="text-base md:text-lg font-bold text-gray-900 truncate">
                                 {formatDateRu(booking.booking_date)}
                             </div>
-                            <div className="text-xs md:text-sm text-gray-600 font-semibold">
+                            <div className="text-xs md:text-sm text-gray-600 font-semibold truncate">
                                 🕐 {booking.booking_time}
                             </div>
                         </div>
@@ -926,20 +983,20 @@ function BookingHistoryItem({ booking }: { booking: Booking }) {
 
                 {/* Информация о записи */}
                 <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-3 py-2 md:py-3 border-t border-b border-gray-100">
-                    <div className="flex items-center gap-1 md:gap-2">
-                        <span className="text-xs md:text-sm text-gray-600">Сумма:</span>
-                        <span className="text-sm md:text-base font-bold text-gray-900">{booking.amount?.toLocaleString('ru-RU')} ₽</span>
+                    <div className="flex items-center gap-1 md:gap-2 min-w-0">
+                        <span className="text-xs md:text-sm text-gray-600 flex-shrink-0">Сумма:</span>
+                        <span className="text-sm md:text-base font-bold text-gray-900 truncate">{booking.amount?.toLocaleString('ru-RU')} ₽</span>
                     </div>
                     {booking.notes && (
-                        <div className="col-span-2 flex items-start gap-1 md:gap-2">
-                            <span className="text-xs md:text-sm text-gray-600">Примечание:</span>
+                        <div className="col-span-2 flex items-start gap-1 md:gap-2 min-w-0">
+                            <span className="text-xs md:text-sm text-gray-600 flex-shrink-0">Примечание:</span>
                             <span className="text-xs md:text-sm text-gray-800 truncate">{booking.notes}</span>
                         </div>
                     )}
                 </div>
 
                 {/* Действия */}
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex flex-wrap gap-2">
                     {(booking.status === 'confirmed' || booking.status === 'pending_payment') && (
                         <BookingActions booking={booking} />
                     )}
