@@ -33,7 +33,7 @@ CREATE INDEX products_active_sort_idx ON public.products (is_active, sort_order)
 -- Добавим тестовые продукты
 INSERT INTO public.products (name, description, price_rub, is_active, is_package, sessions_count, sort_order)
 VALUES 
-  ('Одна консультация', 'Разовая сессия 60 минут', 3000, true, false, 1, 1),
+  ('Одна консультация', 'Разовая консультация 60 минут', 3000, true, false, 1, 1),
   ('Пакет 5 консультаций', '5 сессий со скидкой', 13500, true, true, 5, 2),
   ('Пакет 10 консультаций', '10 сессий с максимальной скидкой', 24000, true, true, 10, 3);
 

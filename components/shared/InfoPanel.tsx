@@ -62,7 +62,7 @@ const sessionFlow = [
         description: 'Присылаю ссылку на Яндекс.Телемост, короткий чек-лист и упражнения, если это нужно',
     },
     {
-        title: 'Сессия 60 минут',
+        title: 'Консультация 60 минут',
         description: 'Работаем в безопасном темпе: беседа + арт-практики и телесные техники',
     },
     // {
@@ -151,7 +151,7 @@ export function InfoPanel() {
                                 <Link href="/login">У меня уже есть аккаунт</Link>
                             </Button>
                             <Button size="sm" asChild>
-                                <Link href="/register">Создать новый профиль</Link>
+                                <Link href="/register">Создать новый аккаунт</Link>
                             </Button>
                         </div>
                     )}

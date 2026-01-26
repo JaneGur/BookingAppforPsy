@@ -27,7 +27,7 @@ export default function HomePage() {
         },
         {
             title: '60 минут',
-            description: 'Глубокая индивидуальная сессия онлайн',
+            description: 'Глубокая индивидуальная консультация онлайн',
         },
         {
             title: '3 000 ₽',

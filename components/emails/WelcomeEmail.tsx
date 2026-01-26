@@ -68,7 +68,7 @@ export const WelcomeEmail = ({
                         <ul style={featureList}>
                             <li style={featureItem}>Записаться на консультацию онлайн</li>
                             <li style={featureItem}>Управлять своими записями</li>
-                            <li style={featureItem}>Получать напоминания о сессиях</li>
+                            <li style={featureItem}>Получать напоминания о консультациях</li>
                             <li style={featureItem}>Связаться с терапевтом напрямую</li>
                         </ul>
                     </Section>
