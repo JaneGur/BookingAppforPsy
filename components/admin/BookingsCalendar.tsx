@@ -14,6 +14,7 @@ interface BookingsCalendarProps {
     currentDate: Date
     onDateChange: (date: Date) => void
     onDayClick: (date: string, bookings: Booking[]) => void
+    onReschedule?: (bookings: Booking[]) => void
 }
 
 export function BookingsCalendar({ bookings, currentDate, onDateChange, onDayClick }: BookingsCalendarProps) {

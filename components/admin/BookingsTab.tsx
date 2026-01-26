@@ -19,21 +19,7 @@ import {
     Square,
     List,
     CalendarDays,
-    Ban,
-    User,
-    ChevronDown,
-    ChevronUp,
-    Menu,
-    X,
-    MoreVertical,
-    Phone,
-    MessageSquare,
-    CreditCard,
-    DollarSign,
-    FileText,
-    ArrowLeft,
-    BarChart3,
-    Sparkles
+    Ban, User
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -49,6 +35,7 @@ import { LoadMoreButton } from '@/components/ui/LoadMoreButton'
 import { useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 
+
 interface BookingsTabProps {
     onCreateBooking: () => void
     refreshTrigger?: number
@@ -62,7 +49,7 @@ type QuickFilter = 'all' | 'today' | 'week' | 'month' | 'upcoming' | 'past'
 const BOOKINGS_PER_PAGE = 10
 
 function StatusBadge({ status }: { status: Booking['status'] }) {
-    const base = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shadow-md transition-all duration-300 hover:scale-105'
+    const base = 'inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-all duration-300 hover:scale-105'
     const map: Record<Booking['status'], { label: string; className: string; icon: string }> = {
         pending_payment: { label: 'Ожидает оплаты', className: 'bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-800 border-2 border-yellow-300', icon: '⏳' },
         confirmed: { label: 'Подтверждена', className: 'bg-gradient-to-br from-green-100 to-green-200 text-green-800 border-2 border-green-300', icon: '✓' },
@@ -70,16 +57,11 @@ function StatusBadge({ status }: { status: Booking['status'] }) {
         cancelled: { label: 'Отменена', className: 'bg-gradient-to-br from-red-100 to-red-200 text-red-800 border-2 border-red-300', icon: '✕' },
     }
     const item = map[status]
-    return (
-        <span className={cn(base, item.className)}>
-            <span className="text-xs">{item.icon}</span>
-            <span className="hidden sm:inline">{item.label}</span>
-            <span className="sm:hidden">{item.label.split(' ')[0]}</span>
-        </span>
-    )
+    return <span className={cn(base, item.className)}><span className="text-base">{item.icon}</span> {item.label}</span>
 }
 
 export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProps) {
+    // 🚀 Optimistic updates hooks
     const updateStatus = useUpdateBookingStatus()
     const deleteBooking = useDeleteBooking()
     const cancelBooking = useCancelBooking()
@@ -99,20 +81,15 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
     const [calendarDate, setCalendarDate] = useState(new Date())
     const [selectedDayBookings, setSelectedDayBookings] = useState<Booking[]>([])
     const [detailsBooking, setDetailsBooking] = useState<Booking | null>(null)
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const [showSortOptions, setShowSortOptions] = useState(false)
-    const [showMobileActions, setShowMobileActions] = useState(false)
-    const [showStats, setShowStats] = useState(false) // 🆕 Мобильная статистика
-    const [showSearch, setShowSearch] = useState(false) // 🆕 Мобильный поиск
 
+    // Кнопка "Показать еще" для заказов
     const currentPageRef = useRef(1)
     const [bookings, setBookings] = useState<Booking[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [isLoadingMore, setIsLoadingMore] = useState(false)
     const [hasMore, setHasMore] = useState(false)
-    const [fullStats, setFullStats] = useState<any>(null)
+    const [fullStats, setFullStats] = useState<any>(null) // Полная статистика по всем данным
 
-    // 🎯 Загрузка данных (оставляем как есть)
     const loadBookings = async (page: number = 1, append: boolean = false) => {
         if (append) {
             setIsLoadingMore(true)
@@ -147,7 +124,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
             const adminBookings = result.data || []
             const normalized = adminBookings.map((adminBooking: any) => ({
                 ...adminBooking,
-                phone_hash: ''
+                phone_hash: '' // Добавляем пустое значение для совместимости
             }))
             if (append) {
                 setBookings((prev) => {
@@ -168,17 +145,17 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         }
     }
 
-    // 🎯 Остальные функции загрузки и обработки (оставляем как есть)
     const loadMore = () => {
         if (hasMore && !isLoading && !isLoadingMore) {
             loadBookings(currentPageRef.current + 1, true)
         }
     }
 
+    // Загрузка полной статистики по всем данным
     const loadFullStats = async () => {
         try {
             const params = new URLSearchParams({
-                limit: '10000',
+                limit: '10000', // Большой лимит для получения всех данных
                 sort_by: 'booking_date',
                 sort_order: 'desc'
             })
@@ -202,6 +179,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
 
             const allBookings = result.data || []
 
+            // Считаем статистику по всем данным
             const stats = {
                 total: allBookings.length,
                 pending: allBookings.filter((b: any) => b.status === 'pending_payment').length,
@@ -216,13 +194,13 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         }
     }
 
+    // Загружаем первую страницу при монтировании
     useEffect(() => {
         currentPageRef.current = 1
         loadBookings(1, false)
-        loadFullStats()
+        loadFullStats() // Загружаем полную статистику при монтировании
     }, [])
 
-    // 🎯 Эффекты для фильтров (оставляем как есть)
     useEffect(() => {
         const today = startOfDay(new Date())
         if (quickFilter === 'all') {
@@ -269,17 +247,18 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         }
     }, [quickFilter])
 
+    // Применяем фильтры и сортировки
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             currentPageRef.current = 1
             loadBookings(1, false)
-            loadFullStats()
-        }, 300)
+            loadFullStats() // Загружаем полную статистику при изменении фильтров
+        }, 300) // Debounce 300ms
 
         return () => clearTimeout(timeoutId)
     }, [selectedStatuses.join(','), dateRange.start, dateRange.end, searchQuery, sortField, sortDirection])
 
-    // 🎯 Группировка и сортировка (оставляем как есть)
+    // Группируем записи по датам
     const groupedBookings = useMemo(() => {
         const groups = new Map<string, Booking[]>()
         bookings.forEach((booking) => {
@@ -329,17 +308,17 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         return entries
     }, [bookings, sortField, sortDirection])
 
+    // Статистика
     const stats = useMemo(() => {
         return {
-            total: fullStats?.total || 0,
-            pending: fullStats?.pending || 0,
-            confirmed: fullStats?.confirmed || 0,
-            completed: fullStats?.completed || 0,
-            cancelled: fullStats?.cancelled || 0,
+            total: fullStats?.total || 0, // Общее количество из полной статистики
+            pending: fullStats?.pending || 0, // Из полной статистики
+            confirmed: fullStats?.confirmed || 0, // Из полной статистики
+            completed: fullStats?.completed || 0, // Из полной статистики
+            cancelled: fullStats?.cancelled || 0, // Из полной статистики
         }
     }, [fullStats])
 
-    // 🎯 Остальные обработчики (оставляем как есть)
     const handleStatusToggle = (status: string) => {
         setSelectedStatuses((prev) =>
             prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
@@ -353,7 +332,6 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
             setSortField(field)
             setSortDirection('asc')
         }
-        setShowSortOptions(false)
     }
 
     const handleSelectAll = () => {
@@ -392,7 +370,10 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
             )
 
             await Promise.all(promises)
+
+            // Инвалидируем кэш React Query
             queryClient.invalidateQueries({ queryKey: ['bookings'] })
+
             setSelectedBookings(new Set())
             toast.success(`Статус ${selectedBookings.size} записей изменен`)
         } catch (error) {
@@ -403,13 +384,16 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
 
     const handleBulkCancel = async () => {
         if (selectedBookings.size === 0) return
-        if (!confirm(`Отменить ${selectedBookings.size} записей?`)) return
+        if (!confirm(`Отменить ${selectedBookings.size} записей? Записи будут помечены как отмененные, но останутся в истории.`)) return
 
         try {
+            // Используем мутации для оптимистичной отмены
             const cancelPromises = Array.from(selectedBookings).map(id =>
                 cancelBooking.mutateAsync(id)
             )
+
             await Promise.all(cancelPromises)
+
             setSelectedBookings(new Set())
             toast.success(`Отменено ${selectedBookings.size} записей`)
         } catch (error) {
@@ -420,13 +404,16 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
 
     const handleBulkDelete = async () => {
         if (selectedBookings.size === 0) return
-        if (!confirm(`Удалить ${selectedBookings.size} записей?`)) return
+        if (!confirm(`Полностью удалить ${selectedBookings.size} записей из базы данных? Это действие необратимо. Записи будут удалены безвозвратно.`)) return
 
         try {
+            // Используем мутации для оптимистичного удаления
             const deletePromises = Array.from(selectedBookings).map(id =>
                 deleteBooking.mutateAsync(id)
             )
+
             await Promise.all(deletePromises)
+
             setSelectedBookings(new Set())
             toast.success(`Удалено ${selectedBookings.size} записей`)
         } catch (error) {
@@ -450,7 +437,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
     }
 
     const handleCancel = async (id: number) => {
-        if (!confirm('Отменить эту запись?')) return
+        if (!confirm('Отменить эту запись? Запись будет помечена как отмененная, но останется в истории.')) return
         try {
             await cancelBooking.mutateAsync(id)
             toast.success('Запись отменена')
@@ -464,11 +451,12 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         setRescheduleBooking(booking)
     }
 
+    // 🎯 OPTIMISTIC UPDATE - полное удаление записи
     const handleDelete = async (id: number) => {
-        if (!confirm('Удалить эту запись?')) return
+        if (!confirm('Полностью удалить эту запись из базы данных? Это действие необратимо. Запись будет удалена безвозвратно.')) return
         try {
             await deleteBooking.mutateAsync(id)
-            toast.success('Запись удалена')
+            toast.success('Запись полностью удалена')
         } catch (error) {
             console.error('Failed to delete:', error)
             toast.error('Не удалось удалить запись')
@@ -479,6 +467,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
         setSelectedDayBookings(dayBookings)
     }
 
+    // 🎯 OPTIMISTIC UPDATE - изменение статуса записи
     const handleStatusChange = async (id: number, status: Booking['status']) => {
         try {
             await updateStatus.mutateAsync({ id, status })
@@ -490,282 +479,126 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
     }
 
     return (
-        <div className="space-y-4 sm:space-y-8">
-            {/* 🎯 Мобильное меню действий */}
-            {showMobileActions && (
-                <div className="fixed inset-0 z-50 bg-black/50 md:hidden" onClick={() => setShowMobileActions(false)}>
-                    <div
-                        className="absolute right-0 top-0 h-full w-64 bg-white shadow-xl animate-slideInRight"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="p-4 border-b">
-                            <div className="flex items-center justify-between">
-                                <span className="font-semibold text-gray-900">Действия</span>
-                                <button
-                                    onClick={() => setShowMobileActions(false)}
-                                    className="p-2 hover:bg-gray-100 rounded-lg"
-                                >
-                                    <X className="h-5 w-5" />
-                                </button>
+        <div className="space-y-8">
+
+            {/* Заголовок */}
+            <Card className="booking-card border-2">
+                <CardContent className="p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
+                                <Calendar className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-bold text-gray-900">Управление записями</h2>
+                                <p className="text-sm text-gray-600 mt-1">Все консультации в системе</p>
                             </div>
                         </div>
-                        <div className="p-4 space-y-3">
-                            <Button
-                                size="sm"
-                                onClick={onCreateBooking}
-                                className="w-full justify-start"
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Создать запись
-                            </Button>
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => setShowFilters(true)}
-                                className="w-full justify-start"
-                            >
-                                <Filter className="h-4 w-4 mr-2" />
-                                Фильтры
-                            </Button>
-                            <div className="pt-2 border-t">
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setViewMode('list')}
-                                    className={`w-full justify-start ${viewMode === 'list' ? 'bg-primary-50 text-primary-700' : ''}`}
-                                >
-                                    <List className="h-4 w-4 mr-2" />
-                                    Список
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setViewMode('calendar')}
-                                    className={`w-full justify-start ${viewMode === 'calendar' ? 'bg-primary-50 text-primary-700' : ''}`}
-                                >
-                                    <CalendarDays className="h-4 w-4 mr-2" />
-                                    Календарь
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 🎯 Заголовок - мобильная адаптация */}
-            <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
-                <CardContent className="p-3 sm:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md sm:shadow-lg flex-shrink-0">
-                                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                                <h2 className="text-base sm:text-2xl font-bold text-gray-900 truncate">Управление записями</h2>
-                                <p className="text-xs text-gray-600 mt-0.5 truncate">Все консультации в системе</p>
-                            </div>
-                        </div>
-
-                        {/* 🎯 Мобильное меню кнопка */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setShowMobileActions(true)}
-                            className="md:hidden h-8 w-8 flex-shrink-0"
-                        >
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-
-                        {/* Десктопная кнопка */}
-                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl hidden sm:flex">
-                            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl">
+                            <Plus className="h-5 w-5 mr-2" />
                             Создать запись
                         </Button>
                     </div>
-
-                    {/* Мобильная кнопка создания */}
-                    <Button onClick={onCreateBooking} size="lg" className="shadow-xl w-full mt-3 sm:hidden">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Создать запись
-                    </Button>
                 </CardContent>
             </Card>
 
-            {/* 🎯 Статистика - мобильная адаптация с аккордеоном */}
-            <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
-                <button
-                    onClick={() => setShowStats(!showStats)}
-                    className="w-full p-3 sm:p-6 flex items-center justify-between hover:bg-gray-50 transition-colors md:hidden"
-                >
-                    <CardTitle className="text-sm sm:text-lg flex items-center gap-2 m-0">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center border-2 border-emerald-200/50 flex-shrink-0">
-                            <BarChart3 className="w-4 h-4 text-emerald-600" />
-                        </div>
-                        <span>Статистика записей</span>
-                    </CardTitle>
-                    {showStats ? (
-                        <ChevronUp className="h-5 w-5 text-gray-500" />
-                    ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-500" />
-                    )}
-                </button>
-
-                {/* Десктоп заголовок */}
-                <CardHeader className="hidden md:block pb-2 px-3 sm:px-6">
-                    <CardTitle className="text-sm sm:text-lg flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center border-2 border-emerald-200/50">
-                            <BarChart3 className="w-4 h-4 text-emerald-600" />
-                        </div>
-                        Статистика записей
-                    </CardTitle>
+            {/* Статистика */}
+            <Card className="booking-card border-2">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-base sm:text-lg">Статистика записей</CardTitle>
                 </CardHeader>
-
-                <CardContent className={`px-3 sm:px-6 pt-0 ${!showStats && 'hidden md:block'} md:pt-0`}>
-                    <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-5 sm:gap-2">
-                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200">
-                            <div className="flex items-center justify-between mb-1 sm:mb-2">
-                                <div className="text-[10px] sm:text-xs font-semibold text-amber-700 uppercase">Всего</div>
-                                <Calendar className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-amber-600 flex-shrink-0" />
+                <CardContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
+                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 border-2 border-amber-200">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="text-[10px] sm:text-xs font-semibold text-amber-700 uppercase truncate">Всего</div>
+                                <Calendar className="h-4 w-4 text-amber-600 flex-shrink-0" />
                             </div>
-                            <div className="text-base sm:text-2xl font-bold text-amber-900">{stats.total}</div>
+                            <div className="text-xl sm:text-2xl font-bold text-amber-900">{stats.total}</div>
                         </div>
-                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-yellow-50 to-yellow-100/50 border border-yellow-200">
-                            <div className="flex items-center justify-between mb-1 sm:mb-2">
-                                <div className="text-[10px] sm:text-xs font-semibold text-yellow-700 uppercase">Ждут</div>
-                                <Clock className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-yellow-600 flex-shrink-0" />
+                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-yellow-50 to-yellow-100/50 border-2 border-yellow-200">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="text-[10px] sm:text-xs font-semibold text-yellow-700 uppercase truncate">
+                                    <span className="hidden sm:inline">Ожидают</span>
+                                    <span className="sm:hidden">Ждут</span>
+                                </div>
+                                <Clock className="h-4 w-4 text-yellow-600 flex-shrink-0" />
                             </div>
-                            <div className="text-base sm:text-2xl font-bold text-yellow-900">{stats.pending}</div>
+                            <div className="text-xl sm:text-2xl font-bold text-yellow-900">{stats.pending}</div>
                         </div>
-                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-green-50 to-green-100/50 border border-green-200">
-                            <div className="flex items-center justify-between mb-1 sm:mb-2">
-                                <div className="text-[10px] sm:text-xs font-semibold text-green-700 uppercase">Подтв.</div>
-                                <CheckCircle className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-green-50 to-green-100/50 border-2 border-green-200">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="text-[10px] sm:text-xs font-semibold text-green-700 uppercase truncate">
+                                    <span className="hidden sm:inline">Подтверждены</span>
+                                    <span className="sm:hidden">Подтв.</span>
+                                </div>
+                                <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
                             </div>
-                            <div className="text-base sm:text-2xl font-bold text-green-900">{stats.confirmed}</div>
+                            <div className="text-xl sm:text-2xl font-bold text-green-900">{stats.confirmed}</div>
                         </div>
-                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 border border-emerald-200">
-                            <div className="flex items-center justify-between mb-1 sm:mb-2">
-                                <div className="text-[10px] sm:text-xs font-semibold text-emerald-700 uppercase">Заверш.</div>
-                                <CheckCircle className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
+                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 border-2 border-emerald-200">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="text-[10px] sm:text-xs font-semibold text-emerald-700 uppercase truncate">
+                                    <span className="hidden sm:inline">Завершены</span>
+                                    <span className="sm:hidden">Заверш.</span>
+                                </div>
+                                <CheckCircle className="h-4 w-4 text-emerald-600 flex-shrink-0" />
                             </div>
-                            <div className="text-base sm:text-2xl font-bold text-emerald-900">{stats.completed}</div>
+                            <div className="text-xl sm:text-2xl font-bold text-emerald-900">{stats.completed}</div>
                         </div>
-                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200">
-                            <div className="flex items-center justify-between mb-1 sm:mb-2">
-                                <div className="text-[10px] sm:text-xs font-semibold text-red-700 uppercase">Отмен.</div>
-                                <XCircle className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 border-2 border-red-200">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="text-[10px] sm:text-xs font-semibold text-red-700 uppercase truncate">
+                                    <span className="hidden sm:inline">Отменены</span>
+                                    <span className="sm:hidden">Отмен.</span>
+                                </div>
+                                <XCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
                             </div>
-                            <div className="text-base sm:text-2xl font-bold text-red-900">{stats.cancelled}</div>
+                            <div className="text-xl sm:text-2xl font-bold text-red-900">{stats.cancelled}</div>
                         </div>
                     </div>
                 </CardContent>
             </Card>
 
-            {/* 🎯 Поиск и фильтры - мобильная адаптация */}
-            <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
-                <CardHeader className="pb-2 px-3 sm:px-6">
-                    <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm sm:text-lg flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-50 to-primary-50 flex items-center justify-center border-2 border-primary-200/50">
-                                <Search className="w-3.5 h-3.5 text-primary-600" />
-                            </div>
-                            Поиск и фильтрация
-                        </CardTitle>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="sm:hidden h-7 w-7 p-0"
-                        >
-                            {isMobileMenuOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-3 px-3 sm:px-6">
-                    {/* 🎯 Мобильный поиск - сворачиваемый */}
-                    <div className="sm:hidden">
-                        <button
-                            onClick={() => setShowSearch(!showSearch)}
-                            className="w-full flex items-center justify-between p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                            <div className="flex items-center gap-2">
-                                <Search className="h-3.5 w-3.5 text-gray-500" />
-                                <span className="text-sm font-medium text-gray-700">
-                                    {searchQuery ? `Поиск: "${searchQuery}"` : 'Поиск...'}
-                                </span>
-                            </div>
-                            {showSearch ? (
-                                <ChevronUp className="h-4 w-4 text-gray-500" />
-                            ) : (
-                                <ChevronDown className="h-4 w-4 text-gray-500" />
-                            )}
-                        </button>
-                        {showSearch && (
-                            <div className="mt-2 relative">
-                                <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-                                <Input
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Введите имя, телефон..."
-                                    className="pl-9 text-sm h-10"
-                                />
-                            </div>
-                        )}
-                    </div>
 
-                    {/* Десктопный поиск */}
-                    <div className="hidden sm:block relative">
-                        <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+
+            {/* Фильтры и поиск */}
+            <Card className="booking-card border-2">
+                <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Поиск и фильтрация</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {/* Поиск */}
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Поиск..."
-                            className="pl-9 text-sm h-10 sm:h-12"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    loadBookings(1, false)
+                                }
+                            }}
+                            placeholder="Поиск по имени, телефону, email..."
+                            className="pl-10"
                         />
                     </div>
 
-                    {/* Быстрые фильтры - мобильная версия */}
-                    <div className="sm:hidden overflow-x-auto pb-2 -mx-3 px-3">
-                        <div className="flex gap-1.5 min-w-max">
-                            {[
-                                { key: 'all' as QuickFilter, label: 'Все', mobile: 'Все' },
-                                { key: 'today' as QuickFilter, label: 'Сегодня', mobile: 'Сегодня' },
-                                { key: 'week' as QuickFilter, label: 'Неделя', mobile: 'Неделя' },
-                                { key: 'month' as QuickFilter, label: 'Месяц', mobile: 'Месяц' },
-                                { key: 'upcoming' as QuickFilter, label: 'Будущие', mobile: 'Будущие' },
-                                { key: 'past' as QuickFilter, label: 'Прошлые', mobile: 'Прошлые' },
-                            ].map(({ key, label, mobile }) => (
-                                <button
-                                    key={key}
-                                    onClick={() => setQuickFilter(key)}
-                                    className={cn(
-                                        'px-3 py-1.5 text-xs font-medium transition-all rounded-lg whitespace-nowrap',
-                                        quickFilter === key
-                                            ? 'bg-primary-500 text-white shadow-md'
-                                            : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
-                                    )}
-                                >
-                                    {mobile}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Быстрые фильтры - десктоп версия */}
-                    <div className="hidden sm:flex flex-wrap gap-2">
+                    {/* Быстрые фильтры */}
+                    <div className="flex flex-wrap gap-2">
                         {[
-                            { key: 'all' as QuickFilter, label: 'Все', mobile: 'Все' },
-                            { key: 'today' as QuickFilter, label: 'Сегодня', mobile: 'Сегодня' },
-                            { key: 'week' as QuickFilter, label: 'Эта неделя', mobile: 'Неделя' },
-                            { key: 'month' as QuickFilter, label: 'Этот месяц', mobile: 'Месяц' },
-                            { key: 'upcoming' as QuickFilter, label: 'Предстоящие', mobile: 'Будущие' },
-                            { key: 'past' as QuickFilter, label: 'Прошедшие', mobile: 'Прошлые' },
-                        ].map(({ key, label, mobile }) => (
+                            { key: 'all' as QuickFilter, label: 'Все' },
+                            { key: 'today' as QuickFilter, label: 'Сегодня' },
+                            { key: 'week' as QuickFilter, label: 'Эта неделя' },
+                            { key: 'month' as QuickFilter, label: 'Этот месяц' },
+                            { key: 'upcoming' as QuickFilter, label: 'Предстоящие' },
+                            { key: 'past' as QuickFilter, label: 'Прошедшие' },
+                        ].map(({ key, label }) => (
                             <button
                                 key={key}
                                 onClick={() => setQuickFilter(key)}
                                 className={cn(
-                                    'px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all rounded-lg',
+                                    'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                                     quickFilter === key
                                         ? 'bg-primary-500 text-white shadow-md'
                                         : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
@@ -776,44 +609,8 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                         ))}
                     </div>
 
-                    {/* Мобильное меню фильтров */}
-                    {isMobileMenuOpen && (
-                        <div className="sm:hidden space-y-3 pt-2 border-t border-gray-200">
-                            <div className="flex items-center gap-2">
-                                <Button
-                                    variant={viewMode === 'list' ? 'default' : 'secondary'}
-                                    size="sm"
-                                    onClick={() => setViewMode('list')}
-                                    className="flex-1"
-                                >
-                                    <List className="h-3.5 w-3.5 mr-1.5" />
-                                    Список
-                                </Button>
-                                <Button
-                                    variant={viewMode === 'calendar' ? 'default' : 'secondary'}
-                                    size="sm"
-                                    onClick={() => setViewMode('calendar')}
-                                    className="flex-1"
-                                >
-                                    <CalendarDays className="h-3.5 w-3.5 mr-1.5" />
-                                    Календарь
-                                </Button>
-                            </div>
-
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => setShowFilters(!showFilters)}
-                                className="w-full"
-                            >
-                                <Filter className="h-3.5 w-3.5 mr-1.5" />
-                                {showFilters ? 'Скрыть фильтры' : 'Показать фильтры'}
-                            </Button>
-                        </div>
-                    )}
-
-                    {/* Десктопные кнопки */}
-                    <div className="hidden sm:flex items-center justify-between">
+                    {/* Переключатель вида и фильтры */}
+                    <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Button
                                 variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -842,6 +639,9 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                 <Filter className="h-4 w-4 mr-2" />
                                 Фильтры
                             </Button>
+                            <Button variant="ghost" size="sm" onClick={() => loadBookings(1, false)}>
+                                Применить
+                            </Button>
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -849,7 +649,10 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                     setSearchQuery('')
                                     setSelectedStatuses([])
                                     setQuickFilter('all')
-                                    setDateRange({})
+                                    setDateRange({
+                                        start: format(startOfDay(new Date()), 'yyyy-MM-dd'),
+                                        end: format(addDays(new Date(), 30), 'yyyy-MM-dd'),
+                                    })
                                     loadBookings(1, false)
                                 }}
                             >
@@ -858,25 +661,24 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                         </div>
                     </div>
 
-                    {/* Расширенные фильтры */}
                     {showFilters && (
-                        <div className="grid gap-3 p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-200">
+                        <div className="grid gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
                             {/* Статусы */}
                             <div>
-                                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">Статусы</label>
-                                <div className="flex flex-wrap gap-1.5">
+                                <label className="text-sm font-medium text-gray-700 mb-2 block">Статусы</label>
+                                <div className="flex flex-wrap gap-2">
                                     {['pending_payment', 'confirmed', 'completed', 'cancelled'].map((status) => (
                                         <button
                                             key={status}
                                             onClick={() => handleStatusToggle(status)}
                                             className={cn(
-                                                'px-2.5 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium transition-all rounded-lg whitespace-nowrap',
+                                                'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
                                                 selectedStatuses.includes(status)
                                                     ? 'bg-primary-500 text-white'
                                                     : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
                                             )}
                                         >
-                                            {status === 'pending_payment' && '🟡 Ожидает'}
+                                            {status === 'pending_payment' && '🟡 Ожидает оплаты'}
                                             {status === 'confirmed' && '✅ Подтверждена'}
                                             {status === 'completed' && '✅ Завершена'}
                                             {status === 'cancelled' && '❌ Отменена'}
@@ -886,23 +688,21 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                             </div>
 
                             {/* Период */}
-                            <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
+                            <div className="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 block">С</label>
+                                    <label className="text-sm font-medium text-gray-700 mb-2 block">С</label>
                                     <Input
                                         type="date"
                                         value={dateRange.start}
                                         onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                                        className="text-sm h-10"
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 block">По</label>
+                                    <label className="text-sm font-medium text-gray-700 mb-2 block">По</label>
                                     <Input
                                         type="date"
                                         value={dateRange.end}
                                         onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                                        className="text-sm h-10"
                                     />
                                 </div>
                             </div>
@@ -911,56 +711,56 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </CardContent>
             </Card>
 
-            {/* 🎯 Массовые действия - мобильная адаптация */}
+            {/* Массовые действия */}
             {selectedBookings.size > 0 && (
-                <Card className="booking-card border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-white shadow-sm">
-                    <CardContent className="p-3">
-                        <div className="flex flex-col gap-2">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
-                                    <span className="font-bold text-primary-900 text-sm">
-                                        Выбрано: {selectedBookings.size}
-                                    </span>
-                                </div>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setSelectedBookings(new Set())}
-                                    className="text-xs h-7 px-2"
-                                >
-                                    Сбросить
-                                </Button>
+                <Card className="booking-card border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-white">
+                    <CardContent className="p-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <CheckSquare className="h-5 w-5 text-primary-600" />
+                                <span className="font-bold text-primary-900">
+                                    Выбрано записей: {selectedBookings.size}
+                                </span>
                             </div>
-                            <div className="flex flex-wrap gap-1.5">
-                                <Button size="sm" onClick={() => handleBulkStatusChange('confirmed')} className="text-xs h-8 px-2 flex-1 min-w-[100px]">
-                                    <CheckCircle className="h-3 w-3 mr-1" />
+                            <div className="flex flex-wrap gap-2">
+                                <Button size="sm" onClick={() => handleBulkStatusChange('confirmed')}>
+                                    <CheckCircle className="h-4 w-4 mr-2" />
                                     Подтвердить
                                 </Button>
-                                <Button size="sm" variant="secondary" onClick={() => handleBulkStatusChange('completed')} className="text-xs h-8 px-2 flex-1 min-w-[100px]">
+                                <Button size="sm" variant="secondary" onClick={() => handleBulkStatusChange('completed')}>
                                     Завершить
                                 </Button>
-                                <Button size="sm" variant="secondary" onClick={handleBulkCancel} className="text-xs h-8 px-2 flex-1 min-w-[100px]">
-                                    <Ban className="h-3 w-3 mr-1" />
+                                <Button size="sm" variant="secondary" onClick={handleBulkCancel}>
+                                    <Ban className="h-4 w-4 mr-2" />
                                     Отменить
                                 </Button>
                                 <Button
                                     size="sm"
                                     variant="secondary"
                                     onClick={handleBulkDelete}
-                                    className="text-xs h-8 px-2 flex-1 min-w-[100px] text-red-600 hover:bg-red-50 border-red-200 hover:border-red-300"
+                                    className="text-red-600 hover:bg-red-50 border-red-200 hover:border-red-300"
                                 >
-                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    <Trash2 className="h-4 w-4 mr-2" />
                                     Удалить
                                 </Button>
                             </div>
+                            <Button size="sm" variant="ghost" onClick={() => setSelectedBookings(new Set())} className="ml-auto">
+                                Сбросить выбор
+                            </Button>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-primary-100">
+                            <p className="text-xs text-gray-600">
+                                <span className="font-medium">Отменить:</span> помечает записи как отмененные (остаются в истории)
+                                <br />
+                                <span className="font-medium">Удалить:</span> полностью удаляет записи из базы (необратимо)
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
             )}
 
-            {/* 🎯 Календарное представление - на мобильных не показываем */}
-            {viewMode === 'calendar' && !isLoading && window.innerWidth >= 768 && (
+            {/* Календарное представление */}
+            {viewMode === 'calendar' && !isLoading && (
                 <>
                     <BookingsCalendar
                         bookings={bookings}
@@ -969,46 +769,47 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                         onDayClick={handleDayClick}
                     />
 
+                    {/* Модальное окно для выбранного дня */}
                     {selectedDayBookings && selectedDayBookings.length > 0 && (
-                        <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm mt-4">
-                            <CardHeader className="px-3 sm:px-6 py-3">
+                        <Card className="booking-card border-2 mt-6">
+                            <CardHeader>
                                 <div className="flex items-center justify-between">
-                                    <CardTitle className="text-sm sm:text-lg flex items-center gap-2">
-                                        <Calendar className="h-4 w-4 text-primary-600" />
-                                        {format(parseISO(selectedDayBookings[0].booking_date), 'd MMMM yyyy', { locale: ru })}
+                                    <CardTitle>
+                                        Записи на {format(parseISO(selectedDayBookings[0].booking_date), 'd MMMM yyyy', { locale: ru })}
                                     </CardTitle>
-                                    <Button variant="ghost" size="sm" onClick={() => setSelectedDayBookings([])} className="h-7 w-7 p-0">
-                                        <X className="h-3.5 w-3.5" />
+                                    <Button variant="ghost" size="sm" onClick={() => setSelectedDayBookings([])}>
+                                        <XCircle className="h-5 w-5" />
                                     </Button>
                                 </div>
                             </CardHeader>
-                            <CardContent className="space-y-2 px-3 sm:px-6 pb-3">
+                            <CardContent className="space-y-4">
                                 {selectedDayBookings.map((booking) => (
                                     <div
                                         key={booking.id}
                                         onClick={() => setDetailsBooking(booking)}
-                                        className="booking-card border-2 p-3 hover:shadow-xl transition-all cursor-pointer bg-white"
+                                        className="booking-card border-2 p-4 hover:shadow-xl transition-all cursor-pointer"
                                     >
-                                        <div className="flex items-center justify-between gap-2">
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3 mb-2">
                                                     <StatusBadge status={booking.status} />
-                                                    <span className="text-xs font-bold text-blue-900">
+                                                    <span className="text-sm font-bold text-blue-900">
                                                         {booking.booking_time}
                                                     </span>
                                                 </div>
-                                                <p className="font-bold text-gray-900 text-sm truncate">{booking.client_name}</p>
-                                                <p className="text-xs text-gray-600 truncate">{booking.client_phone}</p>
+                                                <p className="font-bold text-gray-900">{booking.client_name}</p>
+                                                <p className="text-sm text-gray-600">{booking.client_phone}</p>
                                             </div>
-                                            <div className="flex flex-col items-end gap-1">
-                                                <div className="text-sm font-bold text-primary-600">
+                                            <div className="text-right">
+                                                <div className="text-lg font-bold text-primary-600">
                                                     {(booking.amount || 0).toLocaleString('ru-RU')} ₽
                                                 </div>
                                                 <Button size="sm" variant="ghost" onClick={(e) => {
                                                     e.stopPropagation()
                                                     setDetailsBooking(booking)
-                                                }} className="h-6 w-6 p-0">
-                                                    <Eye className="h-3 w-3" />
+                                                }}>
+                                                    <Eye className="h-4 w-4 mr-2" />
+                                                    Детали
                                                 </Button>
                                             </div>
                                         </div>
@@ -1020,215 +821,234 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </>
             )}
 
-            {/* 🎯 Предупреждение о календаре на мобильных */}
-            {viewMode === 'calendar' && window.innerWidth < 768 && (
-                <Card className="booking-card border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-white shadow-sm">
-                    <CardContent className="p-4 text-center">
-                        <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
-                            <CalendarDays className="h-5 w-5 text-white" />
-                        </div>
-                        <h3 className="text-base font-bold text-gray-900 mb-1">Календарь на мобильных</h3>
-                        <p className="text-xs text-gray-600 mb-3">Для удобства просмотра календаря перейдите в режим списка или используйте десктопную версию</p>
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => setViewMode('list')}
-                            className="w-full"
-                        >
-                            <List className="h-3.5 w-3.5 mr-1.5" />
-                            Перейти к списку
-                        </Button>
-                    </CardContent>
-                </Card>
-            )}
-
-            {/* 🎯 Список записей - мобильная адаптация */}
+            {/* Список записей */}
             {viewMode === 'list' && isLoading ? (
-                <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
-                    <CardContent className="py-8 text-center">
-                        <div className="flex flex-col items-center gap-3">
-                            <div className="w-10 h-10 border-3 border-amber-200 border-t-amber-600 rounded-full animate-spin"></div>
-                            <p className="text-sm font-semibold text-gray-700">Загрузка записей...</p>
+                <Card className="booking-card border-2">
+                    <CardContent className="py-20 text-center">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin"></div>
+                            <p className="text-lg font-semibold text-gray-700">Загрузка записей...</p>
                         </div>
                     </CardContent>
                 </Card>
             ) : viewMode === 'list' && bookings.length === 0 ? (
-                <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm text-center">
-                    <CardContent className="py-8">
-                        <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-3">
-                            <span className="text-2xl">📭</span>
+                <Card className="booking-card border-2 text-center">
+                    <CardContent className="py-20">
+                        <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-6">
+                            <span className="text-4xl">📭</span>
                         </div>
-                        <h3 className="text-base font-bold text-gray-800 mb-1.5">Записи не найдены</h3>
-                        <p className="text-xs text-gray-600 mb-3">Попробуйте изменить параметры фильтрации</p>
-                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl w-full max-w-xs mx-auto">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Создать запись
+                        <h3 className="text-2xl font-bold text-gray-800 mb-3">Записи не найдены</h3>
+                        <p className="text-gray-600 mb-6">Попробуйте изменить параметры фильтрации или создайте новую запись</p>
+                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl">
+                            <Plus className="h-5 w-5 mr-2" />
+                            Создать первую запись
                         </Button>
                     </CardContent>
                 </Card>
             ) : viewMode === 'list' && (
-                <div className="space-y-3">
-                    {/* 🎯 Сортировка - мобильная адаптация */}
-                    <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
-                        <button
-                            onClick={() => setShowSortOptions(!showSortOptions)}
-                            className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors"
-                        >
-                            <CardTitle className="text-sm flex items-center gap-2 m-0">
-                                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-gray-50 to-primary-50 flex items-center justify-center border-2 border-primary-200/50">
-                                    <ArrowUpDown className="w-3 h-3 text-primary-600" />
-                                </div>
-                                Сортировка
-                            </CardTitle>
-                            {showSortOptions ? (
-                                <ChevronUp className="h-4 w-4 text-gray-500" />
-                            ) : (
-                                <ChevronDown className="h-4 w-4 text-gray-500" />
-                            )}
-                        </button>
-
-                        <CardContent className={`space-y-2 px-3 pt-0 ${!showSortOptions && 'hidden'}`}>
-                            <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-6">
+                    {/* Сортировка */}
+                    <Card className="booking-card border-2">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-base sm:text-lg">Сортировка и выбор</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2">
                                 {[
-                                    { key: 'date' as SortField, label: 'Дата' },
-                                    { key: 'client_name' as SortField, label: 'Имя' },
-                                    { key: 'created_at' as SortField, label: 'Создание' },
-                                    { key: 'status' as SortField, label: 'Статус' },
-                                    { key: 'amount' as SortField, label: 'Сумма' },
-                                ].map(({ key, label }) => (
+                                    { key: 'date' as SortField, label: 'По дате', shortLabel: 'Дата' },
+                                    { key: 'created_at' as SortField, label: 'По созданию', shortLabel: 'Создание' },
+                                    { key: 'status' as SortField, label: 'По статусу', shortLabel: 'Статус' },
+                                    { key: 'amount' as SortField, label: 'По сумме', shortLabel: 'Сумма' },
+                                    { key: 'client_name' as SortField, label: 'По имени', shortLabel: 'Имя' },
+                                ].map(({ key, label, shortLabel }) => (
                                     <button
                                         key={key}
                                         onClick={() => handleSort(key)}
                                         className={cn(
-                                            'px-2 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-between gap-1',
+                                            'px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center gap-1 whitespace-nowrap',
                                             sortField === key
                                                 ? 'bg-primary-500 text-white'
                                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
                                         )}
                                     >
-                                        {label}
+                                        <span className="hidden sm:inline">{label}</span>
+                                        <span className="sm:hidden">{shortLabel}</span>
                                         {sortField === key && (
                                             <ArrowUpDown className={cn(
-                                                "h-2.5 w-2.5 transition-transform",
+                                                "h-3 w-3 transition-transform flex-shrink-0",
                                                 sortDirection === 'desc' && 'rotate-180'
                                             )} />
                                         )}
                                     </button>
                                 ))}
                             </div>
-
                             {bookings.length > 0 && (
-                                <button
-                                    onClick={handleSelectAll}
-                                    className="w-full px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2 justify-center mt-2"
-                                >
-                                    {selectedBookings.size === bookings.length ? (
-                                        <CheckSquare className="h-4 w-4 text-primary-600" />
-                                    ) : (
-                                        <Square className="h-4 w-4 text-gray-400" />
-                                    )}
-                                    {selectedBookings.size === bookings.length ? 'Снять выбор со всех' : 'Выбрать все'}
-                                </button>
+                                <div className="pt-3 border-t-2 border-gray-100">
+                                    <button
+                                        onClick={handleSelectAll}
+                                        className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2"
+                                    >
+                                        {selectedBookings.size === bookings.length ? (
+                                            <CheckSquare className="h-5 w-5 text-primary-600" />
+                                        ) : (
+                                            <Square className="h-5 w-5 text-gray-400" />
+                                        )}
+                                        {selectedBookings.size === bookings.length ? 'Снять выбор со всех' : 'Выбрать все'}
+                                    </button>
+                                </div>
                             )}
                         </CardContent>
                     </Card>
 
-                    {/* 🎯 Список записей по датам - мобильная адаптация */}
+                    {/* Список записей по датам */}
                     {groupedBookings.map(([date, dateBookings]) => (
-                        <Card key={date} className="booking-card border-2 border-gray-200 bg-white shadow-sm">
-                            <CardHeader className="pb-2 px-3 bg-gradient-to-br from-amber-50 to-white border-b border-amber-100">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md flex-shrink-0">
-                                        <Calendar className="h-3 w-3 text-white" />
+                        <Card key={date} className="booking-card border-2">
+                            <CardHeader className="pb-3 sm:pb-4 bg-gradient-to-br from-amber-50 to-white border-b-2 border-amber-100">
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
+                                        <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                                     </div>
-                                    <CardTitle className="text-sm flex-1 min-w-0">
-                                        <span className="truncate block">{format(parseISO(date), 'd MMMM yyyy', { locale: ru })}</span>
+                                    <CardTitle className="text-base sm:text-xl">
+                                        {format(parseISO(date), 'd MMMM yyyy', { locale: ru })}
                                     </CardTitle>
-                                    <span className="text-xs font-medium text-gray-600">
-                                        {dateBookings.length} зап.
-                                    </span>
+                                    <span className="ml-auto text-xs sm:text-sm font-medium text-gray-600">
+                                {dateBookings.length} {dateBookings.length === 1 ? 'запись' : 'записей'}
+                            </span>
                                 </div>
                             </CardHeader>
-                            <CardContent className="p-2 space-y-2">
+                            <CardContent className="p-2 sm:p-4 space-y-2 sm:space-y-3">
                                 {dateBookings.map((booking) => (
-                                    <div key={booking.id} className="booking-card border border-gray-200 p-3 hover:shadow-md transition-all bg-white">
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex items-start gap-2">
+                                    <div key={booking.id} className="booking-card border-2 p-4 sm:p-5 hover:shadow-xl transition-all">
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex items-start gap-3">
                                                 <button
                                                     onClick={() => handleSelectBooking(booking.id)}
-                                                    className="mt-0.5 hover:scale-110 transition-transform flex-shrink-0"
+                                                    className="mt-1 hover:scale-110 transition-transform flex-shrink-0"
                                                 >
                                                     {selectedBookings.has(booking.id) ? (
-                                                        <CheckSquare className="h-4 w-4 text-primary-600" />
+                                                        <CheckSquare className="h-5 w-5 sm:h-6 sm:w-6 text-primary-600" />
                                                     ) : (
-                                                        <Square className="h-4 w-4 text-gray-400" />
+                                                        <Square className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
                                                     )}
                                                 </button>
-                                                <div className="flex-1 min-w-0 space-y-2">
-                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                <div className="flex-1 min-w-0 space-y-3">
+                                                    <div className="flex flex-wrap items-center gap-2">
                                                         <StatusBadge status={booking.status} />
-                                                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
-                                                            <Clock className="h-2.5 w-2.5 text-blue-600 flex-shrink-0" />
-                                                            <span className="text-xs font-bold text-blue-900 whitespace-nowrap">
-                                                                {booking.booking_time}
-                                                            </span>
+                                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
+                                                            <Clock className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+                                                            <span className="text-sm font-bold text-blue-900 whitespace-nowrap">
+                                                        {booking.booking_time}
+                                                    </span>
                                                         </div>
-                                                        <div className="px-1.5 py-0.5 rounded-md bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200">
-                                                            <span className="text-xs font-bold text-purple-900 whitespace-nowrap">
-                                                                {(booking.amount || 0).toLocaleString('ru-RU')} ₽
-                                                            </span>
+                                                        <div className="px-3 py-1.5 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200">
+                                                    <span className="text-sm font-bold text-purple-900 whitespace-nowrap">
+                                                        {(booking.amount || 0).toLocaleString('ru-RU')} ₽
+                                                    </span>
                                                         </div>
                                                     </div>
-                                                    <div className="space-y-1.5">
+                                                    <div className="space-y-2">
+                                                        {/* Кликабельное имя клиента */}
                                                         <Link
                                                             href={`/admin/clients/${booking.client_id}`}
                                                             className="group inline-block"
                                                             onClick={(e) => e.stopPropagation()}
                                                         >
-                                                            <p className="text-sm font-bold text-blue-900 break-words hover:text-primary-700 hover:underline transition-colors flex items-center gap-1">
-                                                                <User className="h-3.5 w-3.5 flex-shrink-0 text-primary-500 group-hover:text-primary-600" />
+                                                            <p className="text-base sm:text-lg font-bold text-blue-900 break-words hover:text-primary-700 hover:underline transition-colors flex items-center gap-2">
+                                                                <User className="h-4 w-4 flex-shrink-0 text-primary-500 group-hover:text-primary-600 transition-colors" />
                                                                 {booking.client_name}
                                                             </p>
                                                         </Link>
-                                                        <div className="space-y-1">
-                                                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                                                        <div className="space-y-1.5">
+                                                            <div className="flex items-center gap-2 text-sm text-gray-600">
                                                                 <span className="flex-shrink-0">📱</span>
                                                                 <span className="break-all">{booking.client_phone}</span>
                                                             </div>
                                                             {booking.client_email && (
-                                                                <div className="flex items-center gap-1 text-xs text-gray-600">
+                                                                <div className="flex items-center gap-2 text-sm text-gray-600">
                                                                     <span className="flex-shrink-0">✉️</span>
                                                                     <span className="break-all">{booking.client_email}</span>
                                                                 </div>
                                                             )}
                                                         </div>
                                                         {booking.product_description && (
-                                                            <div className="mt-1 p-1.5 rounded-md bg-purple-50 border border-purple-200">
-                                                                <p className="text-xs text-purple-900 break-words line-clamp-2">📝 {booking.product_description}</p>
+                                                            <div className="mt-2 p-3 rounded-lg bg-purple-50 border border-purple-200">
+                                                                <p className="text-sm text-purple-900 break-words">📝 {booking.product_description}</p>
                                                             </div>
                                                         )}
                                                         {booking.notes && (
-                                                            <div className="mt-1 p-1.5 rounded-md bg-gray-50 border border-gray-200">
-                                                                <p className="text-xs text-gray-700 italic break-words line-clamp-2">💬 {booking.notes}</p>
+                                                            <div className="mt-2 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                                                                <p className="text-sm text-gray-700 italic break-words">💬 {booking.notes}</p>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            {/* 🎯 Мобильные кнопки - только Детали */}
-                                            <div className="flex flex-wrap gap-1 pt-2 border-t border-gray-100">
+                                            <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t border-gray-100">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setDetailsBooking(booking)}
-                                                    className="text-xs h-7 px-2 flex-1 min-w-[100px]"
+                                                    className="w-full sm:w-auto justify-center sm:justify-start"
                                                 >
-                                                    <Eye className="h-3 w-3 mr-1" />
+                                                    <Eye className="h-4 w-4 mr-2" />
                                                     Детали
                                                 </Button>
-
-                                                {/* Остальные кнопки только в деталях */}
+                                                {/* Кнопка перехода к клиенту */}
+                                                <Button
+                                                    asChild
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    className="w-full sm:w-auto justify-center sm:justify-start"
+                                                >
+                                                    <Link href={`/admin/clients/${booking.client_id}`}>
+                                                        <User className="h-4 w-4 mr-2" />
+                                                        Профиль клиента
+                                                    </Link>
+                                                </Button>
+                                                {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        onClick={() => handleRescheduleOpen(booking)}
+                                                        className="w-full sm:w-auto justify-center sm:justify-start"
+                                                        title="Перенести дату/время записи"
+                                                    >
+                                                        <Edit className="h-4 w-4 mr-2" />
+                                                        Перенести
+                                                    </Button>
+                                                )}
+                                                {booking.status === 'pending_payment' && (
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => handleMarkPaid(booking.id)}
+                                                        className="bg-green-600 hover:bg-green-700 w-full sm:w-auto justify-center sm:justify-start"
+                                                    >
+                                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                                        Оплачено
+                                                    </Button>
+                                                )}
+                                                {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                                                    <Button
+                                                        variant="secondary"
+                                                        size="sm"
+                                                        onClick={() => handleCancel(booking.id)}
+                                                        className="w-full sm:w-auto justify-center sm:justify-start"
+                                                        title="Отменить запись (остается в истории)"
+                                                    >
+                                                        <Ban className="h-4 w-4 mr-2" />
+                                                        Отменить
+                                                    </Button>
+                                                )}
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(booking.id)}
+                                                    className="hover:bg-red-50 hover:text-red-600 w-full sm:w-auto justify-center sm:justify-start"
+                                                    title="Полностью удалить запись из базы"
+                                                >
+                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                    Удалить
+                                                </Button>
                                             </div>
                                         </div>
                                     </div>
@@ -1239,18 +1059,16 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </div>
             )}
 
-            {/* Кнопка "Показать еще" - мобильная адаптация */}
+            {/* Кнопка "Показать еще" */}
             {viewMode === 'list' && (hasMore || isLoadingMore) && (
-                <div className="px-3 sm:px-0">
-                    <LoadMoreButton
-                        onClick={loadMore}
-                        isLoading={isLoadingMore}
-                        hasMore={hasMore}
-                    />
-                </div>
+                <LoadMoreButton
+                    onClick={loadMore}
+                    isLoading={isLoadingMore}
+                    hasMore={hasMore}
+                />
             )}
 
-            {/* 🎯 Модальные окна */}
+            {/* Модальное окно деталей записи */}
             {detailsBooking && (
                 <BookingDetailsModal
                     booking={detailsBooking}

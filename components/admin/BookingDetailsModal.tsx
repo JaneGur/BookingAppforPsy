@@ -16,6 +16,7 @@ import {ru} from "date-fns/locale";
 interface BookingDetailsModalProps {
     booking: Booking | null
     open?: boolean
+    isOpen?: boolean
     onClose: () => void
     onEdit?: (booking: Booking) => void
     onDelete?: (id: number) => void
