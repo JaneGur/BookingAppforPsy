@@ -24,7 +24,14 @@ import {
     ChevronDown,
     ChevronUp,
     Menu,
-    X
+    X,
+    MoreVertical,
+    Phone,
+    MessageSquare,
+    CreditCard,
+    DollarSign,
+    FileText,
+    ArrowLeft
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -71,7 +78,6 @@ function StatusBadge({ status }: { status: Booking['status'] }) {
 }
 
 export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProps) {
-    // 🚀 Optimistic updates hooks
     const updateStatus = useUpdateBookingStatus()
     const deleteBooking = useDeleteBooking()
     const cancelBooking = useCancelBooking()
@@ -93,8 +99,8 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
     const [detailsBooking, setDetailsBooking] = useState<Booking | null>(null)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [showSortOptions, setShowSortOptions] = useState(false)
+    const [showMobileActions, setShowMobileActions] = useState(false)
 
-    // Кнопка "Показать еще" для заказов
     const currentPageRef = useRef(1)
     const [bookings, setBookings] = useState<Booking[]>([])
     const [isLoading, setIsLoading] = useState(false)
@@ -475,99 +481,219 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
     }
 
     return (
-        <div className="space-y-6 sm:space-y-8">
-            {/* Заголовок */}
-            <Card className="booking-card border-2">
-                <CardContent className="p-4 sm:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
-                                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Управление записями</h2>
-                                <p className="text-xs sm:text-sm text-gray-600 mt-1">Все консультации в системе</p>
+        <div className="space-y-4 sm:space-y-8">
+            {/* Мобильное меню действий */}
+            {showMobileActions && (
+                <div className="fixed inset-0 z-50 bg-black/50 md:hidden" onClick={() => setShowMobileActions(false)}>
+                    <div
+                        className="absolute right-0 top-0 h-full w-64 bg-white shadow-xl animate-slideInRight"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="p-4 border-b">
+                            <div className="flex items-center justify-between">
+                                <span className="font-semibold text-gray-900">Действия</span>
+                                <button
+                                    onClick={() => setShowMobileActions(false)}
+                                    className="p-2 hover:bg-gray-100 rounded-lg"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
                             </div>
                         </div>
-                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl w-full sm:w-auto">
+                        <div className="p-4 space-y-3">
+                            <Button
+                                size="sm"
+                                onClick={onCreateBooking}
+                                className="w-full justify-start"
+                            >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Создать запись
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => setShowFilters(true)}
+                                className="w-full justify-start"
+                            >
+                                <Filter className="h-4 w-4 mr-2" />
+                                Фильтры
+                            </Button>
+                            <div className="pt-2 border-t">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setViewMode('list')}
+                                    className={`w-full justify-start ${viewMode === 'list' ? 'bg-primary-50 text-primary-700' : ''}`}
+                                >
+                                    <List className="h-4 w-4 mr-2" />
+                                    Список
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setViewMode('calendar')}
+                                    className={`w-full justify-start ${viewMode === 'calendar' ? 'bg-primary-50 text-primary-700' : ''}`}
+                                >
+                                    <CalendarDays className="h-4 w-4 mr-2" />
+                                    Календарь
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Заголовок - мобильная адаптация */}
+            <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
+                <CardContent className="p-3 sm:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md sm:shadow-lg flex-shrink-0">
+                                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <h2 className="text-base sm:text-2xl font-bold text-gray-900 truncate">Управление записями</h2>
+                                <p className="text-xs text-gray-600 mt-0.5 truncate">Все консультации в системе</p>
+                            </div>
+                        </div>
+
+                        {/* Мобильное меню кнопка */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setShowMobileActions(true)}
+                            className="md:hidden h-8 w-8 flex-shrink-0"
+                        >
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+
+                        {/* Десктопная кнопка */}
+                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl hidden sm:flex">
                             <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                            <span className="hidden sm:inline">Создать запись</span>
-                            <span className="sm:hidden">Создать</span>
+                            Создать запись
                         </Button>
                     </div>
+
+                    {/* Мобильная кнопка создания */}
+                    <Button onClick={onCreateBooking} size="lg" className="shadow-xl w-full mt-3 sm:hidden">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Создать запись
+                    </Button>
                 </CardContent>
             </Card>
 
-            {/* Статистика */}
-            <Card className="booking-card border-2">
-                <CardHeader className="pb-3 px-4 sm:px-6">
-                    <CardTitle className="text-sm sm:text-lg">Статистика записей</CardTitle>
+            {/* Статистика - мобильная адаптация */}
+            <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
+                <CardHeader className="pb-2 px-3 sm:px-6">
+                    <CardTitle className="text-sm sm:text-lg flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gray-50 to-primary-50 flex items-center justify-center border-2 border-primary-200/50">
+                            <Calendar className="w-4 h-4 text-primary-600" />
+                        </div>
+                        Статистика записей
+                    </CardTitle>
                 </CardHeader>
-                <CardContent className="px-4 sm:px-6">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-4">
-                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 border-2 border-amber-200">
-                            <div className="flex items-center justify-between mb-2">
+                <CardContent className="px-3 sm:px-6 pt-0">
+                    <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-5 sm:gap-2">
+                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50 border border-amber-200">
+                            <div className="flex items-center justify-between mb-1 sm:mb-2">
                                 <div className="text-[10px] sm:text-xs font-semibold text-amber-700 uppercase">Всего</div>
-                                <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-amber-600 flex-shrink-0" />
+                                <Calendar className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-amber-600 flex-shrink-0" />
                             </div>
-                            <div className="text-lg sm:text-2xl font-bold text-amber-900">{stats.total}</div>
+                            <div className="text-base sm:text-2xl font-bold text-amber-900">{stats.total}</div>
                         </div>
-                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-yellow-50 to-yellow-100/50 border-2 border-yellow-200">
-                            <div className="flex items-center justify-between mb-2">
+                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-yellow-50 to-yellow-100/50 border border-yellow-200">
+                            <div className="flex items-center justify-between mb-1 sm:mb-2">
                                 <div className="text-[10px] sm:text-xs font-semibold text-yellow-700 uppercase">Ждут</div>
-                                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600 flex-shrink-0" />
+                                <Clock className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-yellow-600 flex-shrink-0" />
                             </div>
-                            <div className="text-lg sm:text-2xl font-bold text-yellow-900">{stats.pending}</div>
+                            <div className="text-base sm:text-2xl font-bold text-yellow-900">{stats.pending}</div>
                         </div>
-                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-green-50 to-green-100/50 border-2 border-green-200">
-                            <div className="flex items-center justify-between mb-2">
+                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-green-50 to-green-100/50 border border-green-200">
+                            <div className="flex items-center justify-between mb-1 sm:mb-2">
                                 <div className="text-[10px] sm:text-xs font-semibold text-green-700 uppercase">Подтв.</div>
-                                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+                                <CheckCircle className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
                             </div>
-                            <div className="text-lg sm:text-2xl font-bold text-green-900">{stats.confirmed}</div>
+                            <div className="text-base sm:text-2xl font-bold text-green-900">{stats.confirmed}</div>
                         </div>
-                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 border-2 border-emerald-200">
-                            <div className="flex items-center justify-between mb-2">
+                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/50 border border-emerald-200">
+                            <div className="flex items-center justify-between mb-1 sm:mb-2">
                                 <div className="text-[10px] sm:text-xs font-semibold text-emerald-700 uppercase">Заверш.</div>
-                                <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
+                                <CheckCircle className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
                             </div>
-                            <div className="text-lg sm:text-2xl font-bold text-emerald-900">{stats.completed}</div>
+                            <div className="text-base sm:text-2xl font-bold text-emerald-900">{stats.completed}</div>
                         </div>
-                        <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 border-2 border-red-200">
-                            <div className="flex items-center justify-between mb-2">
+                        <div className="p-2 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-red-50 to-red-100/50 border border-red-200">
+                            <div className="flex items-center justify-between mb-1 sm:mb-2">
                                 <div className="text-[10px] sm:text-xs font-semibold text-red-700 uppercase">Отмен.</div>
-                                <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                                <XCircle className="h-2.5 w-2.5 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
                             </div>
-                            <div className="text-lg sm:text-2xl font-bold text-red-900">{stats.cancelled}</div>
+                            <div className="text-base sm:text-2xl font-bold text-red-900">{stats.cancelled}</div>
                         </div>
                     </div>
                 </CardContent>
             </Card>
 
-            {/* Фильтры и поиск */}
-            <Card className="booking-card border-2">
-                <CardHeader className="pb-3 px-4 sm:px-6">
-                    <CardTitle className="text-sm sm:text-lg">Поиск и фильтрация</CardTitle>
+            {/* Поиск и фильтры - мобильная адаптация */}
+            <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
+                <CardHeader className="pb-2 px-3 sm:px-6">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm sm:text-lg flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-50 to-primary-50 flex items-center justify-center border-2 border-primary-200/50">
+                                <Search className="w-3.5 h-3.5 text-primary-600" />
+                            </div>
+                            Поиск и фильтрация
+                        </CardTitle>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="sm:hidden h-7 w-7 p-0"
+                        >
+                            {isMobileMenuOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </Button>
+                    </div>
                 </CardHeader>
-                <CardContent className="space-y-4 px-4 sm:px-6">
+                <CardContent className="space-y-3 px-3 sm:px-6">
                     {/* Поиск */}
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
                         <Input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    loadBookings(1, false)
-                                }
-                            }}
                             placeholder="Поиск..."
-                            className="pl-10 text-sm sm:text-base"
+                            className="pl-9 text-sm h-10 sm:h-12"
                         />
                     </div>
 
-                    {/* Быстрые фильтры */}
-                    <div className="flex flex-wrap gap-2">
+                    {/* Быстрые фильтры - мобильная версия */}
+                    <div className="sm:hidden overflow-x-auto pb-2 -mx-3 px-3">
+                        <div className="flex gap-1.5 min-w-max">
+                            {[
+                                { key: 'all' as QuickFilter, label: 'Все', mobile: 'Все' },
+                                { key: 'today' as QuickFilter, label: 'Сегодня', mobile: 'Сегодня' },
+                                { key: 'week' as QuickFilter, label: 'Неделя', mobile: 'Неделя' },
+                                { key: 'month' as QuickFilter, label: 'Месяц', mobile: 'Месяц' },
+                                { key: 'upcoming' as QuickFilter, label: 'Будущие', mobile: 'Будущие' },
+                                { key: 'past' as QuickFilter, label: 'Прошлые', mobile: 'Прошлые' },
+                            ].map(({ key, label, mobile }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => setQuickFilter(key)}
+                                    className={cn(
+                                        'px-3 py-1.5 text-xs font-medium transition-all rounded-lg whitespace-nowrap',
+                                        quickFilter === key
+                                            ? 'bg-primary-500 text-white shadow-md'
+                                            : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
+                                    )}
+                                >
+                                    {mobile}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Быстрые фильтры - десктоп версия */}
+                    <div className="hidden sm:flex flex-wrap gap-2">
                         {[
                             { key: 'all' as QuickFilter, label: 'Все', mobile: 'Все' },
                             { key: 'today' as QuickFilter, label: 'Сегодня', mobile: 'Сегодня' },
@@ -580,66 +706,52 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                 key={key}
                                 onClick={() => setQuickFilter(key)}
                                 className={cn(
-                                    'px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-medium transition-all rounded-lg',
+                                    'px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium transition-all rounded-lg',
                                     quickFilter === key
                                         ? 'bg-primary-500 text-white shadow-md'
                                         : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
                                 )}
                             >
-                                <span className="hidden sm:inline">{label}</span>
-                                <span className="sm:hidden">{mobile}</span>
+                                {label}
                             </button>
                         ))}
                     </div>
 
-                    {/* Мобильное меню */}
-                    <div className="sm:hidden">
-                        <Button
-                            variant="secondary"
-                            className="w-full justify-between"
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        >
+                    {/* Мобильное меню фильтров */}
+                    {isMobileMenuOpen && (
+                        <div className="sm:hidden space-y-3 pt-2 border-t border-gray-200">
                             <div className="flex items-center gap-2">
-                                <Menu className="h-4 w-4" />
-                                Действия
-                            </div>
-                            {isMobileMenuOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                        </Button>
-
-                        {isMobileMenuOpen && (
-                            <div className="mt-2 space-y-2 p-3 bg-gray-50 rounded-lg border">
-                                <div className="flex items-center gap-2">
-                                    <Button
-                                        variant={viewMode === 'list' ? 'default' : 'ghost'}
-                                        size="sm"
-                                        onClick={() => setViewMode('list')}
-                                        className="flex-1"
-                                    >
-                                        <List className="h-4 w-4 mr-2" />
-                                        Список
-                                    </Button>
-                                    <Button
-                                        variant={viewMode === 'calendar' ? 'default' : 'ghost'}
-                                        size="sm"
-                                        onClick={() => setViewMode('calendar')}
-                                        className="flex-1"
-                                    >
-                                        <CalendarDays className="h-4 w-4 mr-2" />
-                                        Календарь
-                                    </Button>
-                                </div>
                                 <Button
-                                    variant="secondary"
+                                    variant={viewMode === 'list' ? 'default' : 'secondary'}
                                     size="sm"
-                                    onClick={() => setShowFilters(!showFilters)}
-                                    className="w-full"
+                                    onClick={() => setViewMode('list')}
+                                    className="flex-1"
                                 >
-                                    <Filter className="h-4 w-4 mr-2" />
-                                    {showFilters ? 'Скрыть фильтры' : 'Показать фильтры'}
+                                    <List className="h-3.5 w-3.5 mr-1.5" />
+                                    Список
+                                </Button>
+                                <Button
+                                    variant={viewMode === 'calendar' ? 'default' : 'secondary'}
+                                    size="sm"
+                                    onClick={() => setViewMode('calendar')}
+                                    className="flex-1"
+                                >
+                                    <CalendarDays className="h-3.5 w-3.5 mr-1.5" />
+                                    Календарь
                                 </Button>
                             </div>
-                        )}
-                    </div>
+
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="w-full"
+                            >
+                                <Filter className="h-3.5 w-3.5 mr-1.5" />
+                                {showFilters ? 'Скрыть фильтры' : 'Показать фильтры'}
+                            </Button>
+                        </div>
+                    )}
 
                     {/* Десктопные кнопки */}
                     <div className="hidden sm:flex items-center justify-between">
@@ -671,9 +783,6 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                 <Filter className="h-4 w-4 mr-2" />
                                 Фильтры
                             </Button>
-                            <Button variant="ghost" size="sm" onClick={() => loadBookings(1, false)}>
-                                Применить
-                            </Button>
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -690,18 +799,19 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                         </div>
                     </div>
 
+                    {/* Расширенные фильтры */}
                     {showFilters && (
-                        <div className="grid gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="grid gap-3 p-3 sm:p-4 bg-gray-50 rounded-lg sm:rounded-xl border border-gray-200">
                             {/* Статусы */}
                             <div>
                                 <label className="text-xs sm:text-sm font-medium text-gray-700 mb-2 block">Статусы</label>
-                                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                                <div className="flex flex-wrap gap-1.5">
                                     {['pending_payment', 'confirmed', 'completed', 'cancelled'].map((status) => (
                                         <button
                                             key={status}
                                             onClick={() => handleStatusToggle(status)}
                                             className={cn(
-                                                'px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium transition-all rounded-lg',
+                                                'px-2.5 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium transition-all rounded-lg whitespace-nowrap',
                                                 selectedStatuses.includes(status)
                                                     ? 'bg-primary-500 text-white'
                                                     : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
@@ -717,14 +827,14 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                             </div>
 
                             {/* Период */}
-                            <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+                            <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
                                 <div>
                                     <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 block">С</label>
                                     <Input
                                         type="date"
                                         value={dateRange.start}
                                         onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                                        className="text-sm"
+                                        className="text-sm h-10"
                                     />
                                 </div>
                                 <div>
@@ -733,7 +843,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                         type="date"
                                         value={dateRange.end}
                                         onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                                        className="text-sm"
+                                        className="text-sm h-10"
                                     />
                                 </div>
                             </div>
@@ -742,26 +852,36 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </CardContent>
             </Card>
 
-            {/* Массовые действия */}
+            {/* Массовые действия - мобильная адаптация */}
             {selectedBookings.size > 0 && (
-                <Card className="booking-card border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-white">
-                    <CardContent className="p-4">
-                        <div className="flex flex-col gap-3">
-                            <div className="flex items-center gap-2">
-                                <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
-                                <span className="font-bold text-primary-900 text-sm sm:text-base">
-                                    Выбрано: {selectedBookings.size}
-                                </span>
+                <Card className="booking-card border-2 border-primary-200 bg-gradient-to-br from-primary-50 to-white shadow-sm">
+                    <CardContent className="p-3">
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+                                    <span className="font-bold text-primary-900 text-sm">
+                                        Выбрано: {selectedBookings.size}
+                                    </span>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelectedBookings(new Set())}
+                                    className="text-xs h-7 px-2"
+                                >
+                                    Сбросить
+                                </Button>
                             </div>
                             <div className="flex flex-wrap gap-1.5">
-                                <Button size="sm" onClick={() => handleBulkStatusChange('confirmed')} className="text-xs">
+                                <Button size="sm" onClick={() => handleBulkStatusChange('confirmed')} className="text-xs h-8 px-2 flex-1 min-w-[100px]">
                                     <CheckCircle className="h-3 w-3 mr-1" />
                                     Подтвердить
                                 </Button>
-                                <Button size="sm" variant="secondary" onClick={() => handleBulkStatusChange('completed')} className="text-xs">
+                                <Button size="sm" variant="secondary" onClick={() => handleBulkStatusChange('completed')} className="text-xs h-8 px-2 flex-1 min-w-[100px]">
                                     Завершить
                                 </Button>
-                                <Button size="sm" variant="secondary" onClick={handleBulkCancel} className="text-xs">
+                                <Button size="sm" variant="secondary" onClick={handleBulkCancel} className="text-xs h-8 px-2 flex-1 min-w-[100px]">
                                     <Ban className="h-3 w-3 mr-1" />
                                     Отменить
                                 </Button>
@@ -769,15 +889,12 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                     size="sm"
                                     variant="secondary"
                                     onClick={handleBulkDelete}
-                                    className="text-xs text-red-600 hover:bg-red-50 border-red-200 hover:border-red-300"
+                                    className="text-xs h-8 px-2 flex-1 min-w-[100px] text-red-600 hover:bg-red-50 border-red-200 hover:border-red-300"
                                 >
                                     <Trash2 className="h-3 w-3 mr-1" />
                                     Удалить
                                 </Button>
                             </div>
-                            <Button size="sm" variant="ghost" onClick={() => setSelectedBookings(new Set())} className="text-xs">
-                                Сбросить выбор
-                            </Button>
                         </div>
                     </CardContent>
                 </Card>
@@ -794,44 +911,45 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                     />
 
                     {selectedDayBookings && selectedDayBookings.length > 0 && (
-                        <Card className="booking-card border-2 mt-4 sm:mt-6">
-                            <CardHeader className="px-4 sm:px-6">
+                        <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm mt-4">
+                            <CardHeader className="px-3 sm:px-6 py-3">
                                 <div className="flex items-center justify-between">
-                                    <CardTitle className="text-sm sm:text-lg">
+                                    <CardTitle className="text-sm sm:text-lg flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-primary-600" />
                                         {format(parseISO(selectedDayBookings[0].booking_date), 'd MMMM yyyy', { locale: ru })}
                                     </CardTitle>
-                                    <Button variant="ghost" size="sm" onClick={() => setSelectedDayBookings([])}>
-                                        <X className="h-4 w-4" />
+                                    <Button variant="ghost" size="sm" onClick={() => setSelectedDayBookings([])} className="h-7 w-7 p-0">
+                                        <X className="h-3.5 w-3.5" />
                                     </Button>
                                 </div>
                             </CardHeader>
-                            <CardContent className="space-y-3 px-4 sm:px-6">
+                            <CardContent className="space-y-2 px-3 sm:px-6 pb-3">
                                 {selectedDayBookings.map((booking) => (
                                     <div
                                         key={booking.id}
                                         onClick={() => setDetailsBooking(booking)}
-                                        className="booking-card border-2 p-3 sm:p-4 hover:shadow-xl transition-all cursor-pointer"
+                                        className="booking-card border-2 p-3 hover:shadow-xl transition-all cursor-pointer bg-white"
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex-1">
-                                                <div className="flex flex-wrap items-center gap-2 mb-2">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex flex-wrap items-center gap-1.5 mb-2">
                                                     <StatusBadge status={booking.status} />
-                                                    <span className="text-xs sm:text-sm font-bold text-blue-900">
+                                                    <span className="text-xs font-bold text-blue-900">
                                                         {booking.booking_time}
                                                     </span>
                                                 </div>
-                                                <p className="font-bold text-gray-900 text-sm sm:text-base">{booking.client_name}</p>
-                                                <p className="text-xs sm:text-sm text-gray-600">{booking.client_phone}</p>
+                                                <p className="font-bold text-gray-900 text-sm truncate">{booking.client_name}</p>
+                                                <p className="text-xs text-gray-600 truncate">{booking.client_phone}</p>
                                             </div>
-                                            <div className="text-right">
-                                                <div className="text-base sm:text-lg font-bold text-primary-600">
+                                            <div className="flex flex-col items-end gap-1">
+                                                <div className="text-sm font-bold text-primary-600">
                                                     {(booking.amount || 0).toLocaleString('ru-RU')} ₽
                                                 </div>
                                                 <Button size="sm" variant="ghost" onClick={(e) => {
                                                     e.stopPropagation()
                                                     setDetailsBooking(booking)
-                                                }}>
-                                                    <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                                                }} className="h-6 w-6 p-0">
+                                                    <Eye className="h-3 w-3" />
                                                 </Button>
                                             </div>
                                         </div>
@@ -843,85 +961,60 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </>
             )}
 
-            {/* Список записей */}
+            {/* Список записей - мобильная адаптация */}
             {viewMode === 'list' && isLoading ? (
-                <Card className="booking-card border-2">
-                    <CardContent className="py-12 sm:py-20 text-center">
-                        <div className="flex flex-col items-center gap-3 sm:gap-4">
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin"></div>
-                            <p className="text-base sm:text-lg font-semibold text-gray-700">Загрузка записей...</p>
+                <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
+                    <CardContent className="py-8 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                            <div className="w-10 h-10 border-3 border-amber-200 border-t-amber-600 rounded-full animate-spin"></div>
+                            <p className="text-sm font-semibold text-gray-700">Загрузка записей...</p>
                         </div>
                     </CardContent>
                 </Card>
             ) : viewMode === 'list' && bookings.length === 0 ? (
-                <Card className="booking-card border-2 text-center">
-                    <CardContent className="py-12 sm:py-20">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-4 sm:mb-6">
-                            <span className="text-3xl sm:text-4xl">📭</span>
+                <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm text-center">
+                    <CardContent className="py-8">
+                        <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center mb-3">
+                            <span className="text-2xl">📭</span>
                         </div>
-                        <h3 className="text-lg sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">Записи не найдены</h3>
-                        <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Попробуйте изменить параметры фильтрации</p>
-                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl">
-                            <Plus className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                        <h3 className="text-base font-bold text-gray-800 mb-1.5">Записи не найдены</h3>
+                        <p className="text-xs text-gray-600 mb-3">Попробуйте изменить параметры фильтрации</p>
+                        <Button onClick={onCreateBooking} size="lg" className="shadow-xl w-full max-w-xs mx-auto">
+                            <Plus className="h-4 w-4 mr-2" />
                             Создать запись
                         </Button>
                     </CardContent>
                 </Card>
             ) : viewMode === 'list' && (
-                <div className="space-y-4 sm:space-y-6">
-                    {/* Сортировка */}
-                    <Card className="booking-card border-2">
-                        <CardHeader className="pb-3 px-4 sm:px-6">
+                <div className="space-y-3">
+                    {/* Сортировка - мобильная адаптация */}
+                    <Card className="booking-card border-2 border-gray-200 bg-white shadow-sm">
+                        <CardHeader className="pb-2 px-3">
                             <div className="flex items-center justify-between">
-                                <CardTitle className="text-sm sm:text-lg">Сортировка и выбор</CardTitle>
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-gray-50 to-primary-50 flex items-center justify-center border-2 border-primary-200/50">
+                                        <ArrowUpDown className="w-3 h-3 text-primary-600" />
+                                    </div>
+                                    Сортировка
+                                </CardTitle>
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="sm:hidden"
+                                    className="sm:hidden h-6 w-6 p-0"
                                     onClick={() => setShowSortOptions(!showSortOptions)}
                                 >
-                                    {showSortOptions ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                    {showSortOptions ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                                 </Button>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-3 px-4 sm:px-6">
-                            {/* Десктопная сортировка */}
-                            <div className="hidden sm:flex sm:flex-wrap items-center gap-2">
-                                {[
-                                    { key: 'date' as SortField, label: 'По дате' },
-                                    { key: 'created_at' as SortField, label: 'По созданию' },
-                                    { key: 'status' as SortField, label: 'По статусу' },
-                                    { key: 'amount' as SortField, label: 'По сумме' },
-                                    { key: 'client_name' as SortField, label: 'По имени' },
-                                ].map(({ key, label }) => (
-                                    <button
-                                        key={key}
-                                        onClick={() => handleSort(key)}
-                                        className={cn(
-                                            'px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1',
-                                            sortField === key
-                                                ? 'bg-primary-500 text-white'
-                                                : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
-                                        )}
-                                    >
-                                        {label}
-                                        {sortField === key && (
-                                            <ArrowUpDown className={cn(
-                                                "h-3 w-3 transition-transform",
-                                                sortDirection === 'desc' && 'rotate-180'
-                                            )} />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-
+                        <CardContent className="space-y-2 px-3 pt-0">
                             {/* Мобильная сортировка */}
                             <div className="sm:hidden">
                                 <div className="flex flex-wrap gap-1.5">
                                     <button
                                         onClick={() => handleSort('date')}
                                         className={cn(
-                                            'px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1',
+                                            'px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 flex-1 min-w-[100px]',
                                             sortField === 'date'
                                                 ? 'bg-primary-500 text-white'
                                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
@@ -938,7 +1031,7 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                     <button
                                         onClick={() => handleSort('client_name')}
                                         className={cn(
-                                            'px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1',
+                                            'px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 flex-1 min-w-[100px]',
                                             sortField === 'client_name'
                                                 ? 'bg-primary-500 text-white'
                                                 : 'bg-white text-gray-700 border border-gray-200 hover:bg-primary-50'
@@ -952,10 +1045,16 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                             )} />
                                         )}
                                     </button>
+                                    <button
+                                        onClick={() => setShowSortOptions(!showSortOptions)}
+                                        className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-white text-gray-700 border border-gray-200 hover:bg-primary-50"
+                                    >
+                                        Ещё
+                                    </button>
                                 </div>
 
                                 {showSortOptions && (
-                                    <div className="mt-2 space-y-1">
+                                    <div className="mt-2 space-y-1.5">
                                         {[
                                             { key: 'created_at' as SortField, label: 'По созданию' },
                                             { key: 'status' as SortField, label: 'По статусу' },
@@ -985,15 +1084,15 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                             </div>
 
                             {bookings.length > 0 && (
-                                <div className="pt-3 border-t-2 border-gray-100">
+                                <div className="pt-2 border-t border-gray-100">
                                     <button
                                         onClick={handleSelectAll}
-                                        className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2 w-full sm:w-auto"
+                                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 transition-all flex items-center gap-2 w-full"
                                     >
                                         {selectedBookings.size === bookings.length ? (
-                                            <CheckSquare className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+                                            <CheckSquare className="h-4 w-4 text-primary-600" />
                                         ) : (
-                                            <Square className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                                            <Square className="h-4 w-4 text-gray-400" />
                                         )}
                                         {selectedBookings.size === bookings.length ? 'Снять выбор со всех' : 'Выбрать все'}
                                     </button>
@@ -1002,110 +1101,108 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                         </CardContent>
                     </Card>
 
-                    {/* Список записей по датам */}
+                    {/* Список записей по датам - мобильная адаптация */}
                     {groupedBookings.map(([date, dateBookings]) => (
-                        <Card key={date} className="booking-card border-2">
-                            <CardHeader className="pb-2 sm:pb-4 px-3 sm:px-6 bg-gradient-to-br from-amber-50 to-white border-b-2 border-amber-100">
-                                <div className="flex items-center gap-2 sm:gap-3">
-                                    <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg">
-                                        <Calendar className="h-3 w-3 sm:h-5 sm:w-5 text-white" />
+                        <Card key={date} className="booking-card border-2 border-gray-200 bg-white shadow-sm">
+                            <CardHeader className="pb-2 px-3 bg-gradient-to-br from-amber-50 to-white border-b border-amber-100">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md flex-shrink-0">
+                                        <Calendar className="h-3 w-3 text-white" />
                                     </div>
-                                    <CardTitle className="text-sm sm:text-xl">
-                                        {format(parseISO(date), 'd MMMM yyyy', { locale: ru })}
+                                    <CardTitle className="text-sm flex-1 min-w-0">
+                                        <span className="truncate block">{format(parseISO(date), 'd MMMM yyyy', { locale: ru })}</span>
                                     </CardTitle>
-                                    <span className="ml-auto text-xs sm:text-sm font-medium text-gray-600">
+                                    <span className="text-xs font-medium text-gray-600">
                                         {dateBookings.length} зап.
                                     </span>
                                 </div>
                             </CardHeader>
-                            <CardContent className="p-2 sm:p-4 space-y-2 sm:space-y-3">
+                            <CardContent className="p-2 space-y-2">
                                 {dateBookings.map((booking) => (
-                                    <div key={booking.id} className="booking-card border-2 p-3 sm:p-5 hover:shadow-xl transition-all">
-                                        <div className="flex flex-col gap-3 sm:gap-4">
-                                            <div className="flex items-start gap-2 sm:gap-3">
+                                    <div key={booking.id} className="booking-card border border-gray-200 p-3 hover:shadow-md transition-all bg-white">
+                                        <div className="flex flex-col gap-2">
+                                            <div className="flex items-start gap-2">
                                                 <button
                                                     onClick={() => handleSelectBooking(booking.id)}
                                                     className="mt-0.5 hover:scale-110 transition-transform flex-shrink-0"
                                                 >
                                                     {selectedBookings.has(booking.id) ? (
-                                                        <CheckSquare className="h-4 w-4 sm:h-6 sm:w-6 text-primary-600" />
+                                                        <CheckSquare className="h-4 w-4 text-primary-600" />
                                                     ) : (
-                                                        <Square className="h-4 w-4 sm:h-6 sm:w-6 text-gray-400" />
+                                                        <Square className="h-4 w-4 text-gray-400" />
                                                     )}
                                                 </button>
-                                                <div className="flex-1 min-w-0 space-y-2 sm:space-y-3">
-                                                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                                                <div className="flex-1 min-w-0 space-y-2">
+                                                    <div className="flex flex-wrap items-center gap-1.5">
                                                         <StatusBadge status={booking.status} />
-                                                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
-                                                            <Clock className="h-3 w-3 text-blue-600 flex-shrink-0" />
-                                                            <span className="text-xs sm:text-sm font-bold text-blue-900 whitespace-nowrap">
+                                                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-gradient-to-br from-blue-50 to-blue-100/50 border border-blue-200">
+                                                            <Clock className="h-2.5 w-2.5 text-blue-600 flex-shrink-0" />
+                                                            <span className="text-xs font-bold text-blue-900 whitespace-nowrap">
                                                                 {booking.booking_time}
                                                             </span>
                                                         </div>
-                                                        <div className="px-2 py-1 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200">
-                                                            <span className="text-xs sm:text-sm font-bold text-purple-900 whitespace-nowrap">
+                                                        <div className="px-1.5 py-0.5 rounded-md bg-gradient-to-br from-purple-50 to-purple-100/50 border border-purple-200">
+                                                            <span className="text-xs font-bold text-purple-900 whitespace-nowrap">
                                                                 {(booking.amount || 0).toLocaleString('ru-RU')} ₽
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <div className="space-y-1.5 sm:space-y-2">
+                                                    <div className="space-y-1.5">
                                                         <Link
                                                             href={`/admin/clients/${booking.client_id}`}
                                                             className="group inline-block"
                                                             onClick={(e) => e.stopPropagation()}
                                                         >
-                                                            <p className="text-sm sm:text-lg font-bold text-blue-900 break-words hover:text-primary-700 hover:underline transition-colors flex items-center gap-1.5">
-                                                                <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0 text-primary-500 group-hover:text-primary-600 transition-colors" />
+                                                            <p className="text-sm font-bold text-blue-900 break-words hover:text-primary-700 hover:underline transition-colors flex items-center gap-1">
+                                                                <User className="h-3.5 w-3.5 flex-shrink-0 text-primary-500 group-hover:text-primary-600" />
                                                                 {booking.client_name}
                                                             </p>
                                                         </Link>
                                                         <div className="space-y-1">
-                                                            <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
+                                                            <div className="flex items-center gap-1 text-xs text-gray-600">
                                                                 <span className="flex-shrink-0">📱</span>
                                                                 <span className="break-all">{booking.client_phone}</span>
                                                             </div>
                                                             {booking.client_email && (
-                                                                <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
+                                                                <div className="flex items-center gap-1 text-xs text-gray-600">
                                                                     <span className="flex-shrink-0">✉️</span>
                                                                     <span className="break-all">{booking.client_email}</span>
                                                                 </div>
                                                             )}
                                                         </div>
                                                         {booking.product_description && (
-                                                            <div className="mt-1.5 p-2 sm:p-3 rounded-lg bg-purple-50 border border-purple-200">
-                                                                <p className="text-xs sm:text-sm text-purple-900 break-words">📝 {booking.product_description}</p>
+                                                            <div className="mt-1 p-1.5 rounded-md bg-purple-50 border border-purple-200">
+                                                                <p className="text-xs text-purple-900 break-words line-clamp-2">📝 {booking.product_description}</p>
                                                             </div>
                                                         )}
                                                         {booking.notes && (
-                                                            <div className="mt-1.5 p-2 sm:p-3 rounded-lg bg-gray-50 border border-gray-200">
-                                                                <p className="text-xs sm:text-sm text-gray-700 italic break-words">💬 {booking.notes}</p>
+                                                            <div className="mt-1 p-1.5 rounded-md bg-gray-50 border border-gray-200">
+                                                                <p className="text-xs text-gray-700 italic break-words line-clamp-2">💬 {booking.notes}</p>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-wrap gap-1.5 pt-2 sm:pt-3 border-t border-gray-100">
+                                            <div className="flex flex-wrap gap-1 pt-2 border-t border-gray-100">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => setDetailsBooking(booking)}
-                                                    className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
+                                                    className="text-xs h-7 px-2"
                                                 >
-                                                    <Eye className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                    <span className="hidden sm:inline">Детали</span>
-                                                    <span className="sm:hidden">Дет.</span>
+                                                    <Eye className="h-3 w-3 mr-1" />
+                                                    Дет.
                                                 </Button>
 
                                                 <Button
                                                     asChild
                                                     variant="secondary"
                                                     size="sm"
-                                                    className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
+                                                    className="text-xs h-7 px-2"
                                                 >
                                                     <Link href={`/admin/clients/${booking.client_id}`}>
-                                                        <User className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                        <span className="hidden sm:inline">Клиент</span>
-                                                        <span className="sm:hidden">Клиент</span>
+                                                        <User className="h-3 w-3 mr-1" />
+                                                        Клиент
                                                     </Link>
                                                 </Button>
 
@@ -1114,12 +1211,11 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                                         variant="secondary"
                                                         size="sm"
                                                         onClick={() => handleRescheduleOpen(booking)}
-                                                        className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
+                                                        className="text-xs h-7 px-2"
                                                         title="Перенести"
                                                     >
-                                                        <Edit className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                        <span className="hidden sm:inline">Перенести</span>
-                                                        <span className="sm:hidden">Перен.</span>
+                                                        <Edit className="h-3 w-3 mr-1" />
+                                                        Перен.
                                                     </Button>
                                                 )}
 
@@ -1127,11 +1223,10 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                                     <Button
                                                         size="sm"
                                                         onClick={() => handleMarkPaid(booking.id)}
-                                                        className="bg-green-600 hover:bg-green-700 text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
+                                                        className="bg-green-600 hover:bg-green-700 text-xs h-7 px-2"
                                                     >
-                                                        <CheckCircle className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                        <span className="hidden sm:inline">Оплачено</span>
-                                                        <span className="sm:hidden">Оплата</span>
+                                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                                        Оплата
                                                     </Button>
                                                 )}
 
@@ -1140,12 +1235,11 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                                         variant="secondary"
                                                         size="sm"
                                                         onClick={() => handleCancel(booking.id)}
-                                                        className="text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
+                                                        className="text-xs h-7 px-2"
                                                         title="Отменить"
                                                     >
-                                                        <Ban className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                        <span className="hidden sm:inline">Отменить</span>
-                                                        <span className="sm:hidden">Отмена</span>
+                                                        <Ban className="h-3 w-3 mr-1" />
+                                                        Отмена
                                                     </Button>
                                                 )}
 
@@ -1153,12 +1247,11 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => handleDelete(booking.id)}
-                                                    className="hover:bg-red-50 hover:text-red-600 text-xs h-8 px-2 sm:h-10 sm:px-3 sm:text-sm"
+                                                    className="hover:bg-red-50 hover:text-red-600 text-xs h-7 px-2"
                                                     title="Удалить"
                                                 >
-                                                    <Trash2 className="h-3 w-3 mr-1 sm:h-4 sm:w-4" />
-                                                    <span className="hidden sm:inline">Удалить</span>
-                                                    <span className="sm:hidden">Удалить</span>
+                                                    <Trash2 className="h-3 w-3 mr-1" />
+                                                    Удалить
                                                 </Button>
                                             </div>
                                         </div>
@@ -1170,9 +1263,9 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                 </div>
             )}
 
-            {/* Кнопка "Показать еще" */}
+            {/* Кнопка "Показать еще" - мобильная адаптация */}
             {viewMode === 'list' && (hasMore || isLoadingMore) && (
-                <div className="px-4 sm:px-0">
+                <div className="px-3 sm:px-0">
                     <LoadMoreButton
                         onClick={loadMore}
                         isLoading={isLoadingMore}

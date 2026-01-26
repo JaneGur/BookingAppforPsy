@@ -26,25 +26,25 @@ export default function ClientSorting({
     return (
         <>
             {/* Мобильная версия */}
-            <Card className="md:hidden border-2 border-gray-200 bg-white shadow-sm">
-                <CardContent className="p-3">
-                    <div className="flex items-center justify-between gap-2">
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={onOpenMobileFilters}
-                            className="flex-1"
-                        >
-                            <Filter className="h-4 w-4 mr-2" />
-                            Фильтры и сортировка
-                        </Button>
-                        <div className="text-xs text-gray-600">
-                            {sortField === 'name' ? 'По имени' : 'По дате'}
-                            {sortDirection === 'desc' ? ' ↓' : ' ↑'}
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            {/*<Card className="md:hidden border-2 border-gray-200 bg-white shadow-sm">*/}
+            {/*    <CardContent className="p-3">*/}
+            {/*        <div className="flex items-center justify-between gap-2">*/}
+            {/*            <Button*/}
+            {/*                variant="secondary"*/}
+            {/*                size="sm"*/}
+            {/*                onClick={onOpenMobileFilters}*/}
+            {/*                className="flex-1"*/}
+            {/*            >*/}
+            {/*                <Filter className="h-4 w-4 mr-2" />*/}
+            {/*                Фильтры и сортировка*/}
+            {/*            </Button>*/}
+            {/*            <div className="text-xs text-gray-600">*/}
+            {/*                {sortField === 'name' ? 'По имени' : 'По дате'}*/}
+            {/*                {sortDirection === 'desc' ? ' ↓' : ' ↑'}*/}
+            {/*            </div>*/}
+            {/*        </div>*/}
+            {/*    </CardContent>*/}
+            {/*</Card>*/}
 
             {/* Десктоп версия */}
             <Card className="hidden md:block booking-card border-2">
