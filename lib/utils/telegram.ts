@@ -8,6 +8,13 @@ import { formatDateRu } from "./date";
 interface TelegramMessage {
     text: string;
     parse_mode?: 'Markdown' | 'HTML';
+    reply_markup?: {
+        inline_keyboard: Array<Array<{
+            text: string;
+            url?: string;
+            callback_data?: string;
+        }>>;
+    };
 }
 
 /**
@@ -56,7 +63,16 @@ export async function sendAdminNotification(message: string): Promise<boolean> {
 /**
  * Отправляет уведомление клиенту в Telegram
  */
-export async function sendClientNotification(chatId: string, message: string): Promise<boolean> {
+export async function sendClientNotification(
+    chatId: string, 
+    message: string,
+    options?: {
+        /** URL личного кабинета для кнопки "Перейти в кабинет" */
+        dashboardUrl?: string;
+        /** Дополнительные inline-кнопки */
+        inlineButtons?: Array<Array<{ text: string; url: string }>>;
+    }
+): Promise<boolean> {
     try {
         const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -76,6 +92,25 @@ export async function sendClientNotification(chatId: string, message: string): P
             text: message,
             parse_mode: 'HTML',
         };
+
+        // Добавляем inline-кнопки если указаны
+        if (options?.dashboardUrl || options?.inlineButtons) {
+            const buttons: Array<Array<{ text: string; url: string }>> = [];
+            
+            // Кнопка личного кабинета
+            if (options.dashboardUrl) {
+                buttons.push([{ text: '🏠 Перейти в личный кабинет', url: options.dashboardUrl }]);
+            }
+            
+            // Дополнительные кнопки
+            if (options.inlineButtons) {
+                buttons.push(...options.inlineButtons);
+            }
+            
+            payload.reply_markup = {
+                inline_keyboard: buttons
+            };
+        }
 
         const response = await fetch(telegramApiUrl, {
             method: 'POST',

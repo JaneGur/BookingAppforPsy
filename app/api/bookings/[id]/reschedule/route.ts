@@ -191,7 +191,14 @@ export async function POST(
                 productName,
                 productDescription,
             )
-            await sendClientNotification(booking.telegram_chat_id, clientMessage)
+            
+            const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
+                ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
+                : 'https://your-domain.com/dashboard';
+            
+            await sendClientNotification(booking.telegram_chat_id, clientMessage, {
+                dashboardUrl
+            })
         }
 
         if (booking.client_email) {

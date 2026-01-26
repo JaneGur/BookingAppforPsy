@@ -230,7 +230,14 @@ export async function POST(request: NextRequest) {
             const bookingDateFormatted = formatDateRu(booking_date);
             const clientMessage = `✅ <b>Запись создана!</b>\n\n📅 <b>Дата:</b> ${bookingDateFormatted}\n⏰ <b>Время:</b> ${booking_time}\n${productName ? `🎯 <b>Услуга:</b> ${productName}\n` : ''}${productDescription ? `📝 <b>Описание:</b> ${productDescription}\n` : ''}💰 <b>Сумма:</b> ${amount.toLocaleString('ru-RU')} ₽\n\n⏳ Ожидайте подтверждения записи.`;
 
-            await sendClientNotification(telegramChatId, clientMessage);
+            // URL личного кабинета (используйте ваш реальный домен)
+            const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
+                ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
+                : 'https://your-domain.com/dashboard';
+
+            await sendClientNotification(telegramChatId, clientMessage, {
+                dashboardUrl
+            });
         }
 
         if (otherFields.client_email) {

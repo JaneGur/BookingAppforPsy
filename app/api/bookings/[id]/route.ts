@@ -118,7 +118,14 @@ export async function PATCH(
                     `${existing.booking.product_description ? `📝 <b>Описание:</b> ${existing.booking.product_description}\n` : ''}` +
                     `<b>Было:</b> ${statusLabels[existing.booking.status] || existing.booking.status}\n` +
                     `<b>Стало:</b> ${statusLabels[body.status] || body.status}`
-                await sendClientNotification(existing.booking.telegram_chat_id, clientMessage)
+                
+                const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
+                    ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
+                    : 'https://your-domain.com/dashboard';
+                
+                await sendClientNotification(existing.booking.telegram_chat_id, clientMessage, {
+                    dashboardUrl
+                })
             }
 
             if (existing.booking.client_email) {

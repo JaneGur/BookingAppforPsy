@@ -126,9 +126,14 @@ export async function GET(request: NextRequest) {
                             hoursUntil: 24,
                         });
 
+                        const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
+                            ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
+                            : 'https://your-domain.com/dashboard';
+
                         const telegramResult = await sendClientNotification(
                             (booking as any).telegram_chat_id,
-                            telegramMessage
+                            telegramMessage,
+                            { dashboardUrl }
                         );
 
                         if (telegramResult) {
@@ -256,9 +261,14 @@ export async function GET(request: NextRequest) {
                             hoursUntil: 1,
                         });
 
+                        const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
+                            ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
+                            : 'https://your-domain.com/dashboard';
+
                         const clientTelegramResult = await sendClientNotification(
                             (booking as any).telegram_chat_id,
-                            telegramMessage
+                            telegramMessage,
+                            { dashboardUrl }
                         );
 
                         if (clientTelegramResult) {

@@ -18,14 +18,18 @@ export async function POST(req: NextRequest) {
 
         const supabase = createServiceRoleSupabaseClient();
 
-        // Ищем пользователя
-        const { data: user, error: userError } = await supabase
+        // Ищем пользователя (case-insensitive для email)
+        let query = supabase
             .from('clients')
-            .select('id, email, phone, name')
-            .or(
-                email ? `email.eq.${email}` : phone ? `phone.eq.${phone}` : ''
-            )
-            .maybeSingle();
+            .select('id, email, phone, name');
+
+        if (email) {
+            query = query.ilike('email', email);
+        } else if (phone) {
+            query = query.eq('phone', phone);
+        }
+
+        const { data: user, error: userError } = await query.maybeSingle();
 
         console.log('🔍 User search result:', {
             found: !!user,

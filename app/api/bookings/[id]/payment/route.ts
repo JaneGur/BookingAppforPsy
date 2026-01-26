@@ -134,7 +134,14 @@ export async function POST(
                 `⏰ <b>Время:</b> ${booking.booking_time}\n` +
                 `${booking.product_description ? `📝 <b>Описание:</b> ${booking.product_description}\n` : ''}` +
                 `Статус записи: подтверждена`
-            await sendClientNotification(booking.telegram_chat_id, clientMessage)
+            
+            const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
+                ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
+                : 'https://your-domain.com/dashboard';
+            
+            await sendClientNotification(booking.telegram_chat_id, clientMessage, {
+                dashboardUrl
+            })
         }
 
         if (booking.client_email) {

@@ -25,10 +25,11 @@ export async function POST(request: NextRequest) {
 
             clientData = data
         } else if (email) {
+            const normalizedEmail = email.toLowerCase().trim()
             const { data } = await supabase
                 .from('clients')
                 .select('id, name, email, phone, password')
-                .eq('email', email.toLowerCase().trim())
+                .ilike('email', normalizedEmail)
                 .maybeSingle()
 
             clientData = data

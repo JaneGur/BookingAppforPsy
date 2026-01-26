@@ -100,11 +100,11 @@ export async function POST(request: NextRequest) {
             clientName = updatedClient.name
             clientEmail = updatedClient.email
         } else if (email) {
-            // Проверяем по email только если не нашли по телефону
+            // Проверяем по email только если не нашли по телефону (case-insensitive)
             const { data: existingByEmail, error: existingByEmailError } = await supabase
                 .from('clients')
                 .select('id, password, name, email')
-                .eq('email', email)
+                .ilike('email', email)
                 .maybeSingle()
 
             if (existingByEmailError) {
