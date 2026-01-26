@@ -32,9 +32,9 @@ interface CreateBookingModalProps {
         telegram?: string
     }
     hideClientStep?: boolean
-    open: boolean
-    clientId: string
-    clientPhone:string
+    open?: boolean
+    clientId?: string
+    clientPhone?:string
 }
 
 export function CreateBookingModal({ onClose, onSuccess, clientPreset, hideClientStep }: CreateBookingModalProps) {
