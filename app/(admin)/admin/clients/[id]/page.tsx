@@ -228,7 +228,7 @@ export default function ClientProfilePage() {
                                 Редактировать
                             </Button>
                             <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
                                 onClick={() => setShowCreateModal(true)}
                                 className="w-full justify-start"
@@ -237,7 +237,7 @@ export default function ClientProfilePage() {
                                 Новая запись
                             </Button>
                             <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
                                 onClick={handleDelete}
                                 className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
