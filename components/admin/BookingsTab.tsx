@@ -660,13 +660,13 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-0">
                         <div className="flex items-center gap-2">
                             <Button
-                                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                                variant="secondary"
                                 size="sm"
-                                onClick={() => setViewMode('list')}
+                                onClick={() => setShowFilters(!showFilters)}
                                 className="flex-1 sm:flex-none h-9"
                             >
-                                <List className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
-                                Список
+                                <Filter className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
+                                Фильтры
                             </Button>
                             <Button
                                 variant={viewMode === 'calendar' ? 'default' : 'ghost'}
@@ -680,15 +680,6 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => setShowFilters(!showFilters)}
-                                className="flex-1 sm:flex-none h-9"
-                            >
-                                <Filter className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
-                                Фильтры
-                            </Button>
                             <Button variant="ghost" size="sm" onClick={() => loadBookings(1, false)} className="h-9">
                                 Применить
                             </Button>
