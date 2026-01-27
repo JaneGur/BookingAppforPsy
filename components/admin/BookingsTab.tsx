@@ -635,10 +635,10 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                         {[
                             { key: 'all' as QuickFilter, label: 'Все' },
                             { key: 'today' as QuickFilter, label: 'Сегодня' },
-                            { key: 'week' as QuickFilter, label: 'Неделя', shortLabel: 'Нед.' },
-                            { key: 'month' as QuickFilter, label: 'Месяц', shortLabel: 'Мес.' },
-                            { key: 'upcoming' as QuickFilter, label: 'Предстоящие', shortLabel: 'Пред.' },
-                            { key: 'past' as QuickFilter, label: 'Прошедшие', shortLabel: 'Прош.' },
+                            { key: 'week' as QuickFilter, label: 'Неделя', shortLabel: 'Неделя' },
+                            { key: 'month' as QuickFilter, label: 'Месяц', shortLabel: 'Месяц' },
+                            { key: 'upcoming' as QuickFilter, label: 'Предстоящие', shortLabel: 'Предст.' },
+                            { key: 'past' as QuickFilter, label: 'Прошедшие', shortLabel: 'Прошед.' },
                         ].map(({ key, label, shortLabel }) => (
                             <button
                                 key={key}
