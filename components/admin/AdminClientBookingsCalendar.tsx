@@ -811,14 +811,14 @@ export function AdminClientBookingsCalendar({
                                     >
                                         Закрыть
                                     </Button>
-                                    <Button
-                                        className="h-9 md:h-10 px-4 md:px-6 text-xs md:text-sm shadow-sm flex-1"
-                                        onClick={() => {
-                                            // Добавить новую запись на эту дату
-                                        }}
-                                    >
-                                        Добавить
-                                    </Button>
+                                    {/*<Button*/}
+                                    {/*    className="h-9 md:h-10 px-4 md:px-6 text-xs md:text-sm shadow-sm flex-1"*/}
+                                    {/*    onClick={() => {*/}
+                                    {/*        // Добавить новую запись на эту дату*/}
+                                    {/*    }}*/}
+                                    {/*>*/}
+                                    {/*    Добавить*/}
+                                    {/*</Button>*/}
                                 </div>
                             </div>
                         </div>
