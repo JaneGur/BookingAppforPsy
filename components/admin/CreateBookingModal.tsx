@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import {useEffect, useMemo, useState} from 'react'
 import {
     addDays,
     addMonths,
@@ -13,26 +13,14 @@ import {
     startOfDay,
     startOfMonth
 } from 'date-fns'
-import { ru } from 'date-fns/locale'
-import {
-    ChevronLeft,
-    ChevronRight,
-    Clock,
-    Mail,
-    MessageSquare,
-    Package,
-    Phone,
-    User,
-    X,
-    Calendar,
-    ArrowLeft,
-    Check,
-    Loader2
-} from 'lucide-react'
-import { cn } from '@/lib/utils/cn'
+import {ru} from 'date-fns/locale'
+import {ChevronLeft, ChevronRight, Clock, Mail, MessageSquare, Package, Phone, User, X} from 'lucide-react'
+import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import {Button} from '@/components/ui/button'
-import { useAvailableSlots } from '@/lib/hooks/useSlots'
-import { useProducts } from '@/lib/hooks/useProducts'
+import {Input} from '@/components/ui/input'
+import {cn} from '@/lib/utils/cn'
+import {useAvailableSlots} from '@/lib/hooks/useSlots'
+import {useProducts} from '@/lib/hooks/useProducts'
 
 interface CreateBookingModalProps {
     onClose: () => void
@@ -46,7 +34,7 @@ interface CreateBookingModalProps {
     hideClientStep?: boolean
     open?: boolean
     clientId?: string
-    clientPhone?: string
+    clientPhone?:string
 }
 
 export function CreateBookingModal({ onClose, onSuccess, clientPreset, hideClientStep }: CreateBookingModalProps) {
@@ -116,6 +104,7 @@ export function CreateBookingModal({ onClose, onSuccess, clientPreset, hideClien
     // Функция для перехода к предыдущему месяцу
     const handlePreviousMonth = () => {
         const prevMonth = addMonths(currentMonth, -1)
+        // Проверяем, что предыдущий месяц не раньше текущего месяца
         if (!isBefore(startOfMonth(prevMonth), startOfMonth(today))) {
             setCurrentMonth(prevMonth)
             setSelectedDate(null)
@@ -126,6 +115,7 @@ export function CreateBookingModal({ onClose, onSuccess, clientPreset, hideClien
     // Функция для перехода к следующему месяцу
     const handleNextMonth = () => {
         const nextMonth = addMonths(currentMonth, 1)
+        // Проверяем, что следующий месяц не позже максимальной даты
         if (!isAfter(startOfMonth(nextMonth), startOfMonth(maxDate))) {
             setCurrentMonth(nextMonth)
             setSelectedDate(null)
@@ -194,590 +184,432 @@ export function CreateBookingModal({ onClose, onSuccess, clientPreset, hideClien
         }
     }
 
-    // Мобильное модальное окно
     return (
-        <div className="fixed inset-0 z-50">
-            {/* Бэкдроп с блюром - как в образце */}
-            <div
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
-                onClick={onClose}
-            />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 md:p-4">
+            <Card className="booking-card max-w-full md:max-w-4xl w-full max-h-full md:max-h-[90vh] overflow-hidden rounded-none md:rounded-3xl border-0 md:border border-gray-200 shadow-none md:shadow-2xl">
+                {/* Заголовок - мобильная адаптация */}
+                <CardHeader className="sticky top-0 z-10 bg-gradient-to-r from-white via-white to-gray-50 border-b border-gray-200 px-4 md:px-6 py-3 md:py-5">
+                    <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg md:text-2xl font-bold text-gray-900">Создать новую запись</CardTitle>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onClose}
+                            className="h-8 w-8 md:h-10 md:w-10 p-0 rounded-lg md:rounded-xl hover:bg-gray-100"
+                        >
+                            <X className="h-4 w-4 md:h-5 md:w-5" />
+                        </Button>
+                    </div>
+                </CardHeader>
 
-            {/* Модальное окно - мобильная адаптация */}
-            <div className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-4xl md:w-full md:max-h-[90vh]">
-                <div className="flex flex-col h-full bg-white md:rounded-3xl md:shadow-2xl md:border md:border-gray-200 overflow-hidden">
-                    {/* Хедер - мобильный */}
-                    <div className="sticky top-0 z-10 bg-gradient-to-r from-white via-white to-gray-50 border-b border-gray-200 px-4 md:px-8 py-3 md:py-5">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3 md:gap-4">
-                                <button
-                                    onClick={() => {
-                                        if (step === 'product') {
-                                            setStep(showClientStep ? 'client' : 'date')
-                                        } else if (step === 'client') {
-                                            setStep('date')
-                                        } else {
-                                            onClose()
-                                        }
-                                    }}
-                                    className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md md:shadow-lg flex-shrink-0"
-                                >
-                                    {step === 'date' ? (
-                                        <X className="h-5 w-5 md:h-7 md:w-7 text-white" />
-                                    ) : (
-                                        <ArrowLeft className="h-5 w-5 md:h-7 md:w-7 text-white" />
-                                    )}
-                                </button>
-                                <div className="max-w-[calc(100%-100px)]">
-                                    <h2 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
-                                        {step === 'date' && 'Выбор даты'}
-                                        {step === 'client' && 'Данные клиента'}
-                                        {step === 'product' && 'Выбор услуги'}
-                                    </h2>
-                                    <p className="text-xs md:text-sm text-gray-500 mt-0.5 flex items-center gap-1 md:gap-2">
-                                        <Calendar className="h-3 w-3 md:h-4 md:w-4 text-gray-400" />
-                                        <span className="truncate">
-                                            {step === 'date' && 'Выберите удобное время'}
-                                            {step === 'client' && 'Заполните контактные данные'}
-                                            {step === 'product' && 'Выберите услугу из списка'}
-                                        </span>
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Индикатор шагов для мобильных */}
-                            <div className="flex md:hidden items-center gap-2">
-                                <div className={cn(
-                                    "w-2 h-2 rounded-full transition-all",
-                                    step === 'date' ? "bg-primary-500" : "bg-gray-300"
-                                )} />
-                                {showClientStep && (
-                                    <div className={cn(
-                                        "w-2 h-2 rounded-full transition-all",
-                                        step === 'client' ? "bg-primary-500" :
-                                            selectedDate && selectedTime ? "bg-primary-300" : "bg-gray-300"
-                                    )} />
-                                )}
-                                <div className={cn(
-                                    "w-2 h-2 rounded-full transition-all",
-                                    step === 'product' ? "bg-primary-500" :
-                                        (showClientStep ? (clientName && clientPhone) : (selectedDate && selectedTime)) ? "bg-primary-300" : "bg-gray-300"
-                                )} />
-                            </div>
-                        </div>
-
-                        {/* Шаги для десктопа */}
-                        <div className="hidden md:flex items-center gap-2 mt-4">
-                            <button
-                                onClick={() => setStep('date')}
-                                className={cn(
-                                    'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                                    step === 'date'
-                                        ? 'bg-primary-500 text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                )}
-                            >
-                                1. Дата и время
-                            </button>
-                            {showClientStep && (
-                                <button
-                                    onClick={() => selectedDate && selectedTime && setStep('client')}
-                                    disabled={!selectedDate || !selectedTime}
-                                    className={cn(
-                                        'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                                        step === 'client'
-                                            ? 'bg-primary-500 text-white shadow-md'
-                                            : selectedDate && selectedTime
-                                                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                : 'bg-gray-50 text-gray-400 cursor-not-allowed'
-                                    )}
-                                >
-                                    2. Клиент
-                                </button>
+                <CardContent className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6 bg-gradient-to-b from-white to-gray-50/50 space-y-4 md:space-y-6">
+                    {/* Шаги - мобильная адаптация */}
+                    <div className="flex items-center gap-1.5 md:gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+                        <button
+                            onClick={() => setStep('date')}
+                            className={cn(
+                                'px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0',
+                                step === 'date'
+                                    ? 'bg-primary-500 text-white shadow-sm'
+                                    : 'bg-gray-100 text-gray-700'
                             )}
+                        >
+                            1. Дата и время
+                        </button>
+                        {showClientStep && (
                             <button
-                                onClick={() =>
-                                    (showClientStep ? (clientName && clientPhone) : (selectedDate && selectedTime)) && setStep('product')
-                                }
-                                disabled={showClientStep ? (!clientName || !clientPhone) : (!selectedDate || !selectedTime)}
+                                onClick={() => selectedDate && selectedTime && setStep('client')}
+                                disabled={!selectedDate || !selectedTime}
                                 className={cn(
-                                    'px-4 py-2 rounded-lg text-sm font-medium transition-all',
-                                    step === 'product'
-                                        ? 'bg-primary-500 text-white shadow-md'
-                                        : (showClientStep ? (clientName && clientPhone) : (selectedDate && selectedTime))
-                                            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    'px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0',
+                                    step === 'client'
+                                        ? 'bg-primary-500 text-white shadow-sm'
+                                        : selectedDate && selectedTime
+                                            ? 'bg-gray-100 text-gray-700'
                                             : 'bg-gray-50 text-gray-400 cursor-not-allowed'
                                 )}
                             >
-                                {showClientStep ? '3. Услуга' : '2. Услуга'}
+                                2. Клиент
                             </button>
-                        </div>
+                        )}
+                        <button
+                            onClick={() =>
+                                (showClientStep ? (clientName && clientPhone) : (selectedDate && selectedTime)) && setStep('product')
+                            }
+                            disabled={showClientStep ? (!clientName || !clientPhone) : (!selectedDate || !selectedTime)}
+                            className={cn(
+                                'px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl text-xs md:text-sm font-medium transition-all whitespace-nowrap flex-shrink-0',
+                                step === 'product'
+                                    ? 'bg-primary-500 text-white shadow-sm'
+                                    : (showClientStep ? (clientName && clientPhone) : (selectedDate && selectedTime))
+                                        ? 'bg-gray-100 text-gray-700'
+                                        : 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                            )}
+                        >
+                            {showClientStep ? '3. Продукт' : '2. Продукт'}
+                        </button>
                     </div>
 
-                    {/* Контент - мобильный */}
-                    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-4 md:py-6 bg-gradient-to-b from-white to-gray-50/50">
-                        {error && (
-                            <div className="mb-4 md:mb-6 bg-red-50 border border-red-200 p-4 rounded-xl">
-                                <p className="text-sm text-red-800">{error}</p>
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 p-3 md:p-4 rounded-xl">
+                            <p className="text-xs md:text-sm text-red-800">{error}</p>
+                        </div>
+                    )}
+
+                    {/* Шаг 1: Дата и время */}
+                    {step === 'date' && (
+                        <div className="space-y-4">
+                            <div className="text-xs md:text-sm text-gray-600 bg-primary-50/50 p-2 md:p-3 rounded-lg">
+                                ⏰ Всё время указано по Москве (МСК)
                             </div>
-                        )}
 
-                        {/* Шаг 1: Дата и время */}
-                        {step === 'date' && (
-                            <div className="space-y-4 md:space-y-6">
-                                <div className="text-xs md:text-sm text-gray-600 mb-4 bg-primary-50/50 p-3 rounded-lg border border-primary-100">
-                                    <div className="flex items-center gap-2">
-                                        <Clock className="h-4 w-4 text-primary-500" />
-                                        <span>⏰ Всё время указано по Москве (МСК)</span>
-                                    </div>
-                                </div>
-
-                                {/* Навигация месяца - мобильная */}
-                                <div className="sticky top-0 bg-white py-2 mb-4 border-b border-gray-100 z-10">
-                                    <div className="flex items-center justify-between">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={handlePreviousMonth}
-                                            disabled={!canNavigateBack()}
-                                            className="h-8 w-8 md:h-10 md:w-10 p-0 rounded-xl hover:bg-gray-100"
-                                        >
-                                            <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
-                                        </Button>
-
-                                        <div className="text-sm md:text-base font-bold text-gray-900 text-center px-4 py-1.5 bg-gray-100 rounded-xl">
-                                            {format(currentMonth, 'LLLL yyyy', { locale: ru })}
+                            <div>
+                                <div className="flex items-center justify-between mb-3 md:mb-4">
+                                    <label className="text-sm md:text-base font-semibold text-gray-900">Выберите дату</label>
+                                    <div className="flex items-center gap-2 md:gap-4">
+                                        <div className="text-xs md:text-sm font-medium text-gray-700">
+                                            {format(currentMonth, 'MMMM yyyy', { locale: ru })}
                                         </div>
-
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={handleNextMonth}
-                                            disabled={!canNavigateForward()}
-                                            className="h-8 w-8 md:h-10 md:w-10 p-0 rounded-xl hover:bg-gray-100"
-                                        >
-                                            <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
-                                        </Button>
+                                        <div className="flex gap-1 md:gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={handlePreviousMonth}
+                                                disabled={!canNavigateBack()}
+                                                className="h-7 w-7 md:h-8 md:w-8 p-0"
+                                            >
+                                                <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={handleNextMonth}
+                                                disabled={!canNavigateForward()}
+                                                className="h-7 w-7 md:h-8 md:w-8 p-0"
+                                            >
+                                                <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
 
                                 {/* Информация о доступном периоде */}
-                                <div className="text-xs md:text-sm text-gray-500 bg-blue-50 border border-blue-100 rounded-xl p-3 mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="h-4 w-4 text-blue-500" />
-                                        <span>
-                                            📅 Доступны даты с {format(today, 'd MMMM', { locale: ru })} по {format(maxDate, 'd MMMM yyyy', { locale: ru })}
-                                        </span>
-                                    </div>
+                                <div className="mb-3 text-xs md:text-sm text-gray-500 text-center bg-blue-50 border border-blue-100 rounded-lg p-2">
+                                    📅 Доступны даты с {format(today, 'd MMMM', { locale: ru })} по {format(maxDate, 'd MMMM yyyy', { locale: ru })}
                                 </div>
 
-                                {/* Календарь */}
-                                <div className="bg-white rounded-xl border border-gray-200 p-3 md:p-4">
-                                    <div className="grid grid-cols-7 gap-1 md:gap-2 mb-3">
-                                        {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) => (
-                                            <div key={day} className="text-center text-xs font-semibold text-gray-500 py-2">
-                                                {day}
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {monthDays.length === 0 ? (
-                                        <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                            <p className="text-gray-500 text-sm">В этом месяце нет доступных дат</p>
+                                <div className="grid grid-cols-7 gap-1 md:gap-2 mb-2">
+                                    {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) => (
+                                        <div key={day} className="text-center text-[10px] md:text-xs font-semibold text-gray-500 py-1 md:py-2">
+                                            {day}
                                         </div>
-                                    ) : (
-                                        <div className="grid grid-cols-7 gap-1 md:gap-2">
-                                            {Array.from({ length: emptyCells }).map((_, i) => (
-                                                <div key={`empty-${i}`} className="p-1" />
-                                            ))}
+                                    ))}
+                                </div>
 
-                                            {monthDays.map((date) => {
-                                                const dateStr = format(date, 'yyyy-MM-dd')
-                                                const isSelected = selectedDate && dateStr === format(selectedDate, 'yyyy-MM-dd')
-                                                const isToday = dateStr === format(today, 'yyyy-MM-dd')
-                                                const isBlocked = blockedDays.has(dateStr)
-                                                const isAvailable = !isBlocked
+                                {monthDays.length === 0 ? (
+                                    <div className="text-center py-6 md:py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                        <p className="text-gray-500 text-xs md:text-sm">В этом месяце нет доступных дат</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-7 gap-1 md:gap-2">
+                                        {/* Пустые ячейки */}
+                                        {Array.from({ length: emptyCells }).map((_, i) => (
+                                            <div key={`empty-${i}`} className="p-2 md:p-3" />
+                                        ))}
 
-                                                return (
-                                                    <button
-                                                        key={date.toISOString()}
-                                                        onClick={() => isAvailable && setSelectedDate(date)}
-                                                        disabled={!isAvailable}
+                                        {monthDays.map((date) => {
+                                            const dateStr = format(date, 'yyyy-MM-dd')
+                                            const isSelected = selectedDate && dateStr === format(selectedDate, 'yyyy-MM-dd')
+                                            const isToday = dateStr === format(today, 'yyyy-MM-dd')
+                                            const isBlocked = blockedDays.has(dateStr)
+                                            const isAvailable = !isBlocked
+
+                                            return (
+                                                <button
+                                                    key={date.toISOString()}
+                                                    onClick={() => isAvailable && setSelectedDate(date)}
+                                                    disabled={!isAvailable}
+                                                    className={cn(
+                                                        'flex flex-col items-center justify-center p-2 md:p-3 rounded-lg md:rounded-xl transition-all border shadow-sm',
+                                                        isAvailable && 'hover:border-primary-300 hover:bg-primary-50 cursor-pointer',
+                                                        !isAvailable && 'opacity-40 cursor-not-allowed border-red-200 bg-red-50',
+                                                        isSelected &&
+                                                        'bg-gradient-to-br from-primary-400 to-primary-500 text-white border-primary-500 shadow-lg',
+                                                        !isSelected && isAvailable && 'border-gray-200 bg-white'
+                                                    )}
+                                                >
+                                                    <span
                                                         className={cn(
-                                                            'flex flex-col items-center justify-center p-2 md:p-3 rounded-lg md:rounded-xl transition-all border shadow-sm h-14 md:h-16',
-                                                            isAvailable && 'hover:border-primary-300 hover:bg-primary-50 cursor-pointer active:scale-95',
-                                                            !isAvailable && 'opacity-40 cursor-not-allowed border-red-200 bg-red-50',
-                                                            isSelected &&
-                                                            'bg-gradient-to-br from-primary-400 to-primary-500 text-white border-primary-500 shadow-lg shadow-primary-200',
-                                                            !isSelected && isAvailable && 'border-gray-200 bg-white'
+                                                            'text-[9px] md:text-xs uppercase mb-0.5 md:mb-1',
+                                                            isSelected ? 'text-white/90' : isAvailable ? 'text-gray-500' : 'text-gray-400'
                                                         )}
                                                     >
+                                                        {format(date, 'EEE', { locale: ru })}
+                                                    </span>
+                                                    <span
+                                                        className={cn(
+                                                            'text-base md:text-xl font-bold',
+                                                            isSelected ? 'text-white' : isAvailable ? 'text-gray-900' : 'text-gray-400'
+                                                        )}
+                                                    >
+                                                        {format(date, 'd')}
+                                                    </span>
+                                                    {isToday && (
                                                         <span
                                                             className={cn(
-                                                                'text-[10px] md:text-xs uppercase mb-1',
-                                                                isSelected ? 'text-white/90' : isAvailable ? 'text-gray-500' : 'text-gray-400'
+                                                                'text-[8px] md:text-[10px] mt-0.5 md:mt-1 px-1.5 md:px-2 py-0.5 rounded-full',
+                                                                isSelected
+                                                                    ? 'bg-white/20 text-white'
+                                                                    : 'bg-primary-100 text-primary-700'
                                                             )}
                                                         >
-                                                            {format(date, 'EEEEEE', { locale: ru })}
+                                                            Сегодня
                                                         </span>
-                                                        <span
-                                                            className={cn(
-                                                                'text-sm md:text-xl font-bold',
-                                                                isSelected ? 'text-white' : isAvailable ? 'text-gray-900' : 'text-gray-400'
-                                                            )}
-                                                        >
-                                                            {format(date, 'd')}
-                                                        </span>
-                                                        {isToday && !isSelected && (
-                                                            <span className="text-[8px] md:text-[10px] mt-1 px-1.5 md:px-2 py-0.5 rounded-full bg-primary-100 text-primary-700">
-                                                                Сегодня
-                                                            </span>
+                                                    )}
+                                                    {isBlocked && !isSelected && (
+                                                        <span className="text-[10px] mt-0.5 md:mt-1 text-red-600">🚫</span>
+                                                    )}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Выбранная дата */}
+                            {selectedDate && (
+                                <div className="bg-primary-50/50 p-3 md:p-4 rounded-xl">
+                                    <div className="text-xs md:text-sm font-medium text-gray-600 mb-1">Выбранная дата</div>
+                                    <div className="text-base md:text-lg font-semibold text-gray-900">
+                                        {format(selectedDate, 'd MMMM yyyy', { locale: ru })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Выбор времени */}
+                            {selectedDate && (
+                                <div>
+                                    <div className="flex items-center gap-2 mb-3 md:mb-4">
+                                        <Clock className="w-4 h-4 md:w-5 md:h-5 text-primary-500" />
+                                        <label className="text-sm md:text-base font-semibold text-gray-900">Выберите время</label>
+                                    </div>
+
+                                    {isSlotsLoading ? (
+                                        <div className="text-center py-6 md:py-8">
+                                            <div className="inline-block h-5 w-5 md:h-6 md:w-6 animate-spin rounded-full border-3 border-solid border-primary-400 border-r-transparent"></div>
+                                        </div>
+                                    ) : availableSlots && availableSlots.length > 0 ? (
+                                        <>
+                                            <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4 bg-green-50 border border-green-200 p-2 md:p-3 rounded-lg">
+                                                ✅ Доступно {availableSlots.length}{' '}
+                                                {availableSlots.length === 1 ? 'слот' : 'слотов'} на{' '}
+                                                {format(selectedDate, 'd MMMM', { locale: ru })}
+                                            </p>
+                                            <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
+                                                {availableSlots.map((slot) => (
+                                                    <Button
+                                                        key={slot}
+                                                        variant={selectedTime === slot ? 'default' : 'secondary'}
+                                                        onClick={() => setSelectedTime(slot)}
+                                                        className={cn(
+                                                            'h-10 md:h-12 text-xs md:text-sm',
+                                                            selectedTime === slot && 'ring-2 ring-primary-300'
                                                         )}
-                                                        {isBlocked && !isSelected && (
-                                                            <span className="text-[8px] md:text-[10px] mt-1 text-red-600">🚫</span>
-                                                        )}
-                                                    </button>
-                                                )
-                                            })}
+                                                    >
+                                                        {slot}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="text-center py-6 md:py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                            <p className="text-gray-500 text-xs md:text-sm">На эту дату нет свободных слотов</p>
                                         </div>
                                     )}
                                 </div>
+                            )}
 
-                                {/* Выбранная дата */}
-                                {selectedDate && (
-                                    <div className="bg-gradient-to-r from-primary-50 to-primary-100/50 border border-primary-200 rounded-xl p-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-primary-500 flex items-center justify-center flex-shrink-0">
-                                                <Calendar className="h-5 w-5 text-white" />
-                                            </div>
-                                            <div>
-                                                <div className="text-xs md:text-sm font-medium text-primary-600">Выбранная дата</div>
-                                                <div className="text-base md:text-lg font-bold text-gray-900">
-                                                    {format(selectedDate, 'd MMMM yyyy', { locale: ru })}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Выбор времени */}
-                                {selectedDate && (
-                                    <div className="bg-white rounded-xl border border-gray-200 p-4">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center flex-shrink-0">
-                                                <Clock className="h-5 w-5 text-white" />
-                                            </div>
-                                            <div>
-                                                <div className="text-base md:text-lg font-bold text-gray-900">Выберите время</div>
-                                                <div className="text-xs md:text-sm text-gray-600">Доступные слоты</div>
-                                            </div>
-                                        </div>
-
-                                        {isSlotsLoading ? (
-                                            <div className="text-center py-8">
-                                                <Loader2 className="h-6 w-6 animate-spin text-primary-500 mx-auto mb-2" />
-                                                <p className="text-sm text-gray-500">Загрузка доступного времени...</p>
-                                            </div>
-                                        ) : availableSlots && availableSlots.length > 0 ? (
-                                            <>
-                                                <div className="mb-4 text-xs md:text-sm text-green-600 bg-green-50 border border-green-200 p-3 rounded-lg">
-                                                    ✅ Доступно {availableSlots.length} {availableSlots.length === 1 ? 'слот' : 'слотов'} на{' '}
-                                                    {format(selectedDate, 'd MMMM', { locale: ru })}
-                                                </div>
-                                                <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
-                                                    {availableSlots.map((slot) => (
-                                                        <button
-                                                            key={slot}
-                                                            onClick={() => setSelectedTime(slot)}
-                                                            className={cn(
-                                                                'h-12 md:h-14 rounded-lg md:rounded-xl border transition-all font-medium',
-                                                                'active:scale-95',
-                                                                selectedTime === slot
-                                                                    ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white border-primary-600 shadow-md'
-                                                                    : 'bg-white border-gray-300 text-gray-900 hover:border-primary-400 hover:bg-primary-50'
-                                                            )}
-                                                        >
-                                                            {slot}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                                <p className="text-gray-500">На эту дату нет свободных слотов</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Кнопка продолжения */}
-                                {selectedDate && selectedTime && (
-                                    <button
-                                        onClick={() => setStep(showClientStep ? 'client' : 'product')}
-                                        className="w-full h-12 md:h-14 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <span>Продолжить</span>
-                                        <ChevronRight className="h-5 w-5" />
-                                    </button>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Шаг 2: Данные клиента */}
-                        {showClientStep && step === 'client' && (
-                            <div className="space-y-4 md:space-y-6">
-                                <div className="bg-white rounded-xl border border-gray-200 p-4">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                                                <User className="h-4 w-4 text-primary-500" />
-                                                Имя *
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    value={clientName}
-                                                    onChange={(e) => setClientName(e.target.value)}
-                                                    placeholder="Имя клиента"
-                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                                                <Phone className="h-4 w-4 text-primary-500" />
-                                                Телефон *
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    value={clientPhone}
-                                                    onChange={(e) => setClientPhone(e.target.value)}
-                                                    placeholder="+7 (999) 999-99-99"
-                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                                                <Mail className="h-4 w-4 text-primary-500" />
-                                                Email
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="email"
-                                                    value={clientEmail}
-                                                    onChange={(e) => setClientEmail(e.target.value)}
-                                                    placeholder="email@example.com"
-                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                                                <MessageSquare className="h-4 w-4 text-primary-500" />
-                                                Telegram
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    value={clientTelegram}
-                                                    onChange={(e) => setClientTelegram(e.target.value)}
-                                                    placeholder="@username"
-                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
+                            {selectedTime && (
+                                <div className="bg-green-50 border border-green-200 p-3 md:p-4 rounded-xl">
+                                    <p className="text-xs md:text-sm text-green-800">
+                                        ✅ Выбрано: <strong>{format(selectedDate!, 'd MMMM yyyy', { locale: ru })} в {selectedTime}</strong>
+                                    </p>
                                 </div>
+                            )}
+                        </div>
+                    )}
 
-                                {/* Заметки */}
-                                <div className="bg-white rounded-xl border border-gray-200 p-4">
-                                    <label className="text-sm font-medium text-gray-700 mb-3 block">Примечания</label>
-                                    <textarea
-                                        value={notes}
-                                        onChange={(e) => setNotes(e.target.value)}
-                                        placeholder="Дополнительная информация..."
-                                        className="w-full min-h-[120px] p-4 rounded-xl border border-gray-300 bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"
+                    {/* Шаг 2: Данные клиента */}
+                    {showClientStep && step === 'client' && (
+                        <div className="space-y-4">
+                            <div className="grid gap-3 md:gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                                        <User className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                                        Имя *
+                                    </label>
+                                    <Input
+                                        value={clientName}
+                                        onChange={(e) => setClientName(e.target.value)}
+                                        placeholder="Имя клиента"
+                                        required
+                                        className="h-10 md:h-11 text-sm md:text-base"
                                     />
                                 </div>
-
-                                {/* Кнопки навигации */}
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => setStep('date')}
-                                        className="flex-1 h-12 bg-gray-100 text-gray-900 font-medium rounded-xl border border-gray-300 hover:bg-gray-200 active:scale-95 transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <ChevronLeft className="h-4 w-4" />
-                                        Назад
-                                    </button>
-                                    <button
-                                        onClick={() => setStep('product')}
-                                        disabled={!clientName || !clientPhone}
-                                        className={cn(
-                                            "flex-1 h-12 font-medium rounded-xl transition-all flex items-center justify-center gap-2",
-                                            clientName && clientPhone
-                                                ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg hover:shadow-xl active:scale-95"
-                                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        )}
-                                    >
-                                        <span>Продолжить</span>
-                                        <ChevronRight className="h-4 w-4" />
-                                    </button>
+                                <div>
+                                    <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                                        <Phone className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                                        Телефон *
+                                    </label>
+                                    <Input
+                                        value={clientPhone}
+                                        onChange={(e) => setClientPhone(e.target.value)}
+                                        placeholder="+7 (999) 999-99-99"
+                                        required
+                                        className="h-10 md:h-11 text-sm md:text-base"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                                        <Mail className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                                        Email
+                                    </label>
+                                    <Input
+                                        type="email"
+                                        value={clientEmail}
+                                        onChange={(e) => setClientEmail(e.target.value)}
+                                        placeholder="email@example.com"
+                                        className="h-10 md:h-11 text-sm md:text-base"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
+                                        <MessageSquare className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                                        Telegram
+                                    </label>
+                                    <Input
+                                        value={clientTelegram}
+                                        onChange={(e) => setClientTelegram(e.target.value)}
+                                        placeholder="@username"
+                                        className="h-10 md:h-11 text-sm md:text-base"
+                                    />
                                 </div>
                             </div>
-                        )}
-
-                        {/* Шаг 3: Продукт */}
-                        {step === 'product' && (
-                            <div className="space-y-4 md:space-y-6">
-                                <div className="bg-white rounded-xl border border-gray-200 p-4">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
-                                            <Package className="h-5 w-5 text-white" />
-                                        </div>
-                                        <div>
-                                            <div className="text-base md:text-lg font-bold text-gray-900">Выберите услугу</div>
-                                            <div className="text-xs md:text-sm text-gray-600">* Обязательное поле</div>
-                                        </div>
-                                    </div>
-
-                                    {products.length === 0 ? (
-                                        <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                            <p className="text-gray-500">Нет доступных услуг</p>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            {products.map((product) => {
-                                                const isSelected = selectedProductId === product.id
-                                                return (
-                                                    <button
-                                                        key={product.id}
-                                                        type="button"
-                                                        onClick={() => setSelectedProductId(product.id)}
-                                                        className={cn(
-                                                            'relative p-4 rounded-xl border transition-all text-left w-full group',
-                                                            'active:scale-[0.98]',
-                                                            isSelected
-                                                                ? 'border-primary-500 bg-gradient-to-r from-primary-50 to-primary-100/50 shadow-md'
-                                                                : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm'
-                                                        )}
-                                                    >
-                                                        {isSelected && (
-                                                            <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-md">
-                                                                <Check className="h-3 w-3 text-white" />
-                                                            </div>
-                                                        )}
-                                                        <div className="flex items-start gap-3">
-                                                            <div className={cn(
-                                                                "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm",
-                                                                isSelected ? "bg-primary-500" : "bg-gray-100"
-                                                            )}>
-                                                                <Package className={cn(
-                                                                    "h-5 w-5",
-                                                                    isSelected ? "text-white" : "text-gray-400"
-                                                                )} />
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="font-bold text-gray-900 mb-1 pr-8">{product.name}</div>
-                                                                {product.description && (
-                                                                    <div className="text-sm text-gray-600 mb-2 line-clamp-2">{product.description}</div>
-                                                                )}
-                                                                <div className="text-xl font-bold text-primary-600">
-                                                                    {product.price_rub.toLocaleString('ru-RU')} ₽
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </button>
-                                                )
-                                            })}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Выбранные данные */}
-                                {(selectedDate && selectedTime) && (
-                                    <div className="bg-gradient-to-r from-gray-50 to-gray-100/50 border border-gray-200 rounded-xl p-4">
-                                        <div className="space-y-3">
-                                            <div className="flex items-center justify-between">
-                                                <div className="text-sm text-gray-600">Дата и время:</div>
-                                                <div className="text-sm font-bold text-gray-900">
-                                                    {format(selectedDate, 'd MMMM yyyy', { locale: ru })} в {selectedTime}
-                                                </div>
-                                            </div>
-                                            {showClientStep && clientName && (
-                                                <div className="flex items-center justify-between">
-                                                    <div className="text-sm text-gray-600">Клиент:</div>
-                                                    <div className="text-sm font-bold text-gray-900">{clientName}</div>
-                                                </div>
-                                            )}
-                                            {selectedProductId && (
-                                                <div className="flex items-center justify-between">
-                                                    <div className="text-sm text-gray-600">Услуга:</div>
-                                                    <div className="text-sm font-bold text-gray-900">
-                                                        {products.find(p => p.id === selectedProductId)?.name}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Кнопки навигации */}
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={() => setStep(showClientStep ? 'client' : 'date')}
-                                        className="flex-1 h-12 bg-gray-100 text-gray-900 font-medium rounded-xl border border-gray-300 hover:bg-gray-200 active:scale-95 transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <ChevronLeft className="h-4 w-4" />
-                                        Назад
-                                    </button>
-                                    <button
-                                        onClick={handleCreate}
-                                        disabled={!selectedProductId || isSubmitting}
-                                        className={cn(
-                                            "flex-1 h-12 font-medium rounded-xl transition-all flex items-center justify-center gap-2",
-                                            selectedProductId && !isSubmitting
-                                                ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg hover:shadow-xl active:scale-95"
-                                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        )}
-                                    >
-                                        {isSubmitting ? (
-                                            <>
-                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                                Создание...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Check className="h-4 w-4" />
-                                                Создать запись
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Футер - мобильный */}
-                    <div className="sticky bottom-0 bg-gradient-to-t from-white via-white to-white/95 border-t border-gray-200 px-4 md:px-8 py-3 md:py-4 backdrop-blur-sm">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0">
-                            <div className="text-xs md:text-sm text-gray-500 text-center md:text-left">
-                                {step === 'date' && 'Выберите дату и время'}
-                                {step === 'client' && 'Заполните данные клиента'}
-                                {step === 'product' && 'Подтвердите создание записи'}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={onClose}
-                                    className="h-9 md:h-10 px-4 md:px-6 text-xs md:text-sm border border-gray-300 rounded-xl hover:bg-gray-50 active:scale-95 transition-all flex-1 font-medium"
-                                >
-                                    Отмена
-                                </button>
+                            <div>
+                                <label className="text-xs md:text-sm font-medium text-gray-700 mb-2 block">Примечания</label>
+                                <textarea
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    placeholder="Дополнительная информация..."
+                                    className="flex min-h-[80px] md:min-h-[100px] w-full rounded-xl border border-primary-200/30 bg-white/95 backdrop-blur-sm px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/15 focus-visible:border-primary-400/60 focus-visible:shadow-md resize-none shadow-sm"
+                                />
                             </div>
                         </div>
-                    </div>
+                    )}
+
+                    {/* Шаг 3: Продукт */}
+                    {step === 'product' && (
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-xs md:text-sm font-medium text-gray-700 mb-3 block flex items-center gap-2">
+                                    <Package className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                                    Продукт *
+                                </label>
+                                {products.length === 0 ? (
+                                    <div className="text-center py-6 md:py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                        <p className="text-gray-500 text-xs md:text-sm">Нет доступных продуктов</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-2 md:gap-3 sm:grid-cols-2">
+                                        {products.map((product) => {
+                                            const isSelected = selectedProductId === product.id
+                                            return (
+                                                <button
+                                                    key={product.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedProductId(product.id)}
+                                                    className={cn(
+                                                        'relative p-3 md:p-4 rounded-xl border transition-all text-left shadow-sm',
+                                                        'hover:border-primary-300 hover:shadow-md',
+                                                        isSelected
+                                                            ? 'border-primary-500 bg-primary-50 shadow-md'
+                                                            : 'border-gray-200 bg-white'
+                                                    )}
+                                                >
+                                                    {isSelected && (
+                                                        <div className="absolute top-2 right-2">
+                                                            <div className="h-5 w-5 md:h-6 md:w-6 rounded-full bg-primary-500 flex items-center justify-center">
+                                                                <span className="text-white text-xs">✓</span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    <div className="font-semibold text-sm md:text-base text-gray-900 mb-1 pr-7 md:pr-8">{product.name}</div>
+                                                    {product.description && (
+                                                        <div className="text-xs md:text-sm text-gray-600 mb-2">{product.description}</div>
+                                                    )}
+                                                    <div className="text-lg md:text-xl font-bold text-primary-600">
+                                                        {product.price_rub.toLocaleString('ru-RU')} ₽
+                                                    </div>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </CardContent>
+
+                {/* Футер - мобильная адаптация */}
+                <div className="sticky bottom-0 bg-gradient-to-t from-white via-white to-white/95 border-t border-gray-200 px-4 md:px-6 py-3 md:py-4">
+                    {step === 'date' && selectedDate && selectedTime && (
+                        <Button
+                            onClick={() => setStep(showClientStep ? 'client' : 'product')}
+                            className="w-full h-10 md:h-11 text-sm md:text-base shadow-sm"
+                        >
+                            Продолжить →
+                        </Button>
+                    )}
+
+                    {showClientStep && step === 'client' && (
+                        <div className="flex gap-2 md:gap-3">
+                            <Button
+                                variant="secondary"
+                                onClick={() => setStep('date')}
+                                className="flex-1 h-10 md:h-11 text-sm md:text-base border-gray-300 hover:shadow-sm"
+                            >
+                                Назад
+                            </Button>
+                            <Button
+                                onClick={() => setStep('product')}
+                                disabled={!clientName || !clientPhone}
+                                className="flex-1 h-10 md:h-11 text-sm md:text-base shadow-sm"
+                            >
+                                Продолжить →
+                            </Button>
+                        </div>
+                    )}
+
+                    {step === 'product' && (
+                        <div className="flex gap-2 md:gap-3">
+                            <Button
+                                variant="secondary"
+                                onClick={() => setStep(showClientStep ? 'client' : 'date')}
+                                className="flex-1 h-10 md:h-11 text-sm md:text-base border-gray-300 hover:shadow-sm"
+                            >
+                                Назад
+                            </Button>
+                            <Button
+                                onClick={handleCreate}
+                                disabled={!selectedProductId || isSubmitting}
+                                className="flex-1 h-10 md:h-11 text-sm md:text-base shadow-sm"
+                            >
+                                {isSubmitting ? 'Создание...' : '✅ Создать запись'}
+                            </Button>
+                        </div>
+                    )}
                 </div>
-            </div>
+            </Card>
         </div>
     )
 }
