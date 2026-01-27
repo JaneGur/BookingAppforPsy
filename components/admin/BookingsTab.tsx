@@ -637,8 +637,8 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                             { key: 'today' as QuickFilter, label: 'Сегодня' },
                             { key: 'week' as QuickFilter, label: 'Неделя', shortLabel: 'Неделя' },
                             { key: 'month' as QuickFilter, label: 'Месяц', shortLabel: 'Месяц' },
-                            { key: 'upcoming' as QuickFilter, label: 'Предстоящие', shortLabel: 'Предст.' },
-                            { key: 'past' as QuickFilter, label: 'Прошедшие', shortLabel: 'Прошед.' },
+                            { key: 'upcoming' as QuickFilter, label: 'Предстоящие', shortLabel: 'Предстоящие' },
+                            { key: 'past' as QuickFilter, label: 'Прошедшие', shortLabel: 'Прошедшие' },
                         ].map(({ key, label, shortLabel }) => (
                             <button
                                 key={key}
@@ -721,8 +721,8 @@ export function BookingsTab({ onCreateBooking, refreshTrigger }: BookingsTabProp
                                             )}
                                         >
                                             {status === 'pending_payment' && '🟡 Ожидает'}
-                                            {status === 'confirmed' && '✅ Подтв.'}
-                                            {status === 'completed' && '✅ Заверш.'}
+                                            {status === 'confirmed' && '✅ Подтвержденные'}
+                                            {status === 'completed' && '✅ Завершенные'}
                                             {status === 'cancelled' && '❌ Отмена'}
                                         </button>
                                     ))}
