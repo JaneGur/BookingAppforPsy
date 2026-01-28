@@ -2,18 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { format, startOfMonth, endOfMonth, startOfDay } from 'date-fns'
-import { Plus } from 'lucide-react'
+import { Plus, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import BlockingForm from './components/BlockingForm'
 import BlockingCalendar from './components/BlockingCalendar'
 import BlockingList from './components/BlockingList'
 import { BlockedSlot, BlockingFormData } from './components/types'
-import {
-    groupSlotsByDate,
-    fetchBlockedSlots,
-    createBlockedSlot,
-    deleteBlockedSlot
-} from './utils/blocking-utils'
+import { groupSlotsByDate, fetchBlockedSlots, createBlockedSlot, deleteBlockedSlot } from './utils/blocking-utils'
 
 export default function BlockingPage() {
     const [blockedSlots, setBlockedSlots] = useState<BlockedSlot[]>([])
@@ -22,6 +17,7 @@ export default function BlockingPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [showForm, setShowForm] = useState(false)
     const [selectedDateForForm, setSelectedDateForForm] = useState<string | null>(null)
+    const [mobileView, setMobileView] = useState<'calendar' | 'list'>('calendar')
 
     const today = startOfDay(new Date())
     const slotsByDate = groupSlotsByDate(blockedSlots)
@@ -69,7 +65,6 @@ export default function BlockingPage() {
 
     const handleDelete = async (id: number) => {
         if (!confirm('Удалить эту блокировку?')) return
-
         try {
             await deleteBlockedSlot(id)
             loadBlockedSlots()
@@ -89,33 +84,70 @@ export default function BlockingPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-            <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-                {/* Заголовок и кнопка */}
-                <div className="mb-4 sm:mb-6 lg:mb-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                        <div className="space-y-1">
-                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 flex items-center gap-2">
-                                <span className="text-2xl sm:text-3xl">🚫</span>
-                                <span>Блокировки</span>
-                            </h1>
-                            <p className="text-sm sm:text-base text-slate-600">
-                                Управление заблокированными днями и слотами
-                            </p>
+        <div className="booking-page-surface min-h-screen">
+            <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="p-2 bg-red-50 rounded-lg">
+                            <span className="text-red-700 font-bold">🚫</span>
                         </div>
-                        <Button
-                            onClick={() => setShowForm(!showForm)}
-                            className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30 transition-all duration-200 h-11 sm:h-12 text-base font-medium"
-                        >
-                            <Plus className="w-5 h-5 mr-2" />
-                            Добавить блокировку
-                        </Button>
+                        <div>
+                            <h1 className="text-lg font-bold text-gray-900">Блокировки</h1>
+                            <p className="text-xs text-gray-600">Управление заблокированными днями</p>
+                        </div>
                     </div>
+                    <Button
+                        onClick={() => setShowForm(!showForm)}
+                        size="sm"
+                        className="rounded-full h-10 w-10 p-0 sm:hidden"
+                    >
+                        {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                        onClick={() => setShowForm(!showForm)}
+                        className="hidden sm:flex"
+                        size="sm"
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Добавить
+                    </Button>
                 </div>
 
-                {/* Форма */}
+                {/* Мобильная навигация между вкладками */}
+                <div className="flex mt-4 bg-gray-100 p-1 rounded-lg">
+                    <button
+                        type="button"
+                        onClick={() => setMobileView('calendar')}
+                        className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${mobileView === 'calendar' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`}
+                    >
+                        Календарь
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setMobileView('list')}
+                        className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${mobileView === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`}
+                    >
+                        Список ({blockedSlots.length})
+                    </button>
+                </div>
+            </div>
+
+            <div className="p-4 space-y-4">
+                {/* Форма (полноэкранная на мобильных) */}
                 {showForm && (
-                    <div className="mb-4 sm:mb-6 animate-in slide-in-from-top duration-300">
+                    <div className="fixed inset-0 z-50 bg-white p-4 overflow-y-auto sm:static sm:relative sm:bg-transparent sm:inset-auto sm:p-0">
+                        <div className="sticky top-0 bg-white pb-4 sm:hidden">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-bold text-gray-900">Новая блокировка</h2>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setShowForm(false)}
+                                >
+                                    <X className="h-5 w-5" />
+                                </Button>
+                            </div>
+                        </div>
                         <BlockingForm
                             isSubmitting={isSubmitting}
                             today={today}
@@ -130,13 +162,23 @@ export default function BlockingPage() {
                                 reason: ''
                             }}
                         />
+                        {showForm && (
+                            <div className="mt-4 sm:hidden">
+                                <Button
+                                    variant="secondary"
+                                    className="w-full"
+                                    onClick={() => setShowForm(false)}
+                                >
+                                    Отмена
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 )}
 
-                {/* Календарь и Список */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                    {/* Календарь */}
-                    <div className="order-1">
+                {/* Календарь */}
+                {(mobileView === 'calendar' || !showForm) && (
+                    <div className={showForm ? 'hidden sm:block' : ''}>
                         <BlockingCalendar
                             currentMonth={currentMonth}
                             setCurrentMonth={setCurrentMonth}
@@ -145,9 +187,11 @@ export default function BlockingPage() {
                             today={today}
                         />
                     </div>
+                )}
 
-                    {/* Список */}
-                    <div className="order-2">
+                {/* Список */}
+                {(mobileView === 'list' || !showForm) && (
+                    <div className={showForm ? 'hidden sm:block' : ''}>
                         <BlockingList
                             isLoading={isLoading}
                             blockedSlots={blockedSlots}
@@ -156,7 +200,7 @@ export default function BlockingPage() {
                             slotsByDate={slotsByDate}
                         />
                     </div>
-                </div>
+                )}
             </div>
         </div>
     )
