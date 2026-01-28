@@ -26,20 +26,20 @@ export default function BlockingList({
     if (isLoading) {
         return (
             <Card className="booking-card">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-primary-500" />
-                        Заблокированные слоты
+                <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+                        <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500" />
+                        <span className="text-sm sm:text-base">Заблокированные слоты</span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <div className="space-y-4 py-4">
-                        {Array.from({ length: 3 }).map((_, i) => (
+                <CardContent className="p-4 sm:p-6">
+                    <div className="space-y-4 py-2 sm:py-4">
+                        {Array.from({ length: 2 }).map((_, i) => (
                             <div key={i} className="space-y-3">
-                                <Skeleton className="h-6 w-48" />
-                                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                    {Array.from({ length: 6 }).map((_, j) => (
-                                        <Skeleton key={j} className="h-16 rounded-lg" />
+                                <Skeleton className="h-5 w-32 sm:h-6 sm:w-48" />
+                                <div className="grid gap-2">
+                                    {Array.from({ length: 3 }).map((_, j) => (
+                                        <Skeleton key={j} className="h-12 sm:h-16 rounded-lg" />
                                     ))}
                                 </div>
                             </div>
@@ -53,15 +53,15 @@ export default function BlockingList({
     if (blockedSlots.length === 0) {
         return (
             <Card className="booking-card">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-primary-500" />
-                        Заблокированные слоты
+                <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+                        <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500" />
+                        <span className="text-sm sm:text-base">Заблокированные слоты</span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <div className="text-center py-12">
-                        <p className="text-gray-500">Нет заблокированных слотов</p>
+                <CardContent className="p-4 sm:p-6">
+                    <div className="text-center py-8 sm:py-12">
+                        <p className="text-gray-500 text-sm">Нет заблокированных слотов</p>
                     </div>
                 </CardContent>
             </Card>
@@ -70,51 +70,53 @@ export default function BlockingList({
 
     return (
         <Card className="booking-card">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-primary-500" />
-                    Заблокированные слоты
+            <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+                    <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500" />
+                    <span className="text-sm sm:text-base">Заблокированные слоты</span>
                 </CardTitle>
             </CardHeader>
-            <CardContent>
-                <div className="space-y-3">
+            <CardContent className="p-4 sm:p-6">
+                <div className="space-y-3 sm:space-y-4">
                     {Array.from(slotsByDate.entries())
                         .sort((a, b) => a[0].localeCompare(b[0]))
                         .map(([date, slots]) => (
-                            <div key={date} className="booking-card p-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="font-semibold text-gray-900">
+                            <div key={date} className="booking-card p-3 sm:p-4">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 sm:mb-3">
+                                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                                         {format(parseISO(date), 'd MMMM yyyy', { locale: ru })}
                                     </h3>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => onDeleteAll(date, slots.map(s => s.id))}
+                                        className="h-8 text-xs sm:text-sm"
                                     >
-                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
                                         Удалить все
                                     </Button>
                                 </div>
-                                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                                <div className="space-y-2 sm:space-y-2">
                                     {slots.map((slot) => (
                                         <div
                                             key={slot.id}
                                             className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
                                         >
-                                            <div>
-                                                <div className="font-medium text-gray-900">
-                                                    {slot.slot_time}
+                                            <div className="min-w-0">
+                                                <div className="font-medium text-gray-900 text-sm sm:text-base truncate">
+                                                    {slot.slot_time || 'Весь день'}
                                                 </div>
                                                 {slot.reason && (
-                                                    <div className="text-xs text-gray-500">{slot.reason}</div>
+                                                    <div className="text-xs text-gray-500 truncate">{slot.reason}</div>
                                                 )}
                                             </div>
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => onDelete(slot.id)}
+                                                className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0"
                                             >
-                                                <X className="h-4 w-4 text-red-500" />
+                                                <X className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-500" />
                                             </Button>
                                         </div>
                                     ))}
