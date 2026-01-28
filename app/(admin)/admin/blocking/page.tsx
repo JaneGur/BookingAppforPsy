@@ -8,7 +8,12 @@ import BlockingForm from './components/BlockingForm'
 import BlockingCalendar from './components/BlockingCalendar'
 import BlockingList from './components/BlockingList'
 import { BlockedSlot, BlockingFormData } from './components/types'
-import { groupSlotsByDate, fetchBlockedSlots, createBlockedSlot, deleteBlockedSlot } from './utils/blocking-utils'
+import {
+    groupSlotsByDate,
+    fetchBlockedSlots,
+    createBlockedSlot,
+    deleteBlockedSlot
+} from './utils/blocking-utils'
 
 export default function BlockingPage() {
     const [blockedSlots, setBlockedSlots] = useState<BlockedSlot[]>([])
@@ -17,7 +22,6 @@ export default function BlockingPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [showForm, setShowForm] = useState(false)
     const [selectedDateForForm, setSelectedDateForForm] = useState<string | null>(null)
-    const [showMobileCalendar, setShowMobileCalendar] = useState(false)
 
     const today = startOfDay(new Date())
     const slotsByDate = groupSlotsByDate(blockedSlots)
@@ -65,6 +69,7 @@ export default function BlockingPage() {
 
     const handleDelete = async (id: number) => {
         if (!confirm('Удалить эту блокировку?')) return
+
         try {
             await deleteBlockedSlot(id)
             loadBlockedSlots()
@@ -84,70 +89,54 @@ export default function BlockingPage() {
     }
 
     return (
-        <div className="booking-page-surface min-h-screen p-3 sm:p-4 md:p-6">
-            <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-                {/* Заголовок и кнопка - мобильная версия */}
-                <div className="booking-card p-4">
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-1">
-                                <h1 className="text-xl font-bold text-gray-900">🚫 Блокировки</h1>
-                                <p className="text-xs sm:text-sm text-gray-600">Управление заблокированными слотами</p>
-                            </div>
-                            <Button
-                                onClick={() => setShowForm(!showForm)}
-                                size="sm"
-                                className="h-9 px-3"
-                            >
-                                <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
-                                <span className="hidden sm:inline">Добавить</span>
-                                <span className="sm:hidden">+</span>
-                            </Button>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+            <div className="mx-auto max-w-7xl px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+                {/* Заголовок и кнопка */}
+                <div className="mb-4 sm:mb-6 lg:mb-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                        <div className="space-y-1">
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 flex items-center gap-2">
+                                <span className="text-2xl sm:text-3xl">🚫</span>
+                                <span>Блокировки</span>
+                            </h1>
+                            <p className="text-sm sm:text-base text-slate-600">
+                                Управление заблокированными днями и слотами
+                            </p>
                         </div>
-
-                        {/* Мобильный переключатель календарь/список */}
-                        <div className="sm:hidden">
-                            <div className="flex rounded-lg border border-gray-200 p-1">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowMobileCalendar(false)}
-                                    className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${!showMobileCalendar ? 'bg-primary-50 text-primary-700' : 'text-gray-600'}`}
-                                >
-                                    Список
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowMobileCalendar(true)}
-                                    className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${showMobileCalendar ? 'bg-primary-50 text-primary-700' : 'text-gray-600'}`}
-                                >
-                                    Календарь
-                                </button>
-                            </div>
-                        </div>
+                        <Button
+                            onClick={() => setShowForm(!showForm)}
+                            className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30 transition-all duration-200 h-11 sm:h-12 text-base font-medium"
+                        >
+                            <Plus className="w-5 h-5 mr-2" />
+                            Добавить блокировку
+                        </Button>
                     </div>
                 </div>
 
                 {/* Форма */}
                 {showForm && (
-                    <BlockingForm
-                        isSubmitting={isSubmitting}
-                        today={today}
-                        onSubmit={handleBlock}
-                        onCancel={() => {
-                            setShowForm(false)
-                            setSelectedDateForForm(null)
-                        }}
-                        initialData={{
-                            selectedDate: selectedDateForForm,
-                            selectedTime: null,
-                            reason: ''
-                        }}
-                    />
+                    <div className="mb-4 sm:mb-6 animate-in slide-in-from-top duration-300">
+                        <BlockingForm
+                            isSubmitting={isSubmitting}
+                            today={today}
+                            onSubmit={handleBlock}
+                            onCancel={() => {
+                                setShowForm(false)
+                                setSelectedDateForForm(null)
+                            }}
+                            initialData={{
+                                selectedDate: selectedDateForForm,
+                                selectedTime: null,
+                                reason: ''
+                            }}
+                        />
+                    </div>
                 )}
 
-                {/* Контент - мобильный/десктоп */}
-                <div className="sm:hidden">
-                    {showMobileCalendar ? (
+                {/* Календарь и Список */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                    {/* Календарь */}
+                    <div className="order-1">
                         <BlockingCalendar
                             currentMonth={currentMonth}
                             setCurrentMonth={setCurrentMonth}
@@ -155,7 +144,10 @@ export default function BlockingPage() {
                             onDateSelect={handleDateSelect}
                             today={today}
                         />
-                    ) : (
+                    </div>
+
+                    {/* Список */}
+                    <div className="order-2">
                         <BlockingList
                             isLoading={isLoading}
                             blockedSlots={blockedSlots}
@@ -163,26 +155,7 @@ export default function BlockingPage() {
                             onDeleteAll={handleDeleteAll}
                             slotsByDate={slotsByDate}
                         />
-                    )}
-                </div>
-
-                {/* Десктоп версия */}
-                <div className="hidden sm:block space-y-4 sm:space-y-6">
-                    <BlockingCalendar
-                        currentMonth={currentMonth}
-                        setCurrentMonth={setCurrentMonth}
-                        slotsByDate={slotsByDate}
-                        onDateSelect={handleDateSelect}
-                        today={today}
-                    />
-
-                    <BlockingList
-                        isLoading={isLoading}
-                        blockedSlots={blockedSlots}
-                        onDelete={handleDelete}
-                        onDeleteAll={handleDeleteAll}
-                        slotsByDate={slotsByDate}
-                    />
+                    </div>
                 </div>
             </div>
         </div>
