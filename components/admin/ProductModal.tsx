@@ -113,80 +113,80 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
-            <Card className="booking-card border-2 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-                <CardHeader className="sticky top-0 bg-white z-10 border-b-2">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+            <Card className="booking-card border-2 w-full sm:max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-2xl">
+                <CardHeader className="sticky top-0 bg-white z-10 border-b-2 rounded-t-3xl sm:rounded-t-2xl">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center border-2 border-purple-200/50">
-                                <Package className="w-5 h-5 text-purple-600" />
+                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-xl">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center border-2 border-purple-200/50 flex-shrink-0">
+                                <Package className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                             </div>
-                            {product ? 'Редактирование продукта' : 'Создание продукта'}
+                            <span className="truncate">{product ? 'Редактирование продукта' : 'Создание продукта'}</span>
                         </CardTitle>
-                        <Button variant="ghost" size="icon" onClick={onClose}>
-                            <X className="h-5 w-5" />
+                        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
+                            <X className="h-4 w-4 sm:h-5 sm:w-5" />
                         </Button>
                     </div>
                 </CardHeader>
 
-                <CardContent className="space-y-6 p-6">
+                <CardContent className="space-y-5 sm:space-y-6 p-4 sm:p-6">
                     {/* Ошибка */}
                     {error && (
-                        <div className="p-4 rounded-xl bg-red-50 border-2 border-red-200 flex items-center gap-3">
-                            <AlertCircle className="h-5 w-5 text-red-600" />
-                            <p className="text-sm text-red-700 font-medium">{error}</p>
+                        <div className="p-3 sm:p-4 rounded-xl bg-red-50 border-2 border-red-200 flex items-start gap-2 sm:gap-3">
+                            <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                            <p className="text-xs sm:text-sm text-red-700 font-medium break-words">{error}</p>
                         </div>
                     )}
 
                     {/* Основная информация */}
-                    <div className="space-y-4">
-                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <Package className="h-5 w-5" />
+                    <div className="space-y-3 sm:space-y-4">
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <Package className="h-4 w-4 sm:h-5 sm:w-5" />
                             Основная информация
                         </h3>
 
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                             <div>
-                                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block">
                                     Название *
                                 </label>
                                 <Input
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     placeholder="Одна консультация"
-                                    className="h-12"
+                                    className="h-11 sm:h-12 text-sm"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block">
                                     SKU (артикул)
                                 </label>
                                 <Input
                                     value={formData.sku}
                                     onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                                     placeholder="SINGLE"
-                                    className="h-12"
+                                    className="h-11 sm:h-12 text-sm"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium text-gray-700 mb-2 block">
+                            <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block">
                                 Описание
                             </label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Подробное описание продукта..."
-                                className="flex min-h-[100px] w-full rounded-xl border-2 border-primary-200/40 bg-white/98 px-4 py-3 text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/20 focus-visible:border-primary-500/70 focus-visible:shadow-lg resize-none"
+                                className="flex min-h-[80px] sm:min-h-[100px] w-full rounded-xl border-2 border-primary-200/40 bg-white/98 px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/20 focus-visible:border-primary-500/70 focus-visible:shadow-lg resize-none"
                             />
                         </div>
 
-                        <div className="grid gap-4 sm:grid-cols-3">
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                        <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3">
+                            <div className={formData.is_package ? 'col-span-1' : 'col-span-2 sm:col-span-1'}>
+                                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block">
                                     Цена (₽) *
                                 </label>
                                 <Input
@@ -194,16 +194,16 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
                                     value={formData.price_rub}
                                     onChange={(e) => setFormData({ ...formData, price_rub: Number(e.target.value) })}
                                     placeholder="5000"
-                                    className="h-12"
+                                    className="h-11 sm:h-12 text-sm"
                                     required
                                     min="0"
                                 />
                             </div>
 
                             {formData.is_package && (
-                                <div>
-                                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                                        Количество сессий
+                                <div className="col-span-1">
+                                    <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block">
+                                        Сессий
                                     </label>
                                     <Input
                                         type="number"
@@ -212,61 +212,61 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
                                             setFormData({ ...formData, sessions_count: Number(e.target.value) })
                                         }
                                         placeholder="5"
-                                        className="h-12"
+                                        className="h-11 sm:h-12 text-sm"
                                         min="1"
                                     />
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex flex-wrap gap-4">
-                            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                        <div className="flex flex-col gap-2 sm:gap-3">
+                            <label className="flex items-center gap-2 sm:gap-3 cursor-pointer p-2.5 sm:p-3 rounded-lg sm:rounded-xl hover:bg-gray-50 transition-colors">
                                 <input
                                     type="checkbox"
                                     checked={formData.is_active}
                                     onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                                    className="h-5 w-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                                    className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 flex-shrink-0"
                                 />
-                                <span className="text-sm font-medium text-gray-700">Активен</span>
+                                <span className="text-xs sm:text-sm font-medium text-gray-700">Активен</span>
                             </label>
 
-                            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                            <label className="flex items-center gap-2 sm:gap-3 cursor-pointer p-2.5 sm:p-3 rounded-lg sm:rounded-xl hover:bg-gray-50 transition-colors">
                                 <input
                                     type="checkbox"
                                     checked={formData.is_featured}
                                     onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                                    className="h-5 w-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                                    className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500 flex-shrink-0"
                                 />
-                                <span className="text-sm font-medium text-gray-700">Рекомендуемый</span>
+                                <span className="text-xs sm:text-sm font-medium text-gray-700">Рекомендуемый</span>
                             </label>
 
-                            <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                            <label className="flex items-center gap-2 sm:gap-3 cursor-pointer p-2.5 sm:p-3 rounded-lg sm:rounded-xl hover:bg-gray-50 transition-colors">
                                 <input
                                     type="checkbox"
                                     checked={formData.is_package}
                                     onChange={(e) => setFormData({ ...formData, is_package: e.target.checked })}
-                                    className="h-5 w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                    className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 flex-shrink-0"
                                 />
-                                <span className="text-sm font-medium text-gray-700">Пакет (несколько сессий)</span>
+                                <span className="text-xs sm:text-sm font-medium text-gray-700">Пакет (несколько сессий)</span>
                             </label>
                         </div>
                     </div>
 
                     {/* Скидки */}
-                    <div className="space-y-4 pt-6 border-t-2">
-                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                            <Percent className="h-5 w-5 text-orange-600" />
+                    <div className="space-y-3 sm:space-y-4 pt-4 sm:pt-6 border-t-2">
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-2">
+                            <Percent className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
                             Скидки и акции
                         </h3>
 
                         {/* Базовая скидка */}
-                        <div className="p-4 rounded-xl bg-orange-50 border-2 border-orange-200 space-y-3">
-                            <div className="flex items-center gap-2">
-                                <Tag className="h-5 w-5 text-orange-600" />
-                                <span className="font-semibold text-orange-900">Базовая скидка</span>
+                        <div className="p-3 sm:p-4 rounded-xl bg-orange-50 border-2 border-orange-200 space-y-2 sm:space-y-3">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                <Tag className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 flex-shrink-0" />
+                                <span className="font-semibold text-orange-900 text-sm sm:text-base">Базовая скидка</span>
                             </div>
                             <div>
-                                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                                <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block">
                                     Процент скидки
                                 </label>
                                 <div className="flex gap-2 items-center">
@@ -277,14 +277,14 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
                                             setFormData({ ...formData, discount_percent: Number(e.target.value) })
                                         }
                                         placeholder="0"
-                                        className="h-12"
+                                        className="h-11 sm:h-12 text-sm"
                                         min="0"
                                         max="100"
                                     />
-                                    <span className="text-2xl font-bold text-orange-600">%</span>
+                                    <span className="text-xl sm:text-2xl font-bold text-orange-600 flex-shrink-0">%</span>
                                 </div>
                                 {(formData.discount_percent || 0) > 0 && (
-                                    <p className="text-sm text-orange-700 mt-2">
+                                    <p className="text-xs sm:text-sm text-orange-700 mt-1.5 sm:mt-2 break-words">
                                         Цена со скидкой:{' '}
                                         <span className="font-bold">
                                             {Math.round(
@@ -298,25 +298,25 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
                         </div>
 
                         {/* Скидки для категорий */}
-                        <div className="p-4 rounded-xl bg-blue-50 border-2 border-blue-200 space-y-3">
-                            <label className="flex items-center gap-3 cursor-pointer">
+                        <div className="p-3 sm:p-4 rounded-xl bg-blue-50 border-2 border-blue-200 space-y-2 sm:space-y-3">
+                            <label className="flex items-start gap-2 sm:gap-3 cursor-pointer">
                                 <input
                                     type="checkbox"
                                     checked={formData.has_special_categories_discount}
                                     onChange={(e) =>
                                         setFormData({ ...formData, has_special_categories_discount: e.target.checked })
                                     }
-                                    className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                    className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0 mt-0.5"
                                 />
-                                <div className="flex items-center gap-2">
-                                    <Gift className="h-5 w-5 text-blue-600" />
-                                    <span className="font-semibold text-blue-900">
+                                <div className="flex items-start gap-1.5 sm:gap-2 flex-1 min-w-0">
+                                    <Gift className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                                    <span className="font-semibold text-blue-900 text-xs sm:text-sm break-words">
                                         Скидки для льготных категорий (10%)
                                     </span>
                                 </div>
                             </label>
                             {formData.has_special_categories_discount && (
-                                <div className="pl-8 space-y-1 text-sm text-blue-700">
+                                <div className="pl-7 sm:pl-8 space-y-0.5 sm:space-y-1 text-xs sm:text-sm text-blue-700">
                                     <p>• Инвалиды</p>
                                     <p>• Многодетные семьи</p>
                                     <p>• Пенсионеры</p>
@@ -326,14 +326,14 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
                         </div>
 
                         {/* Массовая скидка */}
-                        <div className="p-4 rounded-xl bg-green-50 border-2 border-green-200 space-y-3">
-                            <div className="flex items-center gap-2">
-                                <TrendingUp className="h-5 w-5 text-green-600" />
-                                <span className="font-semibold text-green-900">Скидка за объем</span>
+                        <div className="p-3 sm:p-4 rounded-xl bg-green-50 border-2 border-green-200 space-y-2 sm:space-y-3">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
+                                <span className="font-semibold text-green-900 text-sm sm:text-base">Скидка за объем</span>
                             </div>
-                            <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="grid gap-2 sm:gap-3 grid-cols-2">
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                                    <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block">
                                         Минимум сессий
                                     </label>
                                     <Input
@@ -343,15 +343,15 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
                                             setFormData({ ...formData, bulk_discount_threshold: Number(e.target.value) })
                                         }
                                         placeholder="10"
-                                        className="h-12"
+                                        className="h-11 sm:h-12 text-sm"
                                         min="1"
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700 mb-2 block">
-                                        Процент скидки
+                                    <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block">
+                                        Процент
                                     </label>
-                                    <div className="flex gap-2 items-center">
+                                    <div className="flex gap-1.5 sm:gap-2 items-center">
                                         <Input
                                             type="number"
                                             value={formData.bulk_discount_percent}
@@ -359,16 +359,16 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
                                                 setFormData({ ...formData, bulk_discount_percent: Number(e.target.value) })
                                             }
                                             placeholder="10"
-                                            className="h-12"
+                                            className="h-11 sm:h-12 text-sm"
                                             min="0"
                                             max="100"
                                         />
-                                        <span className="text-xl font-bold text-green-600">%</span>
+                                        <span className="text-lg sm:text-xl font-bold text-green-600 flex-shrink-0">%</span>
                                     </div>
                                 </div>
                             </div>
                             {(formData.bulk_discount_threshold || 0) > 0 && (formData.bulk_discount_percent || 0) > 0 && (
-                                <p className="text-sm text-green-700">
+                                <p className="text-xs sm:text-sm text-green-700 break-words">
                                     При оплате от {formData.bulk_discount_threshold} сессий единовременно - скидка{' '}
                                     {formData.bulk_discount_percent}%
                                 </p>
@@ -377,33 +377,42 @@ export function ProductModal({ isOpen, onClose, product, onSuccess }: ProductMod
 
                         {/* Текст акции */}
                         <div>
-                            <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center gap-2">
-                                <Tag className="h-4 w-4" />
+                            <label className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5 sm:mb-2 block flex items-center gap-1.5 sm:gap-2">
+                                <Tag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                 Текст акции (отображается на карточке)
                             </label>
                             <Input
                                 value={formData.promo_text}
                                 onChange={(e) => setFormData({ ...formData, promo_text: e.target.value })}
                                 placeholder="Например: Скидка 20% до конца месяца!"
-                                className="h-12"
+                                className="h-11 sm:h-12 text-sm"
                             />
                         </div>
                     </div>
 
                     {/* Кнопки */}
-                    <div className="flex gap-3 pt-4 border-t-2">
-                        <Button variant="secondary" onClick={onClose} className="flex-1" size="lg" disabled={isPending}>
+                    <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4 border-t-2 sticky bottom-0 bg-white pb-1 sm:pb-0">
+                        <Button
+                            variant="secondary"
+                            onClick={onClose}
+                            className="flex-1 h-11 sm:h-12 text-sm sm:text-base"
+                            disabled={isPending}
+                        >
                             Отмена
                         </Button>
-                        <Button onClick={handleSave} disabled={isPending} className="flex-1" size="lg">
+                        <Button
+                            onClick={handleSave}
+                            disabled={isPending}
+                            className="flex-1 h-11 sm:h-12 text-sm sm:text-base"
+                        >
                             {isPending ? (
                                 <>
-                                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                                    <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 animate-spin" />
                                     Сохранение...
                                 </>
                             ) : (
                                 <>
-                                    <Save className="h-5 w-5 mr-2" />
+                                    <Save className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                                     {product ? 'Сохранить' : 'Создать'}
                                 </>
                             )}
