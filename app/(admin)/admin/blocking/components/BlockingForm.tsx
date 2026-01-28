@@ -34,61 +34,75 @@ export default function BlockingForm({
     }
 
     return (
-        <Card className="booking-card border-0 shadow-lg sm:border sm:shadow-sm">
-            <CardHeader className="pb-3 pt-6">
-                <CardTitle className="text-lg font-bold text-gray-900">Новая блокировка</CardTitle>
+        <Card className="booking-card shadow-lg">
+            <CardHeader className="pb-3">
+                <CardTitle className="text-lg sm:text-xl">Новая блокировка</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6 pt-0">
+            <CardContent className="space-y-4">
                 <div className="space-y-4">
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">Дата *</label>
+                    {/* Дата */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700 block">
+                            Дата <span className="text-red-500">*</span>
+                        </label>
                         <Input
                             type="date"
                             value={formData.selectedDate || ''}
                             onChange={(e) => handleChange('selectedDate', e.target.value)}
                             min={format(today, 'yyyy-MM-dd')}
                             required
-                            className="h-12 text-base"
+                            className="w-full text-base"
                         />
                     </div>
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">Время</label>
+
+                    {/* Время */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700 block">
+                            Время (необязательно)
+                        </label>
                         <Input
                             type="time"
                             value={formData.selectedTime || ''}
                             onChange={(e) => handleChange('selectedTime', e.target.value)}
                             placeholder="Оставьте пустым для блокировки всего дня"
-                            className="h-12 text-base"
+                            className="w-full text-base"
                         />
-                        <p className="text-xs text-gray-500 mt-2">
-                            Оставьте пустым, чтобы заблокировать весь день
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                            💡 Оставьте пустым, чтобы заблокировать весь день
                         </p>
                     </div>
-                    <div>
-                        <label className="text-sm font-medium text-gray-700 mb-2 block">Причина (необязательно)</label>
+
+                    {/* Причина */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700 block">
+                            Причина (необязательно)
+                        </label>
                         <Input
                             value={formData.reason}
                             onChange={(e) => handleChange('reason', e.target.value)}
-                            placeholder="Причина блокировки"
-                            className="h-12 text-base"
+                            placeholder="Например: отпуск, выходной..."
+                            className="w-full text-base"
                         />
                     </div>
                 </div>
-                <div className="flex flex-col gap-3 pt-2">
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={!formData.selectedDate || isSubmitting}
-                        className="w-full h-12 text-base font-medium"
-                        size="lg"
-                    >
-                        {isSubmitting ? 'Блокировка...' : 'Заблокировать'}
-                    </Button>
+
+                {/* Кнопки */}
+                <div className="flex flex-col-reverse sm:flex-row gap-3 pt-2">
                     <Button
                         variant="secondary"
                         onClick={onCancel}
-                        className="w-full h-11 text-base sm:hidden"
+                        className="w-full sm:flex-1"
+                        size="lg"
                     >
                         Отмена
+                    </Button>
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={!formData.selectedDate || isSubmitting}
+                        className="w-full sm:flex-1"
+                        size="lg"
+                    >
+                        {isSubmitting ? 'Блокировка...' : 'Заблокировать'}
                     </Button>
                 </div>
             </CardContent>
