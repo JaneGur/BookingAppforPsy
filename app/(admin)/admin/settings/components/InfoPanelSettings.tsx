@@ -57,19 +57,18 @@ export default function InfoPanelSettings({
                         onChange={(e) => setLocalInfo(e.target.value)}
                         placeholder="Правила записи, контактная информация, особые условия..."
                         maxLength={4000}
-                        className="flex min-h-[150px] sm:min-h-[200px] w-full rounded-xl border-2 border-purple-200 bg-white px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/20 focus-visible:border-purple-400 resize-none shadow-sm"
+                        className="flex min-h-[150px] sm:min-h-[180px] md:min-h-[200px] w-full rounded-xl border-2 border-purple-200 bg-white px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/20 focus-visible:border-purple-400 resize-none shadow-sm"
                     />
                     <div className="text-xs text-gray-500 mt-2 flex items-center justify-between">
-                        <span className="hidden sm:inline">До 4000 символов</span>
-                        <span className="sm:hidden">Макс. 4000</span>
-                        <span>{localInfo.length} / 4000</span>
+                        <span>Макс. 4000 символов</span>
+                        <span className="font-medium">{localInfo.length} / 4000</span>
                     </div>
                 </div>
 
                 {localInfo && (
                     <div className="booking-card border-2 bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-5">
                         <h3 className="text-xs sm:text-sm font-bold text-gray-700 mb-2 sm:mb-3">Предпросмотр:</h3>
-                        <div className="bg-white/80 p-3 sm:p-4 rounded-lg border border-purple-200 whitespace-pre-wrap text-xs sm:text-sm text-gray-700 break-words">
+                        <div className="bg-white/80 p-3 sm:p-4 rounded-lg border border-purple-200 whitespace-pre-wrap text-xs sm:text-sm text-gray-700 break-words leading-relaxed">
                             {localInfo}
                         </div>
                     </div>
@@ -78,7 +77,7 @@ export default function InfoPanelSettings({
                 <Button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="shadow-xl h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base w-full sm:w-auto"
+                    className="shadow-xl h-11 sm:h-12 px-4 sm:px-6 text-sm sm:text-base w-full sm:w-auto"
                 >
                     <Save className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                     {isSaving ? 'Сохранение...' : 'Сохранить информацию'}

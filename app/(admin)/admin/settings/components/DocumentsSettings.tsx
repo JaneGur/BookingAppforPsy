@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { FileText, Upload, Link as LinkIcon, Info, Save } from 'lucide-react'
+import { FileText, Upload, Info, File } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils/cn'
 import { validateFile } from '../utils/validation-utils'
-import {DocumentFormData} from "@/app/(admin)/admin/settings/components/types";
+import {DocumentFormData} from "@/app/(admin)/admin/settings/components/types"
 import {DocumentType} from './types'
 
 
@@ -48,7 +48,7 @@ export default function DocumentsSettings({
             setFormData(prev => ({
                 ...prev,
                 file,
-                url: '' // Очищаем URL при выборе файла
+                url: ''
             }))
         }
     }
@@ -73,7 +73,6 @@ export default function DocumentsSettings({
 
         try {
             if (formData.uploadMethod === 'file' && formData.file) {
-                // Загрузка файла
                 const formDataToSend = new FormData()
                 formDataToSend.append('file', formData.file)
                 formDataToSend.append('doc_type', formData.docType)
@@ -94,7 +93,6 @@ export default function DocumentsSettings({
                     onError(data.error || 'Не удалось загрузить документ')
                 }
             } else {
-                // Добавление по URL
                 const res = await fetch('/api/admin/documents', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -129,22 +127,12 @@ export default function DocumentsSettings({
             file: null,
             uploadMethod: 'file'
         })
-        // Сбрасываем input file
         const fileInput = document.getElementById('file-input') as HTMLInputElement
         if (fileInput) fileInput.value = ''
     }
 
     const handleDocumentTypeChange = (type: 'offer' | 'policy') => {
         setFormData(prev => ({ ...prev, docType: type }))
-    }
-
-    const handleUploadMethodChange = (method: 'file' | 'url') => {
-        setFormData(prev => ({
-            ...prev,
-            uploadMethod: method,
-            file: method === 'url' ? null : prev.file,
-            url: method === 'file' ? '' : prev.url
-        }))
     }
 
     const formatFileSize = (bytes: number): string => {
@@ -174,71 +162,43 @@ export default function DocumentsSettings({
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
                 {/* Информационное сообщение */}
-                <div className="bg-blue-50/50 border-2 border-blue-200 p-4 rounded-xl">
-                    <p className="text-sm text-blue-800 flex items-center gap-2">
-                        <Info className="h-4 w-4" />
+                <div className="bg-blue-50/50 border-2 border-blue-200 p-3 sm:p-4 rounded-xl">
+                    <p className="text-xs sm:text-sm text-blue-800 flex items-start gap-2">
+                        <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
                         <span>При добавлении нового документа старый автоматически деактивируется</span>
                     </p>
                 </div>
 
-                {/* Переключатель метода загрузки */}
-                {/*<div className="flex gap-2">*/}
-                {/*    <button*/}
-                {/*        onClick={() => handleUploadMethodChange('file')}*/}
-                {/*        className={cn(*/}
-                {/*            'flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all font-bold border-2',*/}
-                {/*            formData.uploadMethod === 'file'*/}
-                {/*                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white border-orange-600 shadow-lg'*/}
-                {/*                : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300'*/}
-                {/*        )}*/}
-                {/*    >*/}
-                {/*        <Upload className="h-5 w-5" />*/}
-                {/*        Загрузить файл*/}
-                {/*    </button>*/}
-                {/*    <button*/}
-                {/*        onClick={() => handleUploadMethodChange('url')}*/}
-                {/*        className={cn(*/}
-                {/*            'flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl transition-all font-bold border-2',*/}
-                {/*            formData.uploadMethod === 'url'*/}
-                {/*                ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white border-orange-600 shadow-lg'*/}
-                {/*                : 'bg-white text-gray-700 border-gray-300 hover:border-orange-300'*/}
-                {/*        )}*/}
-                {/*    >*/}
-                {/*        <LinkIcon className="h-5 w-5" />*/}
-                {/*        Указать URL*/}
-                {/*    </button>*/}
-                {/*</div>*/}
-
-                {/* Тип документа */}
-                <div className="grid gap-4 sm:grid-cols-2">
+                {/* Тип документа и название */}
+                <div className="space-y-4">
                     <div>
                         <label className="text-sm font-semibold text-gray-800 mb-2 block">
                             Тип документа *
                         </label>
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                             <button
                                 onClick={() => handleDocumentTypeChange('offer')}
                                 className={cn(
-                                    'flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 transition-all',
+                                    'flex items-center justify-center gap-2 px-3 py-3 rounded-xl border-2 transition-all',
                                     formData.docType === 'offer'
                                         ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-600 shadow-lg'
                                         : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300'
                                 )}
                             >
-                                <span className="text-xl">📄</span>
-                                Оферта
+                                <span className="text-lg sm:text-xl">📄</span>
+                                <span className="text-sm font-medium">Оферта</span>
                             </button>
                             <button
                                 onClick={() => handleDocumentTypeChange('policy')}
                                 className={cn(
-                                    'flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 transition-all',
+                                    'flex items-center justify-center gap-2 px-3 py-3 rounded-xl border-2 transition-all',
                                     formData.docType === 'policy'
                                         ? 'bg-gradient-to-br from-green-500 to-green-600 text-white border-green-600 shadow-lg'
                                         : 'bg-white text-gray-700 border-gray-300 hover:border-green-300'
                                 )}
                             >
-                                <span className="text-xl">🔒</span>
-                                Политика
+                                <span className="text-lg sm:text-xl">🔒</span>
+                                <span className="text-sm font-medium">Политика</span>
                             </button>
                         </div>
                     </div>
@@ -250,79 +210,62 @@ export default function DocumentsSettings({
                             value={formData.title}
                             onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                             placeholder="Название документа"
-                            className="h-12"
+                            className="h-11 sm:h-12"
                         />
                     </div>
                 </div>
 
-                {/* Поле для файла или URL */}
-                {formData.uploadMethod === 'file' ? (
-                    <div>
-                        <label className="text-sm font-semibold text-gray-800 mb-2 block flex items-center gap-2">
-                            <Upload className="h-4 w-4 text-orange-500" />
-                            Выберите файл *
-                        </label>
-                        <div className="relative">
-                            <input
-                                id="file-input"
-                                type="file"
-                                accept=".pdf,.doc,.docx"
-                                onChange={handleFileChange}
-                                className="hidden"
-                            />
-                            <label
-                                htmlFor="file-input"
-                                className="flex items-center justify-center gap-3 w-full h-32 border-2 border-dashed border-orange-300 rounded-xl bg-orange-50/50 hover:bg-orange-100/50 transition-all cursor-pointer group"
-                            >
-                                {formData.file ? (
-                                    <div className="text-center">
-                                        <div className="w-16 h-16 mx-auto mb-2 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-                                            <FileText className="w-8 h-8 text-white" />
-                                        </div>
-                                        <div className="font-bold text-gray-900 truncate max-w-xs">
-                                            {formData.file.name}
-                                        </div>
-                                        <div className="text-sm text-gray-600">
-                                            {formatFileSize(formData.file.size)}
-                                        </div>
-                                        <div className="text-xs text-orange-600 mt-1">Нажмите для замены</div>
-                                    </div>
-                                ) : (
-                                    <div className="text-center">
-                                        <Upload className="w-12 h-12 mx-auto mb-2 text-orange-400 group-hover:text-orange-600 transition-colors" />
-                                        <div className="font-bold text-gray-700 group-hover:text-orange-600 transition-colors">
-                                            Нажмите для выбора файла
-                                        </div>
-                                        <div className="text-sm text-gray-500 mt-1">
-                                            PDF, DOC, DOCX (макс 10 МБ)
-                                        </div>
-                                    </div>
-                                )}
-                            </label>
-                        </div>
-                    </div>
-                ) : (
-                    <div>
-                        <label className="text-sm font-semibold text-gray-800 mb-2 block flex items-center gap-2">
-                            <LinkIcon className="h-4 w-4 text-orange-500" />
-                            URL документа *
-                        </label>
-                        <Input
-                            value={formData.url}
-                            onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                            placeholder="https://example.com/document.pdf"
-                            className="h-12"
+                {/* Поле для файла */}
+                <div>
+                    <label className="text-sm font-semibold text-gray-800 mb-2 block flex items-center gap-2">
+                        <Upload className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                        <span>Выберите файл *</span>
+                    </label>
+                    <div className="relative">
+                        <input
+                            id="file-input"
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            onChange={handleFileChange}
+                            className="hidden"
                         />
+                        <label
+                            htmlFor="file-input"
+                            className="flex items-center justify-center gap-3 w-full min-h-[120px] sm:min-h-[130px] border-2 border-dashed border-orange-300 rounded-xl bg-orange-50/50 hover:bg-orange-100/50 transition-all cursor-pointer group p-4"
+                        >
+                            {formData.file ? (
+                                <div className="text-center">
+                                    <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-2 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
+                                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                                    </div>
+                                    <div className="font-bold text-gray-900 text-sm truncate max-w-[250px] mx-auto">
+                                        {formData.file.name}
+                                    </div>
+                                    <div className="text-xs text-gray-600 mt-1">
+                                        {formatFileSize(formData.file.size)}
+                                    </div>
+                                    <div className="text-xs text-orange-600 mt-1">Нажмите для замены</div>
+                                </div>
+                            ) : (
+                                <div className="text-center">
+                                    <Upload className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 text-orange-400 group-hover:text-orange-600 transition-colors" />
+                                    <div className="text-sm font-bold text-gray-700 group-hover:text-orange-600 transition-colors">
+                                        Нажмите для выбора файла
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                        PDF, DOC, DOCX (макс 10 МБ)
+                                    </div>
+                                </div>
+                            )}
+                        </label>
                     </div>
-                )}
+                </div>
 
                 {/* Кнопка сохранения */}
                 <Button
                     onClick={handleAddDocument}
-                    disabled={isSaving || !formData.title.trim() ||
-                        (formData.uploadMethod === 'url' && !formData.url.trim()) ||
-                        (formData.uploadMethod === 'file' && !formData.file)}
-                    className="shadow-xl h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base w-full sm:w-auto"
+                    disabled={isSaving || !formData.title.trim() || !formData.file}
+                    className="shadow-xl h-11 sm:h-12 px-4 sm:px-6 text-sm sm:text-base w-full sm:w-auto"
                 >
                     {isSaving ? (
                         <>
@@ -331,12 +274,8 @@ export default function DocumentsSettings({
                         </>
                     ) : (
                         <>
-                            {formData.uploadMethod === 'file' ? (
-                                <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                            ) : (
-                                <Save className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                            )}
-                            {formData.uploadMethod === 'file' ? 'Загрузить документ' : 'Добавить документ'}
+                            <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                            Загрузить документ
                         </>
                     )}
                 </Button>
@@ -344,48 +283,48 @@ export default function DocumentsSettings({
                 {/* Список загруженных документов */}
                 {documents.length > 0 && (
                     <div className="space-y-3 mt-6">
-                        <h3 className="font-bold text-gray-900 text-lg">Загруженные документы</h3>
+                        <h3 className="font-bold text-gray-900 text-base sm:text-lg">Загруженные документы</h3>
                         {documents.map((doc) => (
                             <div
                                 key={doc.id}
                                 className="booking-card border-2 hover:shadow-xl transition-all p-4"
                             >
-                                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                                <div className="flex flex-col gap-3">
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                            <span className="text-2xl">
+                                            <span className="text-xl sm:text-2xl">
                                                 {doc.doc_type === 'offer' ? '📄' : '🔒'}
                                             </span>
-                                            <div className="font-bold text-gray-900 text-lg">
+                                            <div className="font-bold text-gray-900 text-sm sm:text-base break-words">
                                                 {doc.title}
                                             </div>
                                             {doc.is_active && (
-                                                <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold border-2 border-green-300">
+                                                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold border-2 border-green-300">
                                                     ✓ Активен
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="text-sm text-gray-600 mb-1">
+                                        <div className="text-xs sm:text-sm text-gray-600 mb-1">
                                             {doc.doc_type === 'offer'
                                                 ? 'Договор оферты'
                                                 : 'Политика конфиденциальности'
                                             }
                                         </div>
-                                        <div className="text-xs text-gray-500 font-mono truncate max-w-full" title={doc.url}>
+                                        <div className="text-xs text-gray-500 font-mono break-all" title={doc.url}>
                                             {doc.url}
                                         </div>
                                         <div className="text-xs text-gray-400 mt-1">
                                             Добавлен: {new Date(doc.created_at).toLocaleDateString('ru-RU')}
                                         </div>
                                     </div>
-                                    <div className="flex gap-2">
+                                    <div>
                                         <a
                                             href={doc.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors font-medium shadow-md whitespace-nowrap flex-shrink-0"
+                                            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors font-medium shadow-md text-sm"
                                         >
-                                            <FileText className="h-4 w-4" />
+                                            <File className="h-4 w-4" />
                                             Открыть
                                         </a>
                                     </div>

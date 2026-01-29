@@ -32,7 +32,6 @@ export default function PasswordSettings({
     }
 
     const handleChangePassword = async () => {
-        // Валидация
         if (!formData.currentPassword.trim() || !formData.newPassword.trim() || !formData.confirmPassword.trim()) {
             onError('Заполните все поля')
             return
@@ -108,20 +107,20 @@ export default function PasswordSettings({
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
                 {/* Предупреждение */}
-                <div className="bg-red-50/50 border-2 border-red-200 p-4 rounded-xl">
-                    <p className="text-sm text-red-800 flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4" />
+                <div className="bg-red-50/50 border-2 border-red-200 p-3 sm:p-4 rounded-xl">
+                    <p className="text-xs sm:text-sm text-red-800 flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                         <span>После смены пароля новый пароль будет отправлен в Telegram. Сохраните его в надежном месте!</span>
                     </p>
                 </div>
 
                 {/* Форма */}
-                <div className="space-y-4 max-w-lg">
+                <div className="space-y-4 max-w-2xl">
                     {/* Текущий пароль */}
                     <div>
                         <label className="text-sm font-semibold text-gray-800 mb-2 block flex items-center gap-2">
-                            <Lock className="h-4 w-4 text-red-500" />
-                            Текущий пароль *
+                            <Lock className="h-4 w-4 text-red-500 flex-shrink-0" />
+                            <span>Текущий пароль *</span>
                         </label>
                         <Input
                             type="password"
@@ -129,7 +128,7 @@ export default function PasswordSettings({
                             onChange={(e) => handleChange('currentPassword', e.target.value)}
                             placeholder="Введите текущий пароль"
                             required
-                            className="h-12"
+                            className="h-11 sm:h-12"
                         />
                         {formData.currentPassword && (
                             <div className="mt-2 flex items-center gap-1">
@@ -155,8 +154,8 @@ export default function PasswordSettings({
                     {/* Новый пароль */}
                     <div>
                         <label className="text-sm font-semibold text-gray-800 mb-2 block flex items-center gap-2">
-                            <Lock className="h-4 w-4 text-green-500" />
-                            Новый пароль *
+                            <Lock className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <span>Новый пароль *</span>
                         </label>
                         <Input
                             type="password"
@@ -165,7 +164,7 @@ export default function PasswordSettings({
                             placeholder="Минимум 6 символов"
                             required
                             minLength={6}
-                            className="h-12"
+                            className="h-11 sm:h-12"
                         />
                         {formData.newPassword && passwordStrength && (
                             <div className="mt-2">
@@ -203,8 +202,8 @@ export default function PasswordSettings({
                     {/* Подтверждение пароля */}
                     <div>
                         <label className="text-sm font-semibold text-gray-800 mb-2 block flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-green-500" />
-                            Подтвердите новый пароль *
+                            <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <span>Подтвердите новый пароль *</span>
                         </label>
                         <Input
                             type="password"
@@ -212,7 +211,7 @@ export default function PasswordSettings({
                             onChange={(e) => handleChange('confirmPassword', e.target.value)}
                             placeholder="Повторите новый пароль"
                             required
-                            className="h-12"
+                            className="h-11 sm:h-12"
                         />
                         {formData.confirmPassword && (
                             <div className="mt-2 flex items-center gap-1">
@@ -237,22 +236,22 @@ export default function PasswordSettings({
                 </div>
 
                 {/* Индикаторы валидации */}
-                <div className="bg-gray-50/50 border-2 border-gray-200 p-4 rounded-xl">
-                    <h4 className="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                        <Info className="h-4 w-4 text-blue-500" />
-                        Требования к паролю:
+                <div className="bg-gray-50/50 border-2 border-gray-200 p-3 sm:p-4 rounded-xl">
+                    <h4 className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                        <Info className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        <span>Требования к паролю:</span>
                     </h4>
                     <ul className="space-y-1 text-xs text-gray-600">
                         <li className={`flex items-center gap-2 ${formData.currentPassword.length >= 6 ? 'text-green-600' : ''}`}>
-                            <div className={`w-2 h-2 rounded-full ${formData.currentPassword.length >= 6 ? 'bg-green-500' : 'bg-gray-300'}`} />
+                            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${formData.currentPassword.length >= 6 ? 'bg-green-500' : 'bg-gray-300'}`} />
                             <span>Текущий пароль: минимум 6 символов</span>
                         </li>
                         <li className={`flex items-center gap-2 ${formData.newPassword.length >= 6 ? 'text-green-600' : ''}`}>
-                            <div className={`w-2 h-2 rounded-full ${formData.newPassword.length >= 6 ? 'bg-green-500' : 'bg-gray-300'}`} />
+                            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${formData.newPassword.length >= 6 ? 'bg-green-500' : 'bg-gray-300'}`} />
                             <span>Новый пароль: минимум 6 символов</span>
                         </li>
-                        <li className={`flex items-center gap-2 ${formData.newPassword === formData.confirmPassword ? 'text-green-600' : ''}`}>
-                            <div className={`w-2 h-2 rounded-full ${formData.newPassword === formData.confirmPassword ? 'bg-green-500' : 'bg-gray-300'}`} />
+                        <li className={`flex items-center gap-2 ${formData.newPassword === formData.confirmPassword && formData.confirmPassword ? 'text-green-600' : ''}`}>
+                            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${formData.newPassword === formData.confirmPassword && formData.confirmPassword ? 'bg-green-500' : 'bg-gray-300'}`} />
                             <span>Пароли должны совпадать</span>
                         </li>
                     </ul>
@@ -264,7 +263,7 @@ export default function PasswordSettings({
                         onClick={handleChangePassword}
                         disabled={!canSave}
                         className={cn(
-                            "shadow-xl h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base w-full sm:w-auto transition-all",
+                            "shadow-xl h-11 sm:h-12 px-4 sm:px-6 text-sm sm:text-base w-full sm:w-auto transition-all",
                             canSave
                                 ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
                                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -275,24 +274,26 @@ export default function PasswordSettings({
                     </Button>
 
                     {!canSave && !isSaving && (
-                        <p className="text-xs text-gray-500 flex items-center gap-1">
-                            <Info className="h-3 w-3" />
-                            {!isCurrentPasswordValid
-                                ? 'Введите текущий пароль (минимум 6 символов)'
-                                : !isNewPasswordValid
-                                    ? 'Введите новый пароль (минимум 6 символов)'
-                                    : !isConfirmPasswordValid
-                                        ? 'Пароли должны совпадать'
-                                        : 'Заполните все поля'}
+                        <p className="text-xs text-gray-500 flex items-start gap-1">
+                            <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                            <span>
+                                {!isCurrentPasswordValid
+                                    ? 'Введите текущий пароль (минимум 6 символов)'
+                                    : !isNewPasswordValid
+                                        ? 'Введите новый пароль (минимум 6 символов)'
+                                        : !isConfirmPasswordValid
+                                            ? 'Пароли должны совпадать'
+                                            : 'Заполните все поля'}
+                            </span>
                         </p>
                     )}
                 </div>
 
                 {/* Дополнительная информация */}
-                <div className="bg-blue-50/50 border-2 border-blue-200 p-4 rounded-xl mt-4">
-                    <h4 className="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                        <Info className="h-4 w-4 text-blue-500" />
-                        Что произойдет после смены пароля:
+                <div className="bg-blue-50/50 border-2 border-blue-200 p-3 sm:p-4 rounded-xl">
+                    <h4 className="text-xs sm:text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                        <Info className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        <span>Что произойдет после смены пароля:</span>
                     </h4>
                     <ul className="space-y-1 text-xs text-gray-600">
                         <li className="flex items-start gap-2">

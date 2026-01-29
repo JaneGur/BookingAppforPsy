@@ -77,7 +77,7 @@ export default function SettingsPage() {
         } finally {
             setIsSaving(false)
         }
-    }, [workStart, workEnd, sessionDuration, handleSuccess, handleError, loadSettings])
+    }, [workStart, workEnd, sessionDuration, handleSuccess, handleError, loadSettings, setIsSaving])
 
     const handleSaveInfo = useCallback(async () => {
         setIsSaving(true)
@@ -102,7 +102,7 @@ export default function SettingsPage() {
         } finally {
             setIsSaving(false)
         }
-    }, [infoAdditional, handleSuccess, handleError, loadSettings])
+    }, [infoAdditional, handleSuccess, handleError, loadSettings, setIsSaving])
 
     const handleTestTelegram = useCallback(async () => {
         setIsSendingTest(true)
@@ -136,24 +136,24 @@ export default function SettingsPage() {
 
     if (isLoading) {
         return (
-            <div className="booking-page-surface min-h-screen p-4 sm:p-6 lg:p-8">
-                <div className="max-w-7xl mx-auto space-y-6">
-                    <div className="booking-card p-6">
-                        <Skeleton className="h-8 w-48 mb-2" />
-                        <Skeleton className="h-4 w-64" />
+            <div className="booking-page-surface min-h-screen p-3 sm:p-4 md:p-6 lg:p-8">
+                <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+                    <div className="booking-card p-4 sm:p-6">
+                        <Skeleton className="h-6 sm:h-8 w-40 sm:w-48 mb-2" />
+                        <Skeleton className="h-3 sm:h-4 w-48 sm:w-64" />
                     </div>
                     <div className="booking-card">
-                        <div className="p-6">
-                            <div className="flex gap-2 mb-6">
+                        <div className="p-4 sm:p-6">
+                            <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2">
                                 {Array.from({ length: 5 }).map((_, i) => (
-                                    <Skeleton key={i} className="h-10 w-32 rounded-lg" />
+                                    <Skeleton key={i} className="h-9 sm:h-10 w-28 sm:w-32 rounded-lg flex-shrink-0" />
                                 ))}
                             </div>
-                            <div className="space-y-4">
-                                <Skeleton className="h-12 w-full rounded-xl" />
-                                <Skeleton className="h-12 w-full rounded-xl" />
-                                <Skeleton className="h-12 w-full rounded-xl" />
-                                <Skeleton className="h-12 w-32 rounded-xl" />
+                            <div className="space-y-3 sm:space-y-4">
+                                <Skeleton className="h-10 sm:h-12 w-full rounded-xl" />
+                                <Skeleton className="h-10 sm:h-12 w-full rounded-xl" />
+                                <Skeleton className="h-10 sm:h-12 w-full rounded-xl" />
+                                <Skeleton className="h-10 sm:h-12 w-28 sm:w-32 rounded-xl" />
                             </div>
                         </div>
                     </div>
@@ -163,8 +163,8 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="booking-page-surface min-h-screen p-4 sm:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto space-y-6 animate-[fadeInUp_0.6s_ease-out]">
+        <div className="booking-page-surface min-h-screen p-3 sm:p-4 md:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 animate-[fadeInUp_0.6s_ease-out]">
                 <SettingsHeader />
                 <SettingsTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
