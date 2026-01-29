@@ -151,72 +151,72 @@ export function ClientNewBookingForm() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             {/* Выбор даты */}
             <Card className="booking-card">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-primary-500" />
-                        Выберите дату и время
+                <CardHeader className="pb-3 sm:pb-6">
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500 flex-shrink-0" />
+                        <span className="leading-tight">Выберите дату и время</span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="text-sm text-gray-600 mb-4 bg-primary-50/50 p-3 rounded-lg">
+                <CardContent className="space-y-4 sm:space-y-6">
+                    <div className="text-xs sm:text-sm text-gray-600 bg-primary-50/50 p-2.5 sm:p-3 rounded-lg">
                         ⏰ Всё время указано по Москве (МСК)
                     </div>
 
                     <div>
-                        <div className="flex items-center justify-between mb-4">
-                            <label className="text-base font-semibold text-gray-900">Выберите дату</label>
-                            <div className="flex items-center gap-4">
-                                <div className="text-sm font-medium text-gray-700">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                            <label className="text-sm sm:text-base font-semibold text-gray-900">Выберите дату</label>
+                            <div className="flex items-center gap-2 sm:gap-4">
+                                <div className="text-xs sm:text-sm font-medium text-gray-700">
                                     {format(currentMonth, 'MMMM yyyy', { locale: ru })}
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-1 sm:gap-2">
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         onClick={handlePreviousMonth}
                                         disabled={!canNavigateBack()}
-                                        className="h-8 w-8"
+                                        className="h-7 w-7 sm:h-8 sm:w-8"
                                     >
-                                        <ChevronLeft className="w-4 h-4" />
+                                        <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         onClick={handleNextMonth}
                                         disabled={!canNavigateForward()}
-                                        className="h-8 w-8"
+                                        className="h-7 w-7 sm:h-8 sm:w-8"
                                     >
-                                        <ChevronRight className="w-4 h-4" />
+                                        <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                     </Button>
                                 </div>
                             </div>
                         </div>
 
                         {/* Информация о доступном периоде */}
-                        <div className="mb-3 text-xs sm:text-sm text-gray-500 text-center bg-blue-50 border border-blue-100 rounded-lg p-2">
+                        <div className="mb-3 text-[10px] sm:text-sm text-gray-500 text-center bg-blue-50 border border-blue-100 rounded-lg p-2">
                             📅 Доступны даты с {format(today, 'd MMMM', { locale: ru })} по {format(maxDate, 'd MMMM yyyy', { locale: ru })}
                         </div>
 
-                        <div className="grid grid-cols-7 gap-2 mb-2">
+                        <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-1 sm:mb-2">
                             {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((day) => (
-                                <div key={day} className="text-center text-xs font-semibold text-gray-500 py-2">
+                                <div key={day} className="text-center text-[10px] sm:text-xs font-semibold text-gray-500 py-1 sm:py-2">
                                     {day}
                                 </div>
                             ))}
                         </div>
 
                         {monthDays.length === 0 ? (
-                            <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                <p className="text-gray-500 text-sm">В этом месяце нет доступных дат</p>
+                            <div className="text-center py-6 sm:py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                <p className="text-gray-500 text-xs sm:text-sm">В этом месяце нет доступных дат</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-7 gap-2">
+                            <div className="grid grid-cols-7 gap-1 sm:gap-2">
                                 {/* Пустые ячейки */}
                                 {Array.from({ length: emptyCells }).map((_, i) => (
-                                    <div key={`empty-${i}`} className="p-3" />
+                                    <div key={`empty-${i}`} className="p-2 sm:p-3" />
                                 ))}
 
                                 {monthDays.map((date) => {
@@ -232,17 +232,17 @@ export function ClientNewBookingForm() {
                                             onClick={() => isAvailable && setSelectedDate(date)}
                                             disabled={!isAvailable}
                                             className={cn(
-                                                'flex flex-col items-center justify-center p-3 rounded-xl transition-all border shadow-sm',
-                                                isAvailable && 'hover:border-primary-300 hover:bg-primary-50 cursor-pointer',
+                                                'flex flex-col items-center justify-center p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all border shadow-sm',
+                                                isAvailable && 'hover:border-primary-300 hover:bg-primary-50 cursor-pointer active:scale-95',
                                                 !isAvailable && 'opacity-40 cursor-not-allowed border-red-200 bg-red-50',
                                                 isSelected &&
-                                                'bg-gradient-to-br from-primary-400 to-primary-500 text-white border-primary-500 shadow-lg',
+                                                'bg-gradient-to-br from-primary-400 to-primary-500 text-white border-primary-500 shadow-lg scale-105',
                                                 !isSelected && isAvailable && 'border-gray-200 bg-white'
                                             )}
                                         >
                                             <span
                                                 className={cn(
-                                                    'text-xs uppercase mb-1',
+                                                    'text-[8px] sm:text-xs uppercase mb-0.5 sm:mb-1',
                                                     isSelected ? 'text-white/90' : isAvailable ? 'text-gray-500' : 'text-gray-400'
                                                 )}
                                             >
@@ -250,7 +250,7 @@ export function ClientNewBookingForm() {
                                             </span>
                                             <span
                                                 className={cn(
-                                                    'text-xl font-bold',
+                                                    'text-sm sm:text-xl font-bold',
                                                     isSelected ? 'text-white' : isAvailable ? 'text-gray-900' : 'text-gray-400'
                                                 )}
                                             >
@@ -259,7 +259,7 @@ export function ClientNewBookingForm() {
                                             {isToday && (
                                                 <span
                                                     className={cn(
-                                                        'text-[10px] mt-1 px-2 py-0.5 rounded-full',
+                                                        'text-[8px] sm:text-[10px] mt-0.5 sm:mt-1 px-1 sm:px-2 py-0.5 rounded-full',
                                                         isSelected
                                                             ? 'bg-white/20 text-white'
                                                             : 'bg-primary-100 text-primary-700'
@@ -269,7 +269,7 @@ export function ClientNewBookingForm() {
                                                 </span>
                                             )}
                                             {isBlocked && !isSelected && (
-                                                <span className="text-[10px] mt-1 text-red-600">🚫</span>
+                                                <span className="text-[8px] sm:text-[10px] mt-0.5 sm:mt-1 text-red-600">🚫</span>
                                             )}
                                         </button>
                                     )
@@ -280,9 +280,9 @@ export function ClientNewBookingForm() {
 
                     {/* Выбранная дата */}
                     {selectedDate && (
-                        <div className="bg-primary-50/50 p-4 rounded-xl">
-                            <div className="text-sm font-medium text-gray-600 mb-1">Выбранная дата</div>
-                            <div className="text-lg font-semibold text-gray-900">
+                        <div className="bg-primary-50/50 p-3 sm:p-4 rounded-xl">
+                            <div className="text-xs sm:text-sm font-medium text-gray-600 mb-1">Выбранная дата</div>
+                            <div className="text-base sm:text-lg font-semibold text-gray-900">
                                 {format(selectedDate, 'd MMMM yyyy', { locale: ru })}
                             </div>
                         </div>
@@ -291,31 +291,31 @@ export function ClientNewBookingForm() {
                     {/* Выбор времени */}
                     {selectedDate && (
                         <div className="animate-fadeIn">
-                            <div className="flex items-center gap-2 mb-4">
-                                <Clock className="w-5 h-5 text-primary-500" />
-                                <label className="text-base font-semibold text-gray-900">Выберите время</label>
+                            <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500 flex-shrink-0" />
+                                <label className="text-sm sm:text-base font-semibold text-gray-900">Выберите время</label>
                             </div>
 
                             {isSlotsLoading ? (
-                                <div className="text-center py-12">
-                                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-400 border-r-transparent"></div>
-                                    <p className="mt-3 text-sm text-gray-500">Загрузка слотов...</p>
+                                <div className="text-center py-8 sm:py-12">
+                                    <div className="inline-block h-6 w-6 sm:h-8 sm:w-8 animate-spin rounded-full border-3 sm:border-4 border-solid border-primary-400 border-r-transparent"></div>
+                                    <p className="mt-2 sm:mt-3 text-xs sm:text-sm text-gray-500">Загрузка слотов...</p>
                                 </div>
                             ) : availableSlots && availableSlots.length > 0 ? (
                                 <>
-                                    <p className="text-sm text-gray-600 mb-4 bg-green-50 border border-green-200 p-3 rounded-lg">
+                                    <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 bg-green-50 border border-green-200 p-2.5 sm:p-3 rounded-lg">
                                         ✅ Доступно {availableSlots.length}{' '}
                                         {availableSlots.length === 1 ? 'слот' : 'слотов'} на{' '}
                                         {format(selectedDate, 'd MMMM', { locale: ru })}
                                     </p>
-                                    <div className="grid grid-cols-4 gap-3">
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
                                         {availableSlots.map((slot) => (
                                             <Button
                                                 key={slot}
                                                 variant={selectedTime === slot ? 'default' : 'secondary'}
                                                 onClick={() => setSelectedTime(slot)}
                                                 className={cn(
-                                                    'h-14 text-base font-semibold',
+                                                    'h-11 sm:h-14 text-sm sm:text-base font-semibold active:scale-95',
                                                     selectedTime === slot && 'ring-2 ring-primary-300'
                                                 )}
                                             >
@@ -325,17 +325,17 @@ export function ClientNewBookingForm() {
                                     </div>
                                 </>
                             ) : (
-                                <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                    <p className="text-gray-500 text-base">😔 На эту дату нет свободных слотов</p>
-                                    <p className="text-sm text-gray-400 mt-2">Попробуйте выбрать другую дату</p>
+                                <div className="text-center py-8 sm:py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                    <p className="text-gray-500 text-sm sm:text-base">😔 На эту дату нет свободных слотов</p>
+                                    <p className="text-xs sm:text-sm text-gray-400 mt-2">Попробуйте выбрать другую дату</p>
                                 </div>
                             )}
                         </div>
                     )}
 
                     {selectedTime && (
-                        <div className="bg-green-50 border border-green-200 p-4 rounded-xl">
-                            <p className="text-sm text-green-800">
+                        <div className="bg-green-50 border border-green-200 p-3 sm:p-4 rounded-xl">
+                            <p className="text-xs sm:text-sm text-green-800">
                                 ✅ Выбрано: <strong>{format(selectedDate!, 'd MMMM yyyy', { locale: ru })} в {selectedTime}</strong>
                             </p>
                         </div>
@@ -345,19 +345,19 @@ export function ClientNewBookingForm() {
 
             {/* Выбор продукта */}
             <Card className="booking-card">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Package className="w-5 h-5 text-primary-500" />
-                        Выберите продукт
+                <CardHeader className="pb-3 sm:pb-6">
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                        <Package className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500 flex-shrink-0" />
+                        <span className="leading-tight">Выберите продукт</span>
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4">
                     {products.length === 0 ? (
-                        <div className="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                            <p className="text-gray-500">Нет доступных продуктов</p>
+                        <div className="text-center py-6 sm:py-8 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                            <p className="text-gray-500 text-xs sm:text-sm">Нет доступных продуктов</p>
                         </div>
                     ) : (
-                        <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="grid gap-2.5 sm:gap-3 sm:grid-cols-2">
                             {products.map((product) => {
                                 const isSelected = selectedProductId === product.id
                                 return (
@@ -366,8 +366,8 @@ export function ClientNewBookingForm() {
                                         type="button"
                                         onClick={() => setSelectedProductId(product.id)}
                                         className={cn(
-                                            'relative p-4 rounded-xl border transition-all text-left shadow-sm',
-                                            'hover:border-primary-300 hover:shadow-md',
+                                            'relative p-3 sm:p-4 rounded-xl border transition-all text-left shadow-sm',
+                                            'hover:border-primary-300 hover:shadow-md active:scale-98',
                                             isSelected
                                                 ? 'border-primary-500 bg-primary-50 shadow-md'
                                                 : 'border-gray-200 bg-white'
@@ -375,16 +375,16 @@ export function ClientNewBookingForm() {
                                     >
                                         {isSelected && (
                                             <div className="absolute top-2 right-2">
-                                                <div className="h-6 w-6 rounded-full bg-primary-500 flex items-center justify-center">
-                                                    <Check className="h-4 w-4 text-white" />
+                                                <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-primary-500 flex items-center justify-center">
+                                                    <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                                                 </div>
                                             </div>
                                         )}
-                                        <div className="font-semibold text-gray-900 mb-1 pr-8">{product.name}</div>
+                                        <div className="font-semibold text-sm sm:text-base text-gray-900 mb-1 pr-7 sm:pr-8">{product.name}</div>
                                         {product.description && (
-                                            <div className="text-sm text-gray-600 mb-2">{product.description}</div>
+                                            <div className="text-xs sm:text-sm text-gray-600 mb-2 line-clamp-2">{product.description}</div>
                                         )}
-                                        <div className="text-xl font-bold text-primary-600">
+                                        <div className="text-lg sm:text-xl font-bold text-primary-600">
                                             {product.price_rub.toLocaleString('ru-RU')} ₽
                                         </div>
                                     </button>
@@ -394,11 +394,11 @@ export function ClientNewBookingForm() {
                     )}
 
                     {selectedProductId && (
-                        <div className="mt-4 rounded-xl bg-gradient-to-r from-green-50 to-primary-50 border border-green-200/50 p-4 shadow-sm">
+                        <div className="mt-3 sm:mt-4 rounded-xl bg-gradient-to-r from-green-50 to-primary-50 border border-green-200/50 p-3 sm:p-4 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="text-sm text-gray-600 mb-1">💰 К оплате</div>
-                                    <div className="text-2xl font-bold text-primary-600">
+                                    <div className="text-xs sm:text-sm text-gray-600 mb-1">💰 К оплате</div>
+                                    <div className="text-xl sm:text-2xl font-bold text-primary-600">
                                         {products.find((p) => p.id === selectedProductId)?.price_rub.toLocaleString('ru-RU')} ₽
                                     </div>
                                 </div>
@@ -410,10 +410,10 @@ export function ClientNewBookingForm() {
 
             {/* Описание консультации */}
             <Card className="booking-card">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Info className="w-5 h-5 text-primary-500" />
-                        Описание консультации (необязательно)
+                <CardHeader className="pb-3 sm:pb-6">
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                        <Info className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500 flex-shrink-0" />
+                        <span className="leading-tight">Описание консультации <span className="text-sm text-gray-500">(необязательно)</span></span>
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -421,25 +421,25 @@ export function ClientNewBookingForm() {
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Опишите ваш запрос или вопросы, которые хотите обсудить..."
-                        className="flex min-h-[100px] w-full rounded-xl border border-primary-200/30 bg-white/95 backdrop-blur-sm px-4 py-3 text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/15 focus-visible:border-primary-400/60 focus-visible:shadow-md resize-none shadow-sm"
+                        className="flex min-h-[80px] sm:min-h-[100px] w-full rounded-xl border border-primary-200/30 bg-white/95 backdrop-blur-sm px-3 sm:px-4 py-2.5 sm:py-3 text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/15 focus-visible:border-primary-400/60 focus-visible:shadow-md resize-none shadow-sm"
                     />
                 </CardContent>
             </Card>
 
             {/* Ошибка */}
             {error && (
-                <div className="bg-red-50 border border-red-200 p-4 rounded-xl">
-                    <p className="text-sm text-red-800">{error}</p>
+                <div className="bg-red-50 border border-red-200 p-3 sm:p-4 rounded-xl">
+                    <p className="text-xs sm:text-sm text-red-800">{error}</p>
                 </div>
             )}
 
             {/* Кнопка создания */}
-            <div className="flex justify-end">
+            <div className="flex justify-end sticky bottom-0 sm:static bg-white sm:bg-transparent py-3 sm:py-0 -mx-4 px-4 sm:mx-0 sm:px-0 border-t sm:border-t-0 border-gray-200 sm:border-transparent">
                 <Button
                     onClick={handleCreateBooking}
                     disabled={!selectedDate || !selectedTime || !selectedProductId || createBooking.isPending}
                     size="lg"
-                    className="min-w-[200px]"
+                    className="w-full sm:min-w-[200px] sm:w-auto h-12 sm:h-11 text-base sm:text-sm"
                 >
                     {createBooking.isPending ? 'Создаём запись…' : '✅ Создать запись'}
                 </Button>
