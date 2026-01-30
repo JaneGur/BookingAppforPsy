@@ -280,6 +280,32 @@ export async function GET(request: NextRequest) {
 
         const offset = (page - 1) * limit
 
+        // Автоматически переводим прошедшие записи в статус completed
+        const now = new Date()
+        const { data: pastBookings } = await supabase
+            .from('bookings')
+            .select('id, booking_date, booking_time, status')
+            .in('status', ['confirmed', 'pending_payment'])
+
+        if (pastBookings && pastBookings.length > 0) {
+            const bookingsToComplete = pastBookings.filter((booking) => {
+                try {
+                    const bookingDateTime = new Date(`${booking.booking_date}T${booking.booking_time}:00+03:00`)
+                    return bookingDateTime < now
+                } catch {
+                    return false
+                }
+            })
+
+            if (bookingsToComplete.length > 0) {
+                const idsToUpdate = bookingsToComplete.map(b => b.id)
+                await supabase
+                    .from('bookings')
+                    .update({ status: 'completed', updated_at: now.toISOString() })
+                    .in('id', idsToUpdate)
+            }
+        }
+
         let query = supabase
             .from('bookings')
             .select(`

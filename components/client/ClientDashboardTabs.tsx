@@ -1,24 +1,38 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { Calendar, Home, LineChart, MessageSquare, User, Mail, Phone, Lock, Bell, BellOff, CheckCircle, Menu, X, ChevronRight } from 'lucide-react'
+import {useEffect, useMemo, useState} from 'react'
+import {useRouter, useSearchParams} from 'next/navigation'
+import {useSession} from 'next-auth/react'
+import {
+    Bell,
+    BellOff,
+    Calendar,
+    CheckCircle,
+    ChevronRight,
+    Home,
+    LineChart,
+    Lock,
+    Mail,
+    Menu,
+    MessageSquare,
+    Phone,
+    User,
+    X
+} from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Booking } from '@/types/booking'
-import { formatDistanceToNowStrict } from 'date-fns'
-import { ru } from 'date-fns/locale'
-import { useClientBookings, usePendingBooking, useUpcomingBooking } from '@/lib/hooks/useBookings'
-import { BookingActions } from '@/components/client/BookingActions'
-import { ClientNewBookingForm } from '@/components/client/ClientNewBookingForm'
-import { TelegramConnect } from '@/components/client/TelegramConnect'
-import { formatDateRu } from '@/lib/utils/date'
-import { ClientBookingsCalendar } from '@/components/client/ClientBookingsCalendar'
-import { cn } from '@/lib/utils/cn'
+import {Button} from '@/components/ui/button'
+import {Card, CardContent} from '@/components/ui/card'
+import {Input} from '@/components/ui/input'
+import {Booking} from '@/types/booking'
+import {formatDistanceToNowStrict} from 'date-fns'
+import {ru} from 'date-fns/locale'
+import {useClientBookings, usePendingBooking, useUpcomingBooking} from '@/lib/hooks/useBookings'
+import {BookingActions} from '@/components/client/BookingActions'
+import {ClientNewBookingForm} from '@/components/client/ClientNewBookingForm'
+import {TelegramConnect} from '@/components/client/TelegramConnect'
+import {formatDateRu} from '@/lib/utils/date'
+import {ClientBookingsCalendar} from '@/components/client/ClientBookingsCalendar'
+import {cn} from '@/lib/utils/cn'
 
 type TabKey = 'home' | 'new' | 'history' | 'profile' | 'telegram'
 
@@ -121,7 +135,13 @@ export function ClientDashboardTabs() {
 
     const upcomingConfirmed = useMemo(() => {
         if (!Array.isArray(bookings)) return []
-        const list = bookings.filter((b: Booking) => b.status === 'confirmed')
+        const now = new Date()
+        // Фильтруем только подтвержденные записи, дата и время которых еще не наступили
+        const list = bookings.filter((b: Booking) => {
+            if (b.status !== 'confirmed') return false
+            const bookingDateTime = new Date(`${b.booking_date}T${b.booking_time}:00+03:00`)
+            return bookingDateTime > now
+        })
         list.sort((a: Booking, b: Booking) => {
             const aDt = Date.parse(`${a.booking_date}T${a.booking_time}:00+03:00`)
             const bDt = Date.parse(`${b.booking_date}T${b.booking_time}:00+03:00`)

@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
         const normalizedPhone = normalizePhone(phone)
         const today = new Date().toISOString().slice(0, 10)
 
+        // Получаем все записи со статусом confirmed или pending_payment начиная с сегодня
         const { data, error } = await supabase
             .from('bookings')
             .select('*')
@@ -22,14 +23,24 @@ export async function GET(request: NextRequest) {
             .gte('booking_date', today)
             .order('booking_date', { ascending: true })
             .order('booking_time', { ascending: true })
-            .limit(1)
-            .maybeSingle()
 
         if (error) {
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
-        return NextResponse.json(data ?? null)
+        // Фильтруем записи: только те, у которых дата/время еще не наступили
+        const now = new Date()
+        const upcomingBookings = (data || []).filter((booking) => {
+            try {
+                const bookingDateTime = new Date(`${booking.booking_date}T${booking.booking_time}:00+03:00`)
+                return bookingDateTime > now
+            } catch {
+                return false
+            }
+        })
+
+        // Возвращаем первую (ближайшую) запись или null
+        return NextResponse.json(upcomingBookings[0] ?? null)
     } catch (e) {
         console.error('Upcoming booking error:', e)
         return NextResponse.json({ error: 'Не удалось получить ближайшую запись' }, { status: 500 })
