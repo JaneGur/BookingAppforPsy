@@ -114,13 +114,13 @@ export default function PaymentPage() {
                             <ArrowLeft className="h-4 w-4" />
                             Вернуться на главную
                         </Button>
-                        <Button
-                            onClick={() => router.push('/client')}
-                            className="flex items-center gap-2"
-                        >
-                            <CreditCard className="h-4 w-4" />
-                            В личный кабинет
-                        </Button>
+                        {/*<Button*/}
+                        {/*    onClick={() => router.push('/')}*/}
+                        {/*    className="flex items-center gap-2"*/}
+                        {/*>*/}
+                        {/*    <CreditCard className="h-4 w-4" />*/}
+                        {/*    В личный кабинет*/}
+                        {/*</Button>*/}
                     </div>
 
                     {/* Дополнительная информация */}
